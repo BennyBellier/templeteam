@@ -29,7 +29,7 @@ const MenuLink = ({
         className={`${
           subMenu ? "text-2xl 1050:text-lg" : "text-3xl 1050:text-xl"
         } transition-color ease whitespace-nowrap font-extrabold duration-300 hover:text-neutral-500 dark:text-neutral-50 dark:hover:text-neutral-400 1050:font-normal ${
-          router.pathname == href
+            router.pathname.includes(href)
             ? "1050:border-b-2 1050:border-neutral-800 dark:1050:border-neutral-100"
             : ""
         } `}
