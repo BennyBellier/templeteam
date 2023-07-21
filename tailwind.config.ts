@@ -12,6 +12,7 @@ export default {
       screens: {
         "1050": "1050px",
       },
+      display: ["group-hover"],
       colors: {
         red: {
           450: "#f25c69",

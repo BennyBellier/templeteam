@@ -9,10 +9,17 @@ import ThemeButton from "./theme";
 interface HamburgerMenuProps {
   isActive: boolean;
   setActive: Dispatch<SetStateAction<boolean>>;
-};
+}
 
-const MenuLink = ({ href, subMenu, children }: { href: string; subMenu?: boolean; children: ReactNode }) => {
-
+const MenuLink = ({
+  href,
+  subMenu,
+  children,
+}: {
+  href: string;
+  subMenu?: boolean;
+  children: ReactNode;
+}) => {
   const router = useRouter();
 
   return (
@@ -21,7 +28,7 @@ const MenuLink = ({ href, subMenu, children }: { href: string; subMenu?: boolean
         href={href}
         className={`${
           subMenu ? "text-2xl 1050:text-lg" : "text-3xl 1050:text-xl"
-        } transition-color ease whitespace-nowrap font-extrabold 1050:font-normal duration-300 hover:text-neutral-500 dark:text-neutral-50 dark:hover:text-neutral-400 ${
+        } transition-color ease whitespace-nowrap font-extrabold duration-300 hover:text-neutral-500 dark:text-neutral-50 dark:hover:text-neutral-400 1050:font-normal ${
           router.pathname == href
             ? "1050:border-b-2 1050:border-neutral-800 dark:1050:border-neutral-100"
             : ""
@@ -31,7 +38,7 @@ const MenuLink = ({ href, subMenu, children }: { href: string; subMenu?: boolean
       </Link>
     </>
   );
-}
+};
 
 const useWindowSize = () => {
   // Initialize state with undefined width/height so server and client renders match
@@ -87,8 +94,7 @@ const HeaderLogo = () => {
           }
         }
       });
-    }
-    );
+    });
 
     observer.observe(document.querySelector("html") as Node, {
       attributes: true,
@@ -96,36 +102,20 @@ const HeaderLogo = () => {
 
     return () => {
       observer.disconnect();
-    }
-  }
-  );
+    };
+  });
 
   if (size.width >= 1050) {
     return (
-      <Image
-        src={logo}
-        alt="Logo de la Temple Team"
-        width={70}
-        height={70}
-      />
+      <Image src={logo} alt="Logo de la Temple Team" width={70} height={70} />
     );
   } else if (size.width < 1050 && size.width >= 768) {
     return (
-      <Image
-        src={logo}
-        alt="Logo de la Temple Team"
-        width={60}
-        height={60}
-      />
+      <Image src={logo} alt="Logo de la Temple Team" width={60} height={60} />
     );
   } else {
     return (
-      <Image
-        src={logo}
-        alt="Logo de la Temple Team"
-        width={50}
-        height={50}
-      />
+      <Image src={logo} alt="Logo de la Temple Team" width={50} height={50} />
     );
   }
 };
@@ -138,36 +128,40 @@ const AssociationDropdownMenu = () => {
     setOpen(!open);
   };
 
-
-
   return (
     <>
       <button
         onClick={handleOpen}
-        className="flex items-center justify-center gap-1 hover:text-neutral-500 dark:text-neutral-50"
+        className="peer group flex items-center justify-center gap-1 hover:text-neutral-500 dark:text-neutral-50"
       >
-        <MenuLink href={size.width >= 1050 ? '' : '/association'}>Association</MenuLink>
+        <MenuLink href="/association">Association</MenuLink>
         <BiChevronDown
-          className={`inline-block transition-transform duration-300 ease-in-out ${
+          className={`inline-block transition-transform duration-300 ease-in-out group-hover:rotate-180 ${
             open ? "rotate-180" : ""
           } hidden 1050:block`}
         />
       </button>
-      {open || size.width < 1050 ? (
-        <ul className="flex flex-col gap-y-3 px-10 py-1 pt-4 dark:bg-neutral-800 1050:absolute 1050:gap-1 1050:rounded-md 1050:bg-neutral-100 1050:px-4 1050:py-2 1050:shadow-neutral-900 1050:drop-shadow-xl">
-          <li className="hidden 1050:inline-block">
-            <MenuLink subMenu href="/association">Acceuil</MenuLink>
-          </li>
-          <li>
-            <MenuLink subMenu href="/association/stage">Stage</MenuLink>
-          </li>
-          <li>
-            <MenuLink subMenu href="/association/samedi_sportif">
-              Samedi sportif
-            </MenuLink>
-          </li>
-        </ul>
-      ) : null}
+      <ul
+        className={`${
+          open || size.width < 1050 ? "flex" : "hidden"
+        } peer-hover:flex flex-col gap-y-3 px-10 py-1 pt-4 hover:flex dark:bg-neutral-800 1050:absolute 1050:gap-1 1050:rounded-md 1050:bg-neutral-100 1050:px-4 1050:py-2 1050:shadow-neutral-900 1050:drop-shadow-xl`}
+      >
+        <li className="hidden 1050:inline-block">
+          <MenuLink subMenu href="/association">
+            Acceuil
+          </MenuLink>
+        </li>
+        <li>
+          <MenuLink subMenu href="/association/stage">
+            Stage
+          </MenuLink>
+        </li>
+        <li>
+          <MenuLink subMenu href="/association/samedi_sportif">
+            Samedi sportif
+          </MenuLink>
+        </li>
+      </ul>
     </>
   );
 };
@@ -186,7 +180,7 @@ const HamburgerMenu = ({ isActive, setActive }: HamburgerMenuProps) => {
       onClick={handleToggle}
     >
       <span className="hamburger-box">
-        <span className="hamburger-inner bg-neutral-800 after:bg-neutral-800 before:bg-neutral-800 dark:before:bg-neutral-50 dark:bg-neutral-50 dark:after:bg-neutral-50"></span>
+        <span className="hamburger-inner bg-neutral-800 before:bg-neutral-800 after:bg-neutral-800 dark:bg-neutral-50 dark:before:bg-neutral-50 dark:after:bg-neutral-50"></span>
       </span>
     </button>
   );
