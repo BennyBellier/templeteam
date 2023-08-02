@@ -10,6 +10,11 @@
     padding-left: calc((100vw - 1050px) / 2);
     padding-right: calc((100vw - 1050px) / 2);
   }
+
+  footer {
+    padding-left: calc((100vw - 1050px) / 2);
+    padding-right: calc((100vw - 1050px) / 2);
+  }
 }
 
 body {

@@ -3,8 +3,10 @@ import { useRouter } from "next/router";
 import Image from "next/image";
 import type { Dispatch, SetStateAction, ReactNode } from "react";
 import { useState, useEffect } from "react";
-import { BiChevronDown } from "react-icons/bi";
-import ThemeButton from "./theme";
+import { ThemeButtonTypes } from "./elements";
+import { ThemeButton, Expand } from "./elements";
+import type { LinkProps, LinkGroupProps } from "./links";
+import { groupedLinks } from "./links";
 
 interface HamburgerMenuProps {
   isActive: boolean;
@@ -28,11 +30,9 @@ const MenuLink = ({
         href={href}
         className={`${
           subMenu ? "text-2xl 1050:text-lg" : "text-3xl 1050:text-xl"
-        } transition-color ease whitespace-nowrap font-extrabold duration-300 hover:text-neutral-500 dark:text-neutral-50 dark:hover:text-neutral-400 1050:font-normal ${
-            router.pathname.includes(href)
-            ? "1050:border-b-2 1050:border-neutral-800 dark:1050:border-neutral-100"
-            : ""
-        } `}
+        } transition-color ease w-min whitespace-nowrap font-extrabold duration-300 hover:text-neutral-500 dark:text-neutral-50 dark:hover:text-neutral-400 1050:font-normal ${
+          router.pathname.includes(href) ? "1050:after:scale-x-100" : ""
+        } after:mcontent-[''] after:ease after:transition-width flex flex-col after:w-full after:scale-x-0 after:transform after:border-b-2 after:border-neutral-800 after:duration-300 hover:after:scale-x-100 dark:after:border-neutral-100`}
       >
         {children}
       </Link>
@@ -120,7 +120,7 @@ const HeaderLogo = () => {
   }
 };
 
-const AssociationDropdownMenu = () => {
+const DropdownMenu = ({ group }: { group: LinkGroupProps }) => {
   const [open, setOpen] = useState(false);
   const size = useWindowSize();
 
@@ -129,40 +129,35 @@ const AssociationDropdownMenu = () => {
   };
 
   return (
-    <>
-      <button
-        onClick={handleOpen}
-        className="peer group flex items-center justify-center gap-1 hover:text-neutral-500 dark:text-neutral-50"
-      >
-        <MenuLink href="/association">Association</MenuLink>
-        <BiChevronDown
-          className={`inline-block transition-transform duration-300 ease-in-out group-hover:rotate-180 ${
-            open ? "rotate-180" : ""
-          } hidden 1050:block`}
-        />
+    <li className="group" onClick={handleOpen}>
+      <button className="flex items-center justify-center gap-1 hover:text-neutral-500 dark:text-neutral-50">
+        <MenuLink href={group.root}>{group.name}</MenuLink>
+        <Expand isOpen={open} className="hidden 1050:block" />
       </button>
       <ul
         className={`${
-          open || size.width < 1050 ? "flex" : "hidden"
-        } peer-hover:flex flex-col gap-y-3 px-10 py-1 pt-4 hover:flex dark:bg-neutral-800 1050:absolute 1050:gap-1 1050:rounded-md 1050:bg-neutral-100 1050:px-4 1050:py-2 1050:shadow-neutral-900 1050:drop-shadow-xl`}
+          open || size.width < 1050
+            ? "opacity-100 rotate-x-0"
+            : "opacity-0 -rotate-x-90"
+        } flex origin-top-center flex-col gap-y-4 px-10 py-2 delay-100 duration-300 ease-out group-hover:opacity-100 group-hover:rotate-x-0 dark:bg-neutral-800 1050:absolute transition-transform 1050:gap-1 1050:rounded-md 1050:bg-neutral-100 1050:px-4 1050:py-2 1050:shadow-neutral-900 1050:drop-shadow-xl`}
       >
-        <li className="hidden 1050:inline-block">
-          <MenuLink subMenu href="/association">
-            Acceuil
-          </MenuLink>
-        </li>
-        <li>
-          <MenuLink subMenu href="/association/stage">
-            Stage
-          </MenuLink>
-        </li>
-        <li>
-          <MenuLink subMenu href="/association/samedi_sportif">
-            Samedi sportif
-          </MenuLink>
-        </li>
+        {group.links.map((link: LinkProps) =>
+          link.href === group.root ? (
+            <li key={link.name} className="hidden 1050:inline-block">
+              <MenuLink href={link.href} subMenu>
+                {link.name}
+              </MenuLink>
+            </li>
+          ) : (
+            <li key={link.name}>
+              <MenuLink href={link.href} subMenu>
+                {link.name}
+              </MenuLink>
+            </li>
+          )
+        )}
       </ul>
-    </>
+    </li>
   );
 };
 
@@ -191,8 +186,10 @@ export default function Navigation() {
   const size = useWindowSize();
 
   return (
-    <nav className="fixed h-full w-full font-display 1050:left-0 1050:top-0 1050:flex 1050:h-min 1050:w-full 1050:justify-between 1050:bg-neutral-50 1050:py-2 dark:1050:bg-neutral-800">
-      <div className="fixed flex h-[60px] w-full flex-row justify-between bg-neutral-50 dark:bg-neutral-800 md:h-[70px] 1050:static 1050:h-[80px] 1050:justify-normal 1050:bg-transparent">
+    <nav
+      className={`fixed max-h-[60px] overflow-hidden-x font-display md:max-h-[70px] 1050:left-0 1050:top-0 1050:flex 1050:h-min 1050:max-h-[80px] 1050:w-full 1050:justify-between 1050:bg-neutral-50 1050:py-2 dark:1050:bg-neutral-800`}
+    >
+      <div className="fixed flex h-[60px] w-full flex-row justify-between bg-neutral-50 dark:bg-neutral-800 md:h-[70px] 1050:static 1050:block 1050:h-[80px] 1050:justify-normal 1050:bg-transparent">
         <Link
           href="/"
           className="flex items-center justify-center px-2 transition-transform duration-300 ease-out hover:scale-90 hover:ease-in"
@@ -202,37 +199,27 @@ export default function Navigation() {
         <HamburgerMenu isActive={isActive} setActive={setActive} />
       </div>
       <div
-        className={`relative top-[60px] flex h-full flex-col gap-10 bg-neutral-50 dark:bg-neutral-800 md:top-[70px] 1050:h-min 1050:items-center ${
+        className={`relative top-[60px] flex h-screen w-screen flex-col gap-10 bg-neutral-50 dark:bg-neutral-800 md:top-[70px] 1050:h-min 1050:items-center ${
           isActive ? "translate-x-0" : "translate-x-full"
         } ease px-8 pt-5 transition-transform duration-1000 1050:static 1050:top-0 1050:translate-x-0 1050:flex-row 1050:gap-10`}
       >
         <ul className="flex w-full flex-col gap-x-2 gap-y-5 1050:flex-row 1050:gap-x-4">
-          <li>
-            <MenuLink href="/">Acceuil</MenuLink>
-          </li>
-          <li>
-            <MenuLink href="/la-team">La Team</MenuLink>
-          </li>
-          <li>
-            <MenuLink href="/medias">Médias</MenuLink>
-          </li>
-          <li>
-            <MenuLink href="/blog">Blog</MenuLink>
-          </li>
-          <li>
-            <MenuLink href="/references">Références</MenuLink>
-          </li>
-          <li>
-            <MenuLink href="/contact">Contact</MenuLink>
-          </li>
-          <li>
-            <AssociationDropdownMenu />
-          </li>
+          {groupedLinks.map((group) =>
+            group.name === "Temple Team" ? (
+              group.links.map((link) => (
+                <li key={link.href}>
+                  <MenuLink href={link.href}>{link.name}</MenuLink>
+                </li>
+              ))
+            ) : (
+              <DropdownMenu key={group.name} group={group} />
+            )
+          )}
         </ul>
         {size.width >= 1050 ? (
-          <ThemeButton logoOnly={true} size={1.35} />
+          <ThemeButton type={ThemeButtonTypes.DesktopNav} size={1.35} />
         ) : (
-          <ThemeButton logoOnly={false} size={1.35} />
+          <ThemeButton type={ThemeButtonTypes.MobileNav} size={1.6} />
         )}
       </div>
     </nav>
