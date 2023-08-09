@@ -26,6 +26,9 @@ export default {
       transitionProperty: {
         height: "height",
       },
+      dropShadow: {
+        contact: "0.25rem 2px 3px rgb(38 38 38 / var(--tw-border-opacity))",
+      },
     },
   },
   plugins: [

@@ -11,6 +11,7 @@ export enum ThemeButtonTypes {
 interface ThemeButtonProps {
   type: ThemeButtonTypes;
   size?: number;
+  className?: string;
 }
 
 interface ThemeLogoProps {
@@ -36,7 +37,7 @@ const ThemeLogo = ({ theme, size, className }: ThemeLogoProps) => {
   );
 };
 
-export const ThemeButton = ({ type, size }: ThemeButtonProps) => {
+export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
   const [theme, setTheme] = useState("light");
 
   const toggleTheme = () => {
@@ -53,41 +54,41 @@ export const ThemeButton = ({ type, size }: ThemeButtonProps) => {
     case ThemeButtonTypes.MobileNav:
       return (
         <button
-          className={"group ease w-${width} h-${height} flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-3xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20"}
+          className={
+            "ease w-${width} h-${height} group flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-3xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20 " + className
+          }
           onClick={toggleTheme}
         >
           Thème {theme === "light" ? "sombre" : "clair"}{" "}
-          <ThemeLogo theme={theme} size={size} className="text-neutral-50 dark:text-neutral-800"/>
+          <ThemeLogo
+            theme={theme}
+            size={size}
+            className="text-neutral-50 dark:text-neutral-800"
+          />
         </button>
       );
 
     case ThemeButtonTypes.DesktopNav:
       return (
         <button
-          className={"fill-neutral-800 dark:fill-neutral-50"}
-          onClick={toggleTheme}
-        >
-          <ThemeLogo theme={theme} size={size} className="fill-neutral-800 dark:fill-neutral-50"/>
-        </button>
-      );
-
-    case ThemeButtonTypes.Footer:
-      return (
-        <button
-          className={"dark:fill-neutral-50"}
+          className={"fill-neutral-800 dark:fill-neutral-50 " + className}
           onClick={toggleTheme}
         >
           <ThemeLogo
             theme={theme}
             size={size}
-            className="fill-neutral-50"
+            className="fill-neutral-800 dark:fill-neutral-50"
           />
         </button>
       );
+
+    case ThemeButtonTypes.Footer:
+      return (
+        <button className={"dark:fill-neutral-50 " + className} onClick={toggleTheme}>
+          <ThemeLogo theme={theme} size={size} className="fill-neutral-50" />
+        </button>
+      );
   }
-
-
-
 };
 
 const HiGlobeAlt = ({ className }: { className?: string }) => {
@@ -120,7 +121,7 @@ export const Expand = ({
     <HiChevronDown
       className={`block transition-transform duration-300 ease-in-out group-hover:rotate-180 ${
         isOpen ? "rotate-180" : ""
-      } ${className ?? ''}`}
+      } ${className ?? ""}`}
     />
   );
 };
@@ -162,12 +163,47 @@ export const LangDropdown = () => {
         ${isOpen ? "opacity-100 rotate-x-0" : "opacity-0 rotate-x-90"}`}
       >
         <li>
-          <Link href="/" className="hover:text-neutral-300">Français</Link>
+          <Link href="/" className="hover:text-neutral-300">
+            Français
+          </Link>
         </li>
         <li>
-          <Link href="/en" className="hover:text-neutral-300">English</Link>
+          <Link href="/en" className="hover:text-neutral-300">
+            English
+          </Link>
         </li>
       </ul>
     </div>
   );
+};
+
+export const useWindowSize = () => {
+  // Initialize state with undefined width/height so server and client renders match
+  // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
+  const [windowSize, setWindowSize] = useState({
+    width: 0,
+    height: 0,
+  });
+
+  useEffect(() => {
+    // only execute all the code below in client side
+    // Handler to call on window resize
+    function handleResize() {
+      // Set window width/height to state
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+
+    // Add event listener
+    window.addEventListener("resize", handleResize);
+
+    // Call handler right away so state gets updated with initial window size
+    handleResize();
+
+    // Remove event listener on cleanup
+    return () => window.removeEventListener("resize", handleResize);
+  }, []); // Empty array ensures that effect is only run on mount
+  return windowSize;
 };

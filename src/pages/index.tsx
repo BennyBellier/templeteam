@@ -4,6 +4,7 @@ import Link from "next/link";
 import { api } from "~/utils/api";
 import Navigation from "./components/navigation";
 import Footer from "./components/footer";
+import ContactBar from "./components/contact_bar";
 
 export default function Home() {
   // const hello = api.example.hello.useQuery({ text: "from tRPC" });
@@ -53,6 +54,7 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <ContactBar />
       <Footer />
     </>
   );
