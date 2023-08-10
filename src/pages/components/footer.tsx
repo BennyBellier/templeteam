@@ -130,8 +130,8 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] }) => {
         }}
       >
         {links.map((link: LinkProps) => (
-          <li key={link.name} className="text-lg font-light 1050:text-sm 1050:w-full">
-            <Link href={link.href}>{link.name}</Link>
+          <li key={link.name} className="group text-lg font-light 1050:text-sm 1050:w-full hover:text-neutral-500 ease duration-200">
+            <Link href={link.href} className="after:content-[''] after:ease after:transition-width flex flex-col after:border-b after:border-neutral-500 w-fit after:scale-x-0 group-hover:after:scale-x-100 after:origin-left after:ease after:duration-300">{link.name}</Link>
           </li>
         ))}
       </ul>
@@ -167,7 +167,7 @@ export default function Footer() {
         <LangDropdown />
         <ThemeButton type={ThemeButtonTypes.Footer} size={1.2} className="1050:mr-9"/>
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-2 border-t border-neutral-50/50 pb-2 pt-5 font-light 1050:flex-nowrap 1050:col-span-3 1050:h-fit">
+      <div className="flex w-full flex-wrap items-center justify-between gap-5 border-t border-neutral-50/50 pb-2 pt-5 font-light 1050:flex-nowrap 1050:col-span-3 1050:h-fit">
         <SmallPrint />
       </div>
     </footer>

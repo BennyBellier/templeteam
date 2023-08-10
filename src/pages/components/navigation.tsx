@@ -31,7 +31,7 @@ const MenuLink = ({
           subMenu ? "text-2xl 1050:text-lg" : "text-3xl 1050:text-xl"
         } transition-color ease w-min whitespace-nowrap font-extrabold duration-300 hover:text-neutral-500 dark:text-neutral-50 dark:hover:text-neutral-400 1050:font-normal ${
           router.pathname.includes(href) ? "1050:after:scale-x-100" : ""
-        } after:mcontent-[''] after:ease after:transition-width flex flex-col after:w-full after:scale-x-0 after:transform after:border-b-2 after:border-neutral-800 after:duration-300 hover:after:scale-x-100 dark:after:border-neutral-100`}
+        } after:content-[''] after:ease after:transition-width flex flex-col after:w-full after:scale-x-0 after:transform after:border-b-2 after:border-neutral-800 after:duration-300 hover:after:scale-x-100 dark:after:border-neutral-100`}
       >
         {children}
       </Link>
@@ -155,9 +155,10 @@ export default function Navigation() {
 
   return (
     <nav
+      id="main-nav"
       className={`fixed max-h-[60px] overflow-hidden-x font-display md:max-h-[70px] 1050:left-0 1050:top-0 1050:flex 1050:h-min 1050:max-h-[80px] 1050:w-full 1050:justify-between 1050:bg-neutral-50 1050:py-2 dark:1050:bg-neutral-800`}
     >
-      <div className="fixed flex h-[60px] w-full flex-row justify-between bg-neutral-50 dark:bg-neutral-800 md:h-[70px] 1050:static 1050:block 1050:h-[80px] 1050:justify-normal 1050:bg-transparent">
+      <div className="fixed flex h-[60px] w-full flex-row justify-between md:h-[70px] 1050:static 1050:block 1050:h-[80px] 1050:justify-normal bg-neutral-50 1050:bg-transparent">
         <Link
           href="/"
           className="flex items-center justify-center px-2 transition-transform duration-300 ease-out hover:scale-90 hover:ease-in"

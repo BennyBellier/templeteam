@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
 import Link from "next/link";
 import { HiChevronDown, HiMoon, HiSun } from "react-icons/hi2";
 
@@ -22,19 +23,9 @@ interface ThemeLogoProps {
 
 const ThemeLogo = ({ theme, size, className }: ThemeLogoProps) => {
   if (theme === "light") {
-    return (
-      <HiMoon
-        size={size + "rem"}
-        className={`ease duration-300 group-hover:fill-neutral-50 ${className}`}
-      />
-    );
+    return <HiMoon size={size + "rem"} className={className} />;
   }
-  return (
-    <HiSun
-      size={size + "rem"}
-      className={`ease duration-300 group-hover:fill-neutral-800 ${className}`}
-    />
-  );
+  return <HiSun size={size + "rem"} className={className} />;
 };
 
 export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
@@ -55,7 +46,8 @@ export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
       return (
         <button
           className={
-            "ease w-${width} h-${height} group flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-3xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20 " + className
+            "ease w-${width} h-${height} group flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-3xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20 " +
+            className
           }
           onClick={toggleTheme}
         >
@@ -70,22 +62,24 @@ export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
 
     case ThemeButtonTypes.DesktopNav:
       return (
-        <button
-          className={"fill-neutral-800 dark:fill-neutral-50 " + className}
-          onClick={toggleTheme}
-        >
+        <button className={"group " + className} onClick={toggleTheme}>
           <ThemeLogo
             theme={theme}
             size={size}
-            className="fill-neutral-800 dark:fill-neutral-50"
+            className={
+              "ease fill-neutral-800 duration-200 group-hover:scale-105 dark:fill-neutral-50"
+            }
           />
         </button>
       );
 
     case ThemeButtonTypes.Footer:
       return (
-        <button className={"dark:fill-neutral-50 " + className} onClick={toggleTheme}>
-          <ThemeLogo theme={theme} size={size} className="fill-neutral-50" />
+        <button
+          className={"group " + className}
+          onClick={toggleTheme}
+        >
+          <ThemeLogo theme={theme} size={size} className="fill-neutral-50 group-hover:scale-105 ease duration-200" />
         </button>
       );
   }
@@ -129,6 +123,7 @@ export const Expand = ({
 export const LangDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const router = useRouter();
 
   const handleOpen = () => {
     setIsOpen(!isOpen);
@@ -163,12 +158,12 @@ export const LangDropdown = () => {
         ${isOpen ? "opacity-100 rotate-x-0" : "opacity-0 rotate-x-90"}`}
       >
         <li>
-          <Link href="/" className="hover:text-neutral-300">
+          <Link href={router.pathname.replace('en/', '')} className="hover:text-neutral-500 ease duration-100">
             Français
           </Link>
         </li>
         <li>
-          <Link href="/en" className="hover:text-neutral-300">
+          <Link href={"en" + router.pathname} className="hover:text-neutral-500 ease duration-100">
             English
           </Link>
         </li>
