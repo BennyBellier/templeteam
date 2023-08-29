@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { HiChevronDown, HiMoon, HiSun } from "react-icons/hi2";
@@ -22,36 +22,68 @@ interface ThemeLogoProps {
 }
 
 const ThemeLogo = ({ theme, size, className }: ThemeLogoProps) => {
-  if (theme === "light") {
-    return <HiMoon size={size + "rem"} className={className} />;
-  }
-  return <HiSun size={size + "rem"} className={className} />;
+  return (
+    <div className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden">
+      <HiMoon size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'light' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
+      <HiSun size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'dark' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
+    </div>
+  );
 };
 
 export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
   const [theme, setTheme] = useState("light");
+  const [text, setText] = useState("Thème sombre");
 
   const toggleTheme = () => {
     if (theme === "light") {
-      setTheme("dark");
       document.documentElement.classList.add("dark");
     } else {
-      setTheme("light");
       document.documentElement.classList.remove("dark");
     }
   };
+
+  useEffect(() => {
+    function handleThemeChange(theme: string) {
+      if (theme === "light") {
+        setText("Thème sombre");
+        setTheme("light");
+      } else {
+        setText("Thème clair");
+        setTheme("dark");
+      }
+    }
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === "class") {
+          const htmlClasses = document.querySelector("html")?.classList;
+          if (htmlClasses) {
+            handleThemeChange(htmlClasses.contains("dark") ? "dark" : "light");
+          }
+        }
+      });
+    });
+
+    observer.observe(document.querySelector("html") as Node, {
+      attributes: true,
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  });
 
   switch (type) {
     case ThemeButtonTypes.MobileNav:
       return (
         <button
           className={
-            "ease w-${width} h-${height} group flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-3xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20 " +
+            "ease w-${width} h-${height} group flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-2xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20 " +
             className
           }
           onClick={toggleTheme}
         >
-          Thème {theme === "light" ? "sombre" : "clair"}{" "}
+          {text}
           <ThemeLogo
             theme={theme}
             size={size}
@@ -67,7 +99,7 @@ export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
             theme={theme}
             size={size}
             className={
-              "ease fill-neutral-800 duration-200 group-hover:scale-105 dark:fill-neutral-50"
+              "fill-neutral-800 dark:fill-neutral-50"
             }
           />
         </button>
@@ -75,11 +107,12 @@ export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
 
     case ThemeButtonTypes.Footer:
       return (
-        <button
-          className={"group " + className}
-          onClick={toggleTheme}
-        >
-          <ThemeLogo theme={theme} size={size} className="fill-neutral-50 group-hover:scale-105 ease duration-200" />
+        <button className={"group " + className} onClick={toggleTheme}>
+          <ThemeLogo
+            theme={theme}
+            size={size}
+            className="fill-neutral-50"
+          />
         </button>
       );
   }
@@ -158,12 +191,18 @@ export const LangDropdown = () => {
         ${isOpen ? "opacity-100 rotate-x-0" : "opacity-0 rotate-x-90"}`}
       >
         <li>
-          <Link href={router.pathname.replace('en/', '')} className="hover:text-neutral-500 ease duration-100">
+          <Link
+            href={router.pathname.replace("en/", "")}
+            className="ease duration-100 hover:text-neutral-500"
+          >
             Français
           </Link>
         </li>
         <li>
-          <Link href={"en" + router.pathname} className="hover:text-neutral-500 ease duration-100">
+          <Link
+            href={"en" + router.pathname}
+            className="ease duration-100 hover:text-neutral-500"
+          >
             English
           </Link>
         </li>

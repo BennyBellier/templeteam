@@ -2,12 +2,13 @@ import { type Config } from "tailwindcss";
 import plugin from "tailwindcss/plugin";
 
 export default {
+  important: true,
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
   darkMode: "class",
   theme: {
     fontFamily: {
-      display: ["Manrope", "Inter", "system-ui", "sans-serif"],
-      body: ["Rubik", "Inter", "system-ui", "sans-serif"],
+      display: ['"Manrope"', "Inter", "sans-serif"],
+      body: ['"Rubik"', "Inter", "sans-serif"],
     },
     extend: {
       screens: {
@@ -18,6 +19,9 @@ export default {
         red: {
           450: "#f25c69",
           550: "#f24150",
+        },
+        neutral: {
+          850: "rgb(30,30,30)",
         },
       },
       transformOrigin: {
@@ -32,6 +36,8 @@ export default {
     },
   },
   plugins: [
+    require("tailwindcss"),
+    require("autoprefixer"),
     // eslint-disable-next-line @typescript-eslint/ban-types
     plugin(({ addUtilities }: { addUtilities: Function }) => {
       addUtilities({

@@ -1,5 +1,3 @@
-import type { ReactNode } from "react";
-
 export interface LinkProps {
   href: string;
   name: string;
@@ -9,12 +7,6 @@ export interface LinkGroupProps {
   name: string;
   root: string;
   links: LinkProps[];
-}
-
-export interface LangListProps {
-  name: string;
-  logo: ReactNode;
-  href: string;
 }
 
 export const associationLinks: LinkProps[] = [
@@ -71,18 +63,5 @@ export const groupedLinks: LinkGroupProps[] = [
     name: "Association",
     root: "/association",
     links: associationLinks,
-  },
-];
-
-export const lang: LangListProps[] = [
-  {
-    name: "Français",
-    logo: "🇫🇷",
-    href: "/",
-  },
-  {
-    name: "English",
-    logo: "🇬🇧",
-    href: "/en",
   },
 ];

@@ -5,13 +5,19 @@ import Image from "next/image";
 import { HiEnvelope } from "react-icons/hi2";
 import { FaInstagram, FaYoutube, FaFacebookF } from "react-icons/fa";
 import type { ReactNode } from "react";
-import { Expand, LangDropdown, ThemeButton, ThemeButtonTypes, useWindowSize } from "./elements";
-import type { LinkProps } from "./links";
-import { groupedLinks } from "./links";
+import {
+  Expand,
+  LangDropdown,
+  ThemeButton,
+  ThemeButtonTypes,
+  useWindowSize,
+} from "./elements";
+import type { LinkProps } from "../lib/links";
+import { groupedLinks } from "../lib/links";
 
 const SmallPrintList = () => {
   return (
-    <ul className="flex w-full flex-col items-center gap-2 [&>li:not(:last-child)]:flex [&>li:not(:last-child)]:flex-col [&>li:not(:last-child)]:items-center [&>li:not(:last-child)]:gap-2 [&>li:not(:last-child)]:after:h-[1px] [&>li:not(:last-child)]:after:w-2 [&>li:not(:last-child)]:after:bg-neutral-50 [&>li:not(:last-child)]:after:content-[''] 1050:flex-row 1050:[&>li:not(:last-child)]:flex-row">
+    <ul className="flex w-full flex-col items-center gap-2 1050:flex-row [&>li:not(:last-child)]:flex [&>li:not(:last-child)]:flex-col [&>li:not(:last-child)]:items-center [&>li:not(:last-child)]:gap-2 [&>li:not(:last-child)]:after:h-[1px] [&>li:not(:last-child)]:after:w-2 [&>li:not(:last-child)]:after:bg-neutral-50 [&>li:not(:last-child)]:after:content-[''] 1050:[&>li:not(:last-child)]:flex-row">
       <li>
         <Link href="/mentions-legal">Mentions Légales</Link>
       </li>
@@ -39,7 +45,7 @@ const SmallPrint = () => {
 const BrandAndLogo = () => {
   return (
     <>
-      <Image src="/footer.png" alt="logo" width={325} height={135} />
+      <Image src="/img/footer.png" alt="logo" width={325} height={135} />
       <span className="text-lg font-medium">
         {`La Temple Team s'occupe de tout`}
       </span>
@@ -118,20 +124,34 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] }) => {
       <button
         ref={dropdownRef}
         onClick={handleOpen}
-        className="flex w-full items-center justify-between text-xl 1050:text-base 1050:whitespace-nowrap"
+        className="flex w-full items-center justify-between text-xl 1050:whitespace-nowrap 1050:text-base 1050:cursor-default"
       >
         {name}
         <Expand isOpen={isOpen} className="1050:hidden" />
       </button>
       <ul
-        className={`flex origin-top flex-col gap-2 overflow-y-hidden border-b border-neutral-50/50 pt-2 transition-height duration-1000 1050:h-fit 1050:border-b-0 1050:whitespace-nowrap`}
+        className={`flex origin-top flex-col gap-2 overflow-y-hidden border-b border-neutral-50/50 pt-2 transition-height duration-1000 1050:h-fit 1050:whitespace-nowrap 1050:border-b-0`}
         style={{
-          height: `${size.width >= 1050 ? 'fit-content' : isOpen ? dropdownSize() + 'rem' : 0 + 'rem'}`,
+          height: `${
+            size.width >= 1050
+              ? "fit-content"
+              : isOpen
+              ? dropdownSize() + "rem"
+              : 0 + "rem"
+          }`,
         }}
       >
         {links.map((link: LinkProps) => (
-          <li key={link.name} className="group text-lg font-light 1050:text-sm 1050:w-full hover:text-neutral-500 ease duration-200">
-            <Link href={link.href} className="after:content-[''] after:ease after:transition-width flex flex-col after:border-b after:border-neutral-500 w-fit after:scale-x-0 group-hover:after:scale-x-100 after:origin-left after:ease after:duration-300">{link.name}</Link>
+          <li
+            key={link.name}
+            className="ease group text-lg font-light duration-200 hover:text-neutral-500 1050:w-full 1050:text-sm"
+          >
+            <Link
+              href={link.href}
+              className="after:ease after:transition-width after:ease flex w-fit flex-col after:origin-left after:scale-x-0 after:border-b after:border-neutral-500 after:duration-300 after:content-[''] group-hover:after:scale-x-100"
+            >
+              {link.name}
+            </Link>
           </li>
         ))}
       </ul>
@@ -141,21 +161,17 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] }) => {
 
 const Navigation = () => {
   return (
-    <nav className="flex w-full flex-col gap-5 1050:w-fit 1050:flex-row 1050:h-fit">
-      {
-        groupedLinks.map((group) => (
-          <Dropdown key={group.name} name={group.name} links={group.links} />
-        ))
-      }
+    <nav className="flex w-full flex-col gap-5 1050:h-fit 1050:w-fit 1050:flex-row">
+      {groupedLinks.map((group) => (
+        <Dropdown key={group.name} name={group.name} links={group.links} />
+      ))}
     </nav>
   );
 };
 
-
-
 export default function Footer() {
   return (
-    <footer className="bottom-0 grid grid-cols-1 grid-row-4 w-full flex-wrap gap-5 overflow-y-hidden bg-neutral-800 px-5 pt-5 text-xs text-neutral-50 1050:auto-rows-min 1050:auto-cols-fr">
+    <footer className="grid-row-4 relative bottom-0 top-[60px] grid w-full grid-cols-1 flex-wrap gap-5 overflow-y-hidden bg-neutral-800 px-5 pt-5 text-xs text-neutral-50 md:top-[70px] 1050:top-[80px] 1050:auto-cols-fr 1050:auto-rows-min">
       <div className="flex w-full flex-col items-center justify-center gap-3 1050:w-fit">
         <BrandAndLogo />
         <SocialNetworks />
@@ -163,11 +179,15 @@ export default function Footer() {
       <div className="w-full 1050:flex 1050:justify-center">
         <Navigation />
       </div>
-      <div className="flex justify-between w-full 1050:flex-col 1050:justify-around 1050:items-end">
+      <div className="flex w-full justify-between 1050:flex-col 1050:items-end 1050:justify-around">
         <LangDropdown />
-        <ThemeButton type={ThemeButtonTypes.Footer} size={1.2} className="1050:mr-9"/>
+        <ThemeButton
+          type={ThemeButtonTypes.Footer}
+          size={1.3}
+          className="1050:mr-9"
+        />
       </div>
-      <div className="flex w-full flex-wrap items-center justify-between gap-5 border-t border-neutral-50/50 pb-2 pt-5 font-light 1050:flex-nowrap 1050:col-span-3 1050:h-fit">
+      <div className="flex w-full flex-wrap items-center justify-between gap-5 border-t border-neutral-50/50 pb-2 pt-5 font-light 1050:col-span-3 1050:h-fit 1050:flex-nowrap">
         <SmallPrint />
       </div>
     </footer>
