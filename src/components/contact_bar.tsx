@@ -19,7 +19,7 @@ export default function ContactBar() {
   return (
     <section
       id="contact_bar"
-      className="grid auto-cols-auto auto-rows-auto gap-2 px-5 md:gap-5 dark:text-neutral-50 py-16"
+      className="grid auto-cols-auto auto-rows-auto gap-2 px-5 md:gap-5 dark:text-neutral-50 py-16 1050:px-1050"
     >
       <h1 className="col-span-2 self-center text-center text-4xl md:text-5xl 1050:col-span-1 1050:text-6xl">
         CONTACT

@@ -1,5 +1,5 @@
 import type { EmblaOptionsType } from "embla-carousel-react";
-import type { ReferenceProps } from "../pages/api/references";
+import { api } from "../utils/api";
 import EmblaCarousel from "./EmblaCarousel";
 
 const OPTIONS: EmblaOptionsType = {
@@ -11,12 +11,9 @@ const OPTIONS: EmblaOptionsType = {
   },
 };
 
-export default function References({
-  references,
-}: {
-  references: ReferenceProps[];
-}) {
-  if (references.length === 0) {
+export default function References() {
+  const referencesQuery = api.content.references.useQuery();
+  if (referencesQuery.data === undefined) {
     return (
       <section
         id="references-slider"
@@ -43,12 +40,12 @@ export default function References({
   return (
     <section
       id="references-slider"
-      className="flex flex-col gap-8 px-6 py-16 dark:bg-neutral-850 dark:text-neutral-50"
+      className="flex flex-col gap-8 px-6 py-16 dark:bg-neutral-850 dark:text-neutral-50 1050:px-1050"
     >
       <h1 className="text-center text-4xl md:text-5xl 1050:text-6xl">
         ILS NOUS FONT CONFIANCE !
       </h1>
-      <EmblaCarousel slides={references} options={OPTIONS} />
+      <EmblaCarousel slides={referencesQuery.data} options={OPTIONS} />
     </section>
   );
 }

@@ -57,6 +57,10 @@ export default {
           transform:
             "translate(var(--tw-translate-x), var(--tw-translate-y)) rotateX(-90deg) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
         },
+        ".px-1050": {
+          paddingLeft: "calc((100vw - 1050px) / 2)",
+          paddingRight: "calc((100vw - 1050px) / 2)",
+        },
       });
     }),
   ],

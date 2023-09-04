@@ -7,29 +7,16 @@ import Navigation from "../components/navigation";
 import Footer from "../components/footer";
 import ContactBar from "../components/contact_bar";
 import References from "../components/references";
-import type { ReferenceProps } from "./api/references";
 import { useWindowSize } from "~/components/elements"
 import { useSpring, animated } from "@react-spring/web";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
 
-export async function getServerSideProps() {
-  const res = await fetch("http://localhost:3000/api/references");
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-  const references: ReferenceProps[] = await res.json();
-  return {
-    props: {
-      references,
-    },
-  };
-}
-
-export default function Home({ references }: { references: ReferenceProps[] }) {
-  // const hello = api.example.hello.useQuery({ text: "from tRPC" });
+export default function Home() {
   const width = useWindowSize().width;
 
   const HeroBanner = () => {
     return (
-      <section id="hero-banner" className="justify-center px-5 pb-16 pt-2">
+      <section id="hero-banner" className="justify-center px-5 pb-16 pt-2 1050:px-1050">
         {width < 1050 ? (
           <>
             <h1 className="bg-red-550 text-center text-3xl font-bold text-neutral-50 md:text-5xl 1050:text-6xl">
@@ -108,7 +95,7 @@ export default function Home({ references }: { references: ReferenceProps[] }) {
     return (
       <section
         id="about"
-        className="grid auto-rows-auto grid-cols-1 bg-neutral-50 dark:bg-neutral-800 gap-5 py-16 px-5 1050:grid-cols-2"
+        className="grid auto-rows-auto grid-cols-1 bg-neutral-50 dark:bg-neutral-800 gap-5 py-16 px-5 1050:grid-cols-2 1050:px-1050"
       >
         <h1 className="text-center text-4xl 1050:row-end-1 1050:col-end-2 1050:text-6xl">TEMPLE TEAM</h1>
         <p className="1050:col-end-2 1050:row-start-1 1050:row-end-2 leading-6 1050:leading-8 tracking-wider">
@@ -156,7 +143,7 @@ export default function Home({ references }: { references: ReferenceProps[] }) {
         <HeroBanner />
         <ContactBar />
         <About />
-        <References references={references} />
+        <References />
       </main>
       <Footer />
     </>

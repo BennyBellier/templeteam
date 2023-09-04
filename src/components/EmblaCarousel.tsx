@@ -7,8 +7,7 @@ import {
   PrevButton,
   NextButton,
 } from "./EmblaCarouselArrowButtons";
-import type { ReferenceProps } from "~/pages/api/references";
-import References from "./references";
+import type { ReferenceProps } from "~/utils/types";
 
 interface PropType {
   slides: ReferenceProps[];

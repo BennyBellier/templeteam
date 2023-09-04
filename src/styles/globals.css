@@ -21,39 +21,6 @@ h1 {
   font-weight: 800;
 }
 
-@media screen and (min-width: 1050px) {
-  nav#main-nav {
-    padding-left: calc((100vw - 1050px) / 2);
-    padding-right: calc((100vw - 1050px) / 2);
-  }
-
-  footer {
-    padding-left: calc((100vw - 1050px) / 2) !important;
-    padding-right: calc((100vw - 1050px) / 2) !important;
-  }
-
-  section#hero-banner {
-    padding-left: calc((100vw - 1050px) / 2) !important;
-    padding-right: calc((100vw - 1050px) / 2) !important;
-  }
-
-  section#about {
-    padding-left: calc((100vw - 1050px) / 2) !important;
-    padding-right: calc((100vw - 1050px) / 2) !important;
-  }
-
-  section#contact_bar {
-    padding-left: calc((100vw - 1050px) / 2) !important;
-    padding-right: calc((100vw - 1050px) / 2) !important;
-  }
-
-  section#references-slider {
-    padding-left: calc((100vw - 1050px) / 2) !important;
-    padding-right: calc((100vw - 1050px) / 2) !important;
-  }
-}
-
 #hero-banner--subtitle {
   width: calc(100vw - 2.5rem);
 }
-

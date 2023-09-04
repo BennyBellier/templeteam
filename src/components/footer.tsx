@@ -13,7 +13,7 @@ import {
   useWindowSize,
 } from "./elements";
 import type { LinkProps } from "../lib/links";
-import { groupedLinks } from "../lib/links";
+import { links } from "../lib/links";
 
 const SmallPrintList = () => {
   return (
@@ -93,7 +93,7 @@ const SocialNetworks = () => {
   );
 };
 
-const Dropdown = ({ name, links }: { name: string; links: LinkProps[] }) => {
+const Dropdown = ({ name, links }: { name: string; links: LinkProps[] | undefined }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const size = useWindowSize();
@@ -103,7 +103,9 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] }) => {
   };
 
   const dropdownSize = () => {
-    return links.length * 2.25 + 0.5;
+    if (links)
+      return links.length * 2.25 + 0.5;
+    return 0;
   };
 
   useEffect(() => {
@@ -141,7 +143,7 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] }) => {
           }`,
         }}
       >
-        {links.map((link: LinkProps) => (
+        {links?.map((link: LinkProps) => (
           <li
             key={link.name}
             className="ease group text-lg font-light duration-200 hover:text-neutral-500 1050:w-full 1050:text-sm"
@@ -160,10 +162,22 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] }) => {
 };
 
 const Navigation = () => {
+  const templeTeamLinks: LinkProps[] = [];
+  const othersLinks: LinkProps[] = [];
+  links.map((link) => {
+    if (link.type === "link" || link.href === "/portfolio") {
+      templeTeamLinks.push(link);
+    } else {
+      othersLinks.push(link);
+    }
+  }
+  );
+
   return (
     <nav className="flex w-full flex-col gap-5 1050:h-fit 1050:w-fit 1050:flex-row">
-      {groupedLinks.map((group) => (
-        <Dropdown key={group.name} name={group.name} links={group.links} />
+      <Dropdown name="Temple Team" links={templeTeamLinks} />
+      {othersLinks.map((link) => (
+        <Dropdown key={link.name} name={link.name} links={link.links} />
       ))}
     </nav>
   );
@@ -171,7 +185,7 @@ const Navigation = () => {
 
 export default function Footer() {
   return (
-    <footer className="grid-row-4 relative bottom-0 top-[60px] grid w-full grid-cols-1 flex-wrap gap-5 overflow-y-hidden bg-neutral-800 px-5 pt-5 text-xs text-neutral-50 md:top-[70px] 1050:top-[80px] 1050:auto-cols-fr 1050:auto-rows-min">
+    <footer className="grid-row-4 relative bottom-0 top-[60px] grid w-full grid-cols-1 flex-wrap gap-5 overflow-y-hidden bg-neutral-800 px-5 pt-16 text-xs text-neutral-50 md:top-[70px] 1050:top-[80px] 1050:auto-cols-fr 1050:auto-rows-min 1050:px-1050">
       <div className="flex w-full flex-col items-center justify-center gap-3 1050:w-fit">
         <BrandAndLogo />
         <SocialNetworks />
