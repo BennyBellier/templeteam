@@ -11,6 +11,7 @@ import { useWindowSize } from "~/components/elements"
 import { useSpring, animated } from "@react-spring/web";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
 
+
 export default function Home() {
   const width = useWindowSize().width;
 

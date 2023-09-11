@@ -176,20 +176,30 @@ export default function Navigation() {
 
   useEffect(() => {
     function handleNavigation() {
-      setY(window.pageYOffset);
+      setY(window.scrollY);
+    }
+    function handleScroll(e: WheelEvent | TouchEvent) {
+      if (isActive) {
+        e.preventDefault();
+      }
     }
 
     window.addEventListener("scroll", handleNavigation);
+    window.addEventListener("wheel", handleScroll, { passive: false });
+    window.addEventListener("touchmove", handleScroll, { passive: false });
+
 
     return () => {
       window.removeEventListener("scroll", handleNavigation);
+      window.removeEventListener("wheel", handleScroll);
+      window.removeEventListener("touchmove", handleScroll);
     };
-  }, []);
+  }, [isActive]);
 
   return (
     <nav
       id="main-nav"
-      className={`overflow-hidden-x fixed z-50 flex max-h-[60px] justify-between font-display font-bold md:max-h-[70px] 1050:left-0 1050:top-0 1050:h-min 1050:max-h-[80px] 1050:w-full 1050:items-center 1050:bg-white 1050:px-1050 dark:1050:bg-neutral-850 1050:font-light transition-shadow ${
+      className={`overflow-hidden-x fixed z-50 flex max-h-[60px] justify-between font-display font-bold transition-shadow md:max-h-[70px] 1050:left-0 1050:top-0 1050:h-min 1050:max-h-[80px] 1050:w-full 1050:items-center 1050:bg-white 1050:font-light 1050:px-1050 dark:1050:bg-neutral-850 duration-1000 ${
         y === 0
           ? ""
           : "shadow-md dark:drop-shadow-none"
