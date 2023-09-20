@@ -1,5 +1,13 @@
 import { useState } from "react";
 
+/**
+ * @description
+ * A cookie manager to manage cookies
+
+ * @todo implement cookie manager
+ *
+ * @return {JSX.Element} a cookie manager
+ */
 const CookieManager = () => {
   const [open, setOpen] = useState(false);
 

@@ -21,15 +21,35 @@ interface ThemeLogoProps {
   className?: string;
 }
 
+/**
+ * @description
+ * A logo with a moon and a sun depending on the theme
+ *
+ * @param props.theme the current theme
+ * @param props.size the size of the logo
+ *
+ * @returns {JSX.Element} a logo with a moon and a sun depending on the theme
+ */
 const ThemeLogo = ({ theme, size, className }: ThemeLogoProps) => {
   return (
-    <div className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden">
-      <HiMoon size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'light' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
-      <HiSun size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'dark' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
+    <div data-testid="theme-logo" className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden">
+      <HiMoon data-testid="moon" size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'light' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
+      <HiSun data-testid="sun" size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'dark' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
     </div>
   );
 };
 
+
+/**
+ * @description
+ * A button to toggle the theme
+ *
+ * @param props.type the type of the button : `ThemeButtonTypes.MobileNav`, `ThemeButtonTypes.DesktopNav` or `ThemeButtonTypes.Footer`
+ * @param props.size the size of the logo
+ * @param props.className the class name of the button
+ *
+ * @returns {JSX.Element} a button to toggle the theme
+ */
 export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
   const [theme, setTheme] = useState("light");
   const [text, setText] = useState("Thème sombre");
@@ -118,6 +138,13 @@ export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
   }
 };
 
+/**
+ * @description
+ * A globe icon for language dropdown
+ *
+ * @param param.className the class name of the icon
+ * @returns {JSX.Element} a globe icon for language dropdown
+ */
 const HiGlobeAlt = ({ className }: { className?: string }) => {
   return (
     <svg
@@ -137,6 +164,15 @@ const HiGlobeAlt = ({ className }: { className?: string }) => {
   );
 };
 
+/**
+ * @description
+ * A reusable chevron icon for dropdown
+ *
+ * @param param.isOpen pass the variable of dropdown state open or not
+ * @param param.className the class name of the icon
+ *
+ * @returns {JSX.Element} a chevron icon for dropdown
+ */
 export const Expand = ({
   isOpen,
   className,
@@ -153,6 +189,12 @@ export const Expand = ({
   );
 };
 
+/**
+ * @description
+ * A dropdown for language selection
+ *
+ * @returns {JSX.Element} a dropdown for language selection
+ */
 export const LangDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -211,6 +253,12 @@ export const LangDropdown = () => {
   );
 };
 
+/**
+ * @description
+ * A hook to get the window size
+ *
+ * @returns [width, height] the window size
+ */
 export const useWindowSize = () => {
   // Initialize state with undefined width/height so server and client renders match
   // Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/

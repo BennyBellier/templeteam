@@ -3,6 +3,25 @@ import Footer from "./footer";
 import ContactBar from "./contact_bar";
 import References from "./references";
 
+/**
+ * @description
+ * A layout with navigation, (contact, references) and footer
+ * for all pages except the home page.
+ *
+ * @usage
+ * ```tsx
+ * <Layout title="title" subtitle="subtitle" display={{ref: true, contact: true}}>
+ *  <section>content</section>
+ * </Layout>
+ * ```
+ *
+ * @param param.title the title of the page
+ * @param param.subtitle the subtitle of the page
+ * @param param.display whether to display the references and contact bar
+ * @param param.children the content of the page
+ *
+ * @returns {JSX.Element} a layout with navigation, content and footer
+ */
 export default function Layout({ title, subtitle, display, children }: { title: string, subtitle?: string, display?: {ref: boolean, contact: boolean}, children: React.ReactNode }) {
   return (
     <>

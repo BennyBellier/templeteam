@@ -13,8 +13,8 @@ import { links } from "../lib/links";
 import type { LinkProps } from "../lib/links";
 
 interface HamburgerMenuProps {
-  isActive: boolean;
-  setActive: Dispatch<SetStateAction<boolean>>;
+  isOpen: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 const MenuLink = ({
@@ -28,6 +28,7 @@ const MenuLink = ({
 }) => {
   const router = useRouter();
 
+  // test if the link is the same as the current page to add underline
   const testPath = (href: string) => {
     const pathSize = router.pathname.split("/").length;
     const hrefSize = href.split("/").length;
@@ -62,7 +63,7 @@ const HeaderLogo = () => {
   const size = useWindowSize();
   const [logo, setLogo] = useState("/img/logo-light.png");
 
-  // detect when html class get "dark" or not
+  // detect when html class get "dark" or not to change the logo
   useEffect(() => {
     function handleThemeChange(theme: string) {
       if (theme === "light") {
@@ -111,6 +112,7 @@ const DropdownMenu = ({ group }: { group: LinkProps }) => {
   const [open, setOpen] = useState(false);
   const size = useWindowSize();
 
+  // toggle the dropdown menu
   const handleOpen = () => {
     setOpen(!open);
   };
@@ -128,7 +130,7 @@ const DropdownMenu = ({ group }: { group: LinkProps }) => {
             : "opacity-0 -rotate-x-90"
         } flex origin-top-center flex-col gap-y-4 px-10 py-2 transition-transform delay-100 duration-300 ease-out group-hover:opacity-100 group-hover:rotate-x-0 dark:bg-neutral-850 1050:absolute 1050:gap-1 1050:rounded-lg 1050:bg-white 1050:px-4 1050:py-2 1050:shadow-neutral-900 1050:drop-shadow-xl dark:1050:bg-neutral-800 dark:1050:shadow-none`}
       >
-        {group.links?.map((link: LinkProps) =>
+        {group.links?.map((link: LinkProps) => // map all links of the dropdown menu
 
           group.href === link.href ? (
             <li key={link.name} className="hidden 1050:inline-block">
@@ -149,15 +151,16 @@ const DropdownMenu = ({ group }: { group: LinkProps }) => {
   );
 };
 
-const HamburgerMenu = ({ isActive, setActive }: HamburgerMenuProps) => {
+const HamburgerMenu = ({ isOpen, setOpen }: HamburgerMenuProps) => {
+  // toggle the hamburger menu
   const handleToggle = () => {
-    setActive(!isActive);
+    setOpen(!isOpen);
   };
 
   return (
     <button
       className={`hamburger hamburger--spin inline-block 1050:hidden ${
-        isActive ? "is-active" : ""
+        isOpen ? "is-active" : ""
       }`}
       type="button"
       onClick={handleToggle}
@@ -169,8 +172,25 @@ const HamburgerMenu = ({ isActive, setActive }: HamburgerMenuProps) => {
   );
 };
 
+/**
+   * @description
+   * This component is the navigation bar of the website.
+   * It is composed of 2 parts:
+   * - The header, which contains the logo for both desktop and mobile and the hamburger menu for mobile
+   * - The menu, which contains the links to the different pages of the website
+   * The menu is composed of 2 elements:
+   * - Simple links, displayed as a list
+   * - Dropdown links, displayed as a list with a dropdown
+   *
+   * @usage
+   * ```tsx
+   * <Navigation />
+   * ```
+   *
+   * @returns {JSX.Element} The navigation bar
+   */
 export default function Navigation() {
-  const [isActive, setActive] = useState(false);
+  const [isOpen, setOpen] = useState(false);
   const size = useWindowSize();
   const [y, setY] = useState(0);
 
@@ -178,13 +198,17 @@ export default function Navigation() {
     function handleNavigation() {
       setY(window.scrollY);
     }
+
     function handleScroll(e: WheelEvent | TouchEvent) {
-      if (isActive) {
+      if (isOpen) {
         e.preventDefault();
       }
     }
 
+    // event listener to change the shadow of the navbar when scrolling
     window.addEventListener("scroll", handleNavigation);
+
+    // event listener for deactivate scroll when mobile menu is open
     window.addEventListener("wheel", handleScroll, { passive: false });
     window.addEventListener("touchmove", handleScroll, { passive: false });
 
@@ -194,7 +218,7 @@ export default function Navigation() {
       window.removeEventListener("wheel", handleScroll);
       window.removeEventListener("touchmove", handleScroll);
     };
-  }, [isActive]);
+  }, [isOpen]);
 
   return (
     <nav
@@ -212,15 +236,15 @@ export default function Navigation() {
         >
           <HeaderLogo />
         </Link>
-        <HamburgerMenu isActive={isActive} setActive={setActive} />
+        <HamburgerMenu isOpen={isOpen} setOpen={setOpen} />
       </div>
       <div
         className={`relative top-[60px] flex h-screen w-screen flex-col gap-10 bg-white dark:bg-neutral-850 md:top-[70px] 1050:h-min 1050:items-center ${
-          isActive ? "translate-x-0" : "translate-x-full"
+          isOpen ? "translate-x-0" : "translate-x-full"
         } ease px-8 pt-5 transition-transform duration-1000 1050:static 1050:top-0 1050:w-fit 1050:translate-x-0 1050:flex-row 1050:gap-10 1050:px-0 1050:pt-0`}
       >
         <ul className="flex w-full flex-col gap-x-2 gap-y-5 1050:flex-row 1050:gap-x-6">
-          {links.map((link) =>
+          {links.map((link) => // map all links
             link.type === "link" ? (
               <li key={link.name}>
                 <MenuLink href={link.href}>{link.name}</MenuLink>

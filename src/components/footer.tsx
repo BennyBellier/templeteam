@@ -161,10 +161,18 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] | undefine
   );
 };
 
+/**
+ * @description
+ * The navigation for footer with dropdown menus on mobile.
+ * The navigation is responsive and adapts to the screen size.
+ * The navigation is also responsive to the user's theme.
+ *
+ * @returns {JSX.Element} The navigation for footer
+ */
 const Navigation = () => {
   const templeTeamLinks: LinkProps[] = [];
   const othersLinks: LinkProps[] = [];
-  links.map((link) => {
+  links.map((link) => { // map all links
     if (link.type === "link" || link.href === "/portfolio") {
       templeTeamLinks.push(link);
     } else {
@@ -183,6 +191,19 @@ const Navigation = () => {
   );
 };
 
+/**
+ * @description
+ * The footer of the website with social networks and decorations.
+ * Navigation is also included, language dropdown and theme button.
+ * Small print is also included with legal mentions, privacy policy and cookie manager.
+ *
+ * @usage
+ * ```tsx
+ * <Footer />
+ * ```
+ *
+ *  @returns {JSX.Element} The footer
+ */
 export default function Footer() {
   return (
     <footer className="grid-row-4 relative bottom-0 top-[60px] grid w-full grid-cols-1 flex-wrap gap-5 overflow-y-hidden bg-neutral-800 px-5 pt-16 text-xs text-neutral-50 md:top-[70px] 1050:top-[80px] 1050:auto-cols-fr 1050:auto-rows-min 1050:px-1050">

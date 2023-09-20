@@ -9,6 +9,15 @@ type PropType = PropsWithChildren<
   >
 >;
 
+/**
+ * @description
+ * A button with a left arrow for Embla Carousel
+ *
+ * @param props.children the children of the button
+ * @param props.disabled whether the button is disabled or not
+ *
+ * @returns a button with a left arrow
+ */
 export const PrevButton: React.FC<PropType> = (props) => {
   const { children, disabled, ...restProps } = props;
 
@@ -24,6 +33,15 @@ export const PrevButton: React.FC<PropType> = (props) => {
   );
 };
 
+/**
+ * @description
+ * A button with a right arrow for Embla Carousel
+ *
+ * @param props.children the children of the button
+ * @param props.disabled whether the button is disabled or not
+ * 
+ * @returns a button with a right arrow
+ */
 export const NextButton: React.FC<PropType> = (props) => {
   const { children, disabled, ...restProps } = props;
 

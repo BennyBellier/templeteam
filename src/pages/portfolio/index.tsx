@@ -7,7 +7,15 @@ import Layout from "~/components/layout";
 export default function Portfolio() {
   const { width } = useWindowSize();
 
-  const LinkImage = ({ href, img, text }: { href: string; img: string, text: string }) => {
+  const LinkImage = ({
+    href,
+    img,
+    text,
+  }: {
+    href: string;
+    img: string;
+    text: string;
+  }) => {
     return (
       <Link
         href={href}
@@ -39,7 +47,7 @@ export default function Portfolio() {
         subtitle="Fière de nos années d'expérience. Nous mettons nos compétences à profits pour créer des images sensationnelles et inoubliables."
         display={{ ref: true, contact: true }}
       >
-        <section className="flex flex-wrap justify-center gap-8 1050:gap-16 px-5 1050:px-1050">
+        <section className="flex flex-wrap justify-center gap-8 px-5 1050:gap-16 1050:px-1050">
           <LinkImage
             href="/portfolio/photos"
             img="/img/portfolio/photos/2022_17_26-06-23.jpg"

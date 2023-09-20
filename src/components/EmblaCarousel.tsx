@@ -14,6 +14,15 @@ interface PropType {
   options?: EmblaOptionsType;
 };
 
+/**
+ * @description
+ * An Embla Carousel with the references of the team
+ *
+ * @param props.slides the slides of the carousel
+ * @param props.options the options of the carousel
+ *
+ * @returns {JSX.Element} an Embla Carousel
+ */
 const EmblaCarousel: React.FC<PropType> = (props) => {
   const { slides, options } = props;
   const [emblaRef, emblaApi] = useEmblaCarousel(options);
@@ -21,16 +30,19 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
   const [nextBtnDisabled, setNextBtnDisabled] = useState(true);
   const slideSpacing = 4;
 
+  // Detect when mobile user is scrolling to the right
   const scrollPrev = useCallback(
     () => emblaApi && emblaApi.scrollPrev(),
     [emblaApi]
   );
 
+  // Detect when mobile user is scrolling to the left
   const scrollNext = useCallback(
     () => emblaApi && emblaApi.scrollNext(),
     [emblaApi]
   );
 
+  // Deactivate button when it's not possible to scroll
   const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
     setPrevBtnDisabled(!emblaApi.canScrollPrev());
     setNextBtnDisabled(!emblaApi.canScrollNext());

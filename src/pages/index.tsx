@@ -7,20 +7,28 @@ import Navigation from "../components/navigation";
 import Footer from "../components/footer";
 import ContactBar from "../components/contact_bar";
 import References from "../components/references";
-import { useWindowSize } from "~/components/elements"
+import { useWindowSize } from "~/components/elements";
 import { useSpring, animated } from "@react-spring/web";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
-
+import { Manrope, Rubik } from "next/font/google";
+import { useReducedMotion } from "framer-motion";
 
 export default function Home() {
   const width = useWindowSize().width;
+  const shouldReduceMotion = useReducedMotion();
 
   const HeroBanner = () => {
     return (
-      <section id="hero-banner" className="justify-center px-5 pb-16 pt-2 1050:px-1050">
+      <section
+        id="hero-banner"
+        className="justify-center px-5 pb-16 pt-2 1050:px-1050"
+      >
         {width < 1050 ? (
           <>
-            <h1 className="bg-red-550 text-center text-3xl font-bold text-neutral-50 md:text-5xl 1050:text-6xl">
+            <h1
+              id="hero-banner--title"
+              className="bg-red-550 text-center text-3xl font-bold text-neutral-50 md:text-5xl 1050:text-6xl"
+            >
               TEMPLE TEAM
             </h1>
             <h2
@@ -51,7 +59,7 @@ export default function Home() {
             </em>
           </aside>
         )}
-        <video autoPlay loop muted preload="none" className="1050:h-[591px]">
+        <video autoPlay={!shouldReduceMotion} loop muted preload="none" className="1050:h-[591px]">
           <source
             src="https://templeteam.fr/static/video/hero-banner.webm"
             type="video/webm"
@@ -74,16 +82,19 @@ export default function Home() {
   };
 
   const About = () => {
-    const [springs, api] = useSpring(() => ({
-      x: 0,
-      config: {
-        mass: 2,
-        tension: 200,
-        friction: 13,
-        precision: 0.001,
-        velocity: 0.01,
-      }
-    }), []);
+    const [springs, api] = useSpring(
+      () => ({
+        x: 0,
+        config: {
+          mass: 2,
+          tension: 200,
+          friction: 13,
+          precision: 0.001,
+          velocity: 0.01,
+        },
+      }),
+      []
+    );
 
     const handleHoverIn = () => {
       api.start({ x: -15 });
@@ -96,10 +107,12 @@ export default function Home() {
     return (
       <section
         id="about"
-        className="grid auto-rows-auto grid-cols-1 bg-neutral-50 dark:bg-neutral-800 gap-5 py-16 px-5 1050:grid-cols-2 1050:px-1050"
+        className="grid auto-rows-auto grid-cols-1 gap-5 bg-neutral-50 px-5 py-16 dark:bg-neutral-800 1050:grid-cols-2 1050:px-1050"
       >
-        <h1 className="text-center text-4xl 1050:row-end-1 1050:col-end-2 1050:text-6xl">TEMPLE TEAM</h1>
-        <p className="1050:col-end-2 1050:row-start-1 1050:row-end-2 leading-6 1050:leading-8 tracking-wider">
+        <h1 className="text-center text-4xl 1050:col-end-2 1050:row-end-1 1050:text-6xl">
+          TEMPLE TEAM
+        </h1>
+        <p className="leading-6 tracking-wider 1050:col-end-2 1050:row-start-1 1050:row-end-2 1050:leading-8">
           {`La Temple Team c'est avant tout un groupe de potes ! Provenant de mondes
           aussi différents que liés. Venant du parkour, du freerunning, de la
           gymnastique, du tricking et même du breakdance, chacun a sa spécialité (parfois
@@ -109,10 +122,14 @@ export default function Home() {
           vos événements. C'est une combinaison puissante, d'autant que l'équipe
           veut promouvoir son sport et vous émerveiller, vous et vos enfants.`}
         </p>
-        <div onMouseEnter={handleHoverIn} onMouseLeave={handleHoverOut} className="group flex items-center gap-5 1050:col-end-2 1050:row-end-3 w-fit">
+        <div
+          onMouseEnter={handleHoverIn}
+          onMouseLeave={handleHoverOut}
+          className="group flex w-fit items-center gap-5 1050:col-end-2 1050:row-end-3"
+        >
           <Link
             href="/la-team"
-            className="w-fit rounded-md bg-red-550 px-3 py-2 text-neutral-50 font-semibold text-lg group-hover:bg-[#f45] group-hover:scale-95 ease duration-300 1050:col-end-2 1050:row-start-2 1050:row-end-3"
+            className="ease w-fit rounded-md bg-red-550 px-3 py-2 text-lg font-semibold text-neutral-50 duration-300 group-hover:scale-95 group-hover:bg-[#f45] 1050:col-end-2 1050:row-start-2 1050:row-end-3"
           >
             {`Plus d'infos`}
           </Link>
@@ -126,11 +143,11 @@ export default function Home() {
           title="Photo des membres de la Temple Team"
           width={500}
           height={500}
-          className="1050:col-start-2 1050:row-start-1 1050:row-end-2 slef-center justify-self-center h-full object-contain"
+          className="slef-center h-full justify-self-center object-contain 1050:col-start-2 1050:row-start-1 1050:row-end-2"
         />
       </section>
     );
-  }
+  };
 
   return (
     <>

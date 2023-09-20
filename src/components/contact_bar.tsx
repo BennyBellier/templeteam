@@ -15,6 +15,12 @@ const ContactLink = ({ children }: { children: ReactNode }) => {
   );
 };
 
+/**
+ * @description
+ * The contact bar component displays a contact bar with links to contact page
+ *
+ * @returns {JSX.Element} a contact bar with links to contact page
+ */
 export default function ContactBar() {
   return (
     <section

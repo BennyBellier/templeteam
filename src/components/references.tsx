@@ -11,6 +11,12 @@ const OPTIONS: EmblaOptionsType = {
   },
 };
 
+/**
+ * @description
+ * The references component displays a slider of references with a title
+ *
+ * @returns {JSX.Element} a slider of references with title
+ */
 export default function References() {
   const referencesQuery = api.content.references.useQuery();
   if (referencesQuery.data === undefined) {
