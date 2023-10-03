@@ -40,3 +40,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# content
+/public/img/portfolio/**
+/public/img/team/*
+/public/img/references/*
+/public/img/*.png
+/public/img/*.svg

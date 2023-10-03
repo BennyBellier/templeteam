@@ -21,12 +21,12 @@ describe("Theme button", () => {
     render(<ThemeButton type={0} />);
     expect(screen.getByRole('button')).toBeInTheDocument();
   });
-  it("Should render the theme logo", () => {
+  it("Should render the theme button", () => {
     render(<ThemeButton type={0} />);
-    expect(screen.getByTestId('theme-logo')).toBeInTheDocument();
-    expect(() => screen.getByTestId('moon').toThrow());
-    expect(screen.getByTestId('sun')).toBeInTheDocument();
+    expect(screen.getByTestId('moon-theme')).toBeInTheDocument();
+    expect(screen.getByTestId('moon')).toBeInTheDocument();
   });
+
   it("Should render the theme button with the right text", () => {
     render(<ThemeButton type={0} />);
     expect(screen.getByText("Thème sombre")).toBeInTheDocument();

@@ -71,11 +71,6 @@ const AthleteCard = ({
 export default function LaTeam() {
   return (
     <>
-      <Head>
-        <title>La Team | Temple Team</title>
-        <meta name="description" content="" />
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-      </Head>
       <Layout
         title="La team"
         subtitle="Un groupe d'amis, une équipe, des années d'entrainements ! Il est maintenant l'heure de vous les présenter."

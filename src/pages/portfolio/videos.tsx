@@ -1,15 +1,13 @@
-import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { api } from "~/utils/api";
 import Layout from "~/components/layout";
+import { HiOutlineChevronLeft } from "react-icons/hi2";
 
 export default function Portfolio() {
   const videosQuery = api.content.videos.useQuery();
   return (
     <>
-      <Head>
-        <title>Vidéos | Temple Team</title>
-      </Head>
       <Layout
         title="Vidéos"
         subtitle="Envie de voir nos vidéos ? C'est par ici !"
@@ -37,6 +35,14 @@ export default function Portfolio() {
             </a>
           ))}
         </section>
+
+        <Link
+          href={"/portfolio/photos"}
+          className="flex flex-row items-center gap-5 px-5 text-3xl font-black uppercase 1050:px-1050"
+        >
+          <HiOutlineChevronLeft className="text-4xl" />
+          Photos
+        </Link>
       </Layout>
     </>
   );

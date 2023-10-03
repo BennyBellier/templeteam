@@ -5,7 +5,7 @@ import path from "path";
 import sizeOf from "image-size";
 
 export const contentRouter = createTRPCRouter({
-  references: publicProcedure.query(() => {
+  references: publicProcedure.query((): ReferenceProps[] => {
     const referencesJSON = fs.readFileSync(
       path.join(process.cwd(), "src", "data", "references.json"),
       "utf8"
@@ -14,7 +14,7 @@ export const contentRouter = createTRPCRouter({
     const references: ReferenceProps[] = JSON.parse(referencesJSON);
     return references;
   }),
-  videos: publicProcedure.query(() => {
+  videos: publicProcedure.query((): VideoProps[] => {
     const videosJSON = fs.readFileSync(
       path.join(process.cwd(), "src", "data", "videos.json"),
       "utf8"
@@ -42,32 +42,5 @@ export const contentRouter = createTRPCRouter({
     });
     return videos;
   }),
-  photos: publicProcedure.query(() => {
-    const photosJSON = fs.readFileSync(
-      path.join(process.cwd(), "src", "data", "photos.json"),
-      "utf8"
-    );
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const photos: PhotoProps[] = JSON.parse(photosJSON);
-    photos.map((photo) => {
-      try {
-        const img = sizeOf(
-          path.join(
-            process.cwd(),
-            "public",
-            "img",
-            "portfolio",
-            "photos",
-            photo.img
-          )
-        );
-        photo.width = img.width!;
-        photo.height = img.height!;
-        return photo;
-      } catch (error) {
-        return photo;
-      }
-    });
-    return photos;
-  }),
+
 });

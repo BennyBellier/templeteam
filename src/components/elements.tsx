@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { HiChevronDown, HiMoon, HiSun } from "react-icons/hi2";
+import { motion, AnimatePresence } from "framer-motion";
 
 export enum ThemeButtonTypes {
   MobileNav,
@@ -32,13 +33,33 @@ interface ThemeLogoProps {
  */
 const ThemeLogo = ({ theme, size, className }: ThemeLogoProps) => {
   return (
-    <div data-testid="theme-logo" className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden">
-      <HiMoon data-testid="moon" size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'light' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
-      <HiSun data-testid="sun" size={size + "rem"} className={`${className} transform-gpu transition-transform ${theme === 'dark' ? 'translate-y-0 duration-[1500ms] delay-1000 ease-out' : 'translate-y-10 duration-[1200ms] ease-in'}`} />
-    </div>
+    // <AnimatePresence>
+    (theme === "light" && (
+      <motion.div
+        data-testid="moon-theme"
+        className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden"
+      >
+        <HiMoon
+          data-testid="moon"
+          size={size + "rem"}
+          className={`${className} transform-gpu transition-transform`}
+        />
+      </motion.div>
+    )) || (
+      <motion.div
+        data-testid="sun-theme"
+        className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden"
+      >
+        <HiSun
+          data-testid="sun"
+          size={size + "rem"}
+          className={`${className} transform-gpu transition-transform`}
+        />
+      </motion.div>
+    )
+    // </AnimatePresence>
   );
 };
-
 
 /**
  * @description
@@ -118,9 +139,7 @@ export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
           <ThemeLogo
             theme={theme}
             size={size}
-            className={
-              "fill-neutral-800 dark:fill-neutral-50"
-            }
+            className={"fill-neutral-800 dark:fill-neutral-50"}
           />
         </button>
       );
@@ -128,11 +147,7 @@ export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
     case ThemeButtonTypes.Footer:
       return (
         <button className={"group " + className} onClick={toggleTheme}>
-          <ThemeLogo
-            theme={theme}
-            size={size}
-            className="fill-neutral-50"
-          />
+          <ThemeLogo theme={theme} size={size} className="fill-neutral-50" />
         </button>
       );
   }
