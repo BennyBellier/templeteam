@@ -1,6 +1,6 @@
 import type { EmblaOptionsType } from "embla-carousel-react";
-import { api } from "../utils/api";
 import EmblaCarousel from "./EmblaCarousel";
+import referencesList from "~/data/references.json"
 
 const OPTIONS: EmblaOptionsType = {
   loop: true,
@@ -18,8 +18,7 @@ const OPTIONS: EmblaOptionsType = {
  * @returns {JSX.Element} a slider of references with title
  */
 export default function References() {
-  const referencesQuery = api.content.references.useQuery();
-  if (referencesQuery.data === undefined) {
+  if (referencesList === undefined) {
     return (
       <section
         id="references-slider"
@@ -51,7 +50,7 @@ export default function References() {
       <h1 className="text-center text-4xl md:text-5xl 1050:text-6xl">
         ILS NOUS FONT CONFIANCE !
       </h1>
-      <EmblaCarousel slides={referencesQuery.data} options={OPTIONS} />
+        <EmblaCarousel slides={referencesList.referencesList} options={OPTIONS} />
     </section>
   );
 }

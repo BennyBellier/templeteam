@@ -15,8 +15,18 @@ const config = {
    * @see https://github.com/vercel/next.js/issues/41980
    */
   i18n: {
-    locales: ['fr'],
-    defaultLocale: 'fr',
+    locales: ["fr"],
+    defaultLocale: "fr",
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "i.ytimg.com",
+        port: "",
+        pathname: "/vi/**",
+      },
+    ],
   },
 };
 

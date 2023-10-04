@@ -47,3 +47,4 @@ yarn-error.log*
 /public/img/references/*
 /public/img/*.png
 /public/img/*.svg
+public/video/**

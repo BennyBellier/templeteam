@@ -168,6 +168,7 @@ export default function Home() {
   );
 }
 
+/* Auth showcase
 function AuthShowcase() {
   const { data: sessionData } = useSession();
 
@@ -191,3 +192,4 @@ function AuthShowcase() {
     </div>
   );
 }
+// */

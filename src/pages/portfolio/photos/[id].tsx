@@ -11,6 +11,7 @@ import {
 import { HiOutlineArrowsExpand } from "react-icons/hi";
 import { getAlbumData, getAllAlbumNames } from "~/lib/photos";
 import { type AlbumProps } from "~/utils/types";
+import Head from "next/head";
 
 export function getStaticPaths() {
   const paths = getAllAlbumNames();
@@ -28,6 +29,70 @@ export function getStaticProps({ params }: { params: { id: string } }) {
     },
   };
 }
+
+const ImageWithLoading = ({
+  id,
+  src,
+  width,
+  height,
+  index,
+  handlerZoom,
+}: {
+  id: string;
+  src: string;
+  index: number;
+  width: number;
+  height: number;
+  handlerZoom: (value: number) => void;
+}) => {
+  const [imgLoading, setImgLoading] = useState(true);
+  const [pulsing, setPulsing] = useState(true);
+
+  const imageLoaded = () => {
+    setImgLoading(false);
+    setTimeout(() => setPulsing(false), 400);
+  };
+
+  return (
+    <motion.div
+      className={`group flex aspect-auto cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-neutral-200 ${
+        pulsing ? "animate-pulse" : ""
+      }`}
+      initial={{ height: height / 140 + "rem", width: width / 140 + "rem" }}
+      animate={{
+        width: imgLoading ? width / 140 + "rem" : "auto",
+        height: imgLoading ? height / 140 + "rem" : "auto",
+      }}
+      transition={{
+        height: { delay: 0, duration: 0.4 },
+        width: { delay: 0, duration: 0.4 },
+      }}
+      onClick={() => {
+        if (imgLoading) return;
+        handlerZoom(index);
+      }}
+    >
+      <Image
+        src={src}
+        alt={id}
+        layout="fill"
+        onLoad={imageLoaded}
+        className={`relative aspect-auto w-full grow items-center rounded-lg object-left-top duration-500 md:h-80 1050:h-80 ${
+          imgLoading
+            ? "opacity-0 delay-500"
+            : "opacity-100 group-hover:scale-105 group-hover:brightness-75"
+        }`}
+      />
+      <div className={`absolute flex items-center justify-center rounded-lg`}>
+        <HiOutlineArrowsExpand
+          className={`text-4xl text-white opacity-0 drop-shadow-lg transition-transform duration-300  ${
+            imgLoading ? "" : "group-hover:scale-125 group-hover:opacity-100"
+          }`}
+        />
+      </div>
+    </motion.div>
+  );
+};
 
 export default function Portfolio({ albumData }: { albumData: AlbumProps }) {
   const [isZoomed, setIsZoomed] = useState(false);
@@ -70,30 +135,30 @@ export default function Portfolio({ albumData }: { albumData: AlbumProps }) {
   return (
     <>
       <Layout
-        title={albumData?.albumName}
+        title=""
         subtitle={albumData?.description}
         display={{ ref: true, contact: true }}
       >
+        <Head>
+          {/* Using title here and not in layout to avoid passing list with generation */}
+          <title>
+            {albumData?.albumName
+              .split(" ")
+              .map((word) => word[0]?.toUpperCase() + word.slice(1))
+              .join(" ") + " | Temple Team"}
+          </title>
+        </Head>
         <section className="flex flex-wrap justify-center gap-5 px-5 1050:px-1050">
           {albumData?.data.map(({ id, src, width, height }, index) => (
-            <figure
-              key={index}
-              className="group flex aspect-auto h-fit w-fit cursor-pointer items-center justify-center overflow-hidden rounded-lg"
-              onClick={() => {
-                handlerZoom(index);
-              }}
-            >
-              <Image
-                src={src}
-                alt={id}
-                width={width}
-                height={height}
-                className="relative aspect-auto w-full grow items-center rounded-lg object-left-top transition-transform duration-500 group-hover:scale-105 group-hover:brightness-75 md:h-80 1050:h-80"
-              />
-              <div className="absolute flex items-center justify-center rounded-lg">
-                <HiOutlineArrowsExpand className="text-4xl text-white opacity-0 drop-shadow-lg  transition-transform duration-300 group-hover:scale-125 group-hover:opacity-100" />
-              </div>
-            </figure>
+            <ImageWithLoading
+              key={id}
+              id={id}
+              src={src}
+              width={width}
+              height={height}
+              index={index}
+              handlerZoom={handlerZoom}
+            />
           ))}
         </section>
 
@@ -154,7 +219,10 @@ export default function Portfolio({ albumData }: { albumData: AlbumProps }) {
 
         {/* Back to Albums list */}
 
-        <Link href={"/portfolio/photos"} className="flex flex-row items-center text-3xl uppercase font-black gap-5 px-5 1050:px-1050">
+        <Link
+          href={"/portfolio/photos"}
+          className="flex flex-row items-center gap-5 px-5 text-3xl font-black uppercase 1050:px-1050"
+        >
           <HiOutlineChevronLeft className="text-4xl" />
           Albums
         </Link>

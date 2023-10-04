@@ -4,6 +4,10 @@ import ContactBar from "./contact_bar";
 import References from "./references";
 import Head from "next/head";
 
+function capitalize(string: string) {
+  return string.split(" ").map((word) => word[0]?.toUpperCase() + word.slice(1)).join(" ");
+}
+
 /**
  * @description
  * A layout with navigation, (contact, references) and footer
@@ -27,7 +31,7 @@ export default function Layout({ title, subtitle, display, children }: { title: 
   return (
     <>
       <Head>
-        <title>{title} | Temple Team</title>
+        <title>{capitalize(title)} | Temple Team</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navigation />

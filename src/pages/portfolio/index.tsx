@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useWindowSize } from "~/components/elements";
 import Layout from "~/components/layout";
+import { useState } from "react";
+import { motion } from "framer-motion";
 
 export default function Portfolio() {
   const { width } = useWindowSize();
@@ -15,24 +17,38 @@ export default function Portfolio() {
     img: string;
     text: string;
   }) => {
+    const [imgLoading, setImgLoading] = useState(true);
+    const [pulsing, setPulsing] = useState(true);
+
+    const imageLoaded = () => {
+      setImgLoading(false);
+      setTimeout(() => setPulsing(false), 400);
+    };
+
     return (
-      <Link
-        href={href}
-        className="group flex justify-center items-center h-fit w-fit self-center justify-self-center"
+      <motion.div
+        className={`flex h-fit w-fit items-center justify-center self-center justify-self-center rounded-lg bg-neutral-200 ${
+          pulsing ? "pulse" : ""
+        } loadable`}
       >
-        <Image
-          src={img}
-          alt="img"
-          {...(width < 1050
-            ? { width: 250, height: 150 }
-            : { width: 400, height: 200 })}
-          className="h-56 w-96 rounded-lg object-cover group-hover:brightness-75 transition-all duration-500"
-          loading="lazy"
-        />
-        <div className="absolute flex items-center justify-center rounded-lg scale-100 duration-500 opacity-0 group-hover:opacity-100">
-          <h1 className="text-4xl text-white drop-shadow-lg">{text}</h1>
-        </div>
-      </Link>
+        <Link
+          href={href}
+          className="group flex h-fit w-fit items-center justify-center self-center justify-self-center"
+        >
+          <Image
+            src={img}
+            alt={img}
+            fill={true}
+            onLoad={imageLoaded}
+            className={`relative h-56 w-96 rounded-lg object-cover transition-all duration-500 group-hover:brightness-75 overflow-hidden ${
+              imgLoading ? "opacity-0 delay-500" : "opacity-100"
+            }`}
+          />
+          <div className="absolute flex scale-100 items-center justify-center rounded-lg opacity-0 duration-500 group-hover:opacity-100">
+            <h1 className="text-4xl text-white drop-shadow-lg">{text}</h1>
+          </div>
+        </Link>
+      </motion.div>
     );
   };
 
@@ -46,7 +62,7 @@ export default function Portfolio() {
         <section className="flex flex-wrap justify-center gap-8 px-5 1050:gap-16 1050:px-1050">
           <LinkImage
             href="/portfolio/photos"
-            img="/img/portfolio/photos/2022_17_26-06-23.jpg"
+            img="/img/team/Team.jpg"
             text="Photos"
           />
           <LinkImage

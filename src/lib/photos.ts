@@ -68,29 +68,18 @@ export function getSortedAlbumData(): AlbumsData[] {
     .map((fileName) => {
       const albumJson = readJsonAlbum(path.join(photosDir, fileName));
 
-      // Get the dimensions of the thumbnail
+      // Get informations about the thumbnail
       const img = sizeOf(path.join(photosDir, fileName, albumJson.thumbnail));
-      const width = img.width!;
-      const height = img.height!;
-
-      // Get the date of the album
-      const dateData = albumJson.date;
-      const date = new Date(dateData);
-
-      // Set album, description, and thumbnail
-      const thumbnail = {
-        file: `/img/portfolio/photos/${fileName}/${albumJson.thumbnail}`,
-        width,
-        height,
-      };
-      const link = fileName;
-      const albumName = albumJson.name;
 
       return {
-        albumName,
-        link,
-        date,
-        thumbnail,
+        albumName: albumJson.name,
+        link: fileName,
+        date: new Date(albumJson.date),
+        thumbnail: {
+          file: `/img/portfolio/photos/${fileName}/${albumJson.thumbnail}`,
+          width: img.width!,
+          height: img.height!,
+        },
       };
     })
     .filter((albumData) => albumData.date <= new Date());
@@ -138,34 +127,24 @@ export function getAlbumData(albumName: string) {
     .readdirSync(fullPath)
     .filter((fileName) => fileName !== "album.json");
   const data = fileNames.map((fileName) => {
-    // Remove ".jpg" from file name to get id
-    const id = fileName.replace(/\.jpg$/, "");
-    // Combine the path with the file name to get the full path
-    const src = `/img/portfolio/photos/${albumName}/${fileName}`;
-
     // Get the dimensions of the image
     const img = sizeOf(path.join(photosDir, albumName, fileName));
-    const width = img.width!;
-    const height = img.height!;
 
     return {
-      id,
-      src,
-      width,
-      height,
+      id: fileName.replace(/\.jpg$/, ""),
+      src: `/img/portfolio/photos/${albumName}/${fileName}`,
+      width: img.width!,
+      height: img.height!,
     };
   });
 
   // Get the contents of album.json of albumName
   const albumJson = readJsonAlbum(fullPath);
-  albumName = albumJson.name;
-  const date = new Date(albumJson.date).getFullYear();
-  const description = albumJson.description;
 
   return {
-    albumName,
-    date,
-    description,
+    albumName: albumJson.name,
+    date: new Date(albumJson.date).getFullYear(),
+    description: albumJson.description,
     data,
   };
 }
