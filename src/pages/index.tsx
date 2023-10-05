@@ -1,4 +1,5 @@
 // import { signIn, signOut, useSession } from "next-auth/react";
+import { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,13 +12,21 @@ import { useWindowSize } from "~/components/elements";
 import { useSpring, animated } from "@react-spring/web";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
 // import { Manrope, Rubik } from "next/font/google";
-import { useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export default function Home() {
   const width = useWindowSize().width;
   const shouldReduceMotion = useReducedMotion();
 
   const HeroBanner = () => {
+    const [videoLoading, setVideoLoading] = useState(true);
+    const [pulsing, setPulsing] = useState(true);
+
+    const videoLoaded = () => {
+      setVideoLoading(false);
+      setTimeout(() => setPulsing(false), 400);
+    };
+
     return (
       <section
         id="hero-banner"
@@ -39,7 +48,7 @@ export default function Home() {
             </h2>
           </>
         ) : (
-          <aside className="absolute flex w-fit -translate-x-[255px] translate-y-10 items-end text-neutral-50 before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:from-red-550 before:to-red-550/0 before:content-['']">
+          <aside className="absolute flex w-fit -translate-x-[255px] translate-y-10 items-end text-neutral-50 before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:from-red-550 before:to-red-550/0 before:content-[''] z-10">
             <svg
               viewBox="0 0 409 191"
               fill="none"
@@ -59,29 +68,50 @@ export default function Home() {
             </em>
           </aside>
         )}
-        <video autoPlay={!shouldReduceMotion} loop muted preload="none" className="1050:h-[591px]">
-          <source
-            src="https://templeteam.fr/static/video/hero-banner.webm"
-            type="video/webm"
-          />
-          <source
-            src="https://templeteam.fr/static/video/hero-banner.mp4"
-            type="video/mp4"
-          />
-          <source
-            src="https://templeteam.fr/static/video/hero-banner.mov"
-            type="video/mov"
-          />
-          <p>
-            Votre navigateur ne supporte pas les lecteurs vidéos. Veuillez
-            mettre à jour votre navigateur.
-          </p>
-        </video>
+        <motion.div
+          className={`bg-neutral-200 ${pulsing ? "animate-pulse" : ""}`}
+        >
+          <video
+            autoPlay={!shouldReduceMotion}
+            loop
+            muted
+            onCanPlay={() => videoLoaded()}
+            preload="none"
+            className={`transition-opacity duration-500 1050:h-[591px] ${
+              videoLoading ? "opacity-0" : ""
+            }`}
+          >
+            <source
+              src="https://templeteam.fr/static/video/hero-banner.webm"
+              type="video/webm"
+            />
+            <source
+              src="https://templeteam.fr/static/video/hero-banner.mp4"
+              type="video/mp4"
+            />
+            <source
+              src="https://templeteam.fr/static/video/hero-banner.mov"
+              type="video/mov"
+            />
+            <p>
+              Votre navigateur ne supporte pas les lecteurs vidéos. Veuillez
+              mettre à jour votre navigateur.
+            </p>
+          </video>
+        </motion.div>
       </section>
     );
   };
 
   const About = () => {
+    const [imageLoading, setImageLoading] = useState(true);
+    const [pulsing, setPulsing] = useState(true);
+
+    const imageLoaded = () => {
+      setImageLoading(false);
+      setTimeout(() => setPulsing(false), 400);
+    };
+
     const [springs, api] = useSpring(
       () => ({
         x: 0,
@@ -137,14 +167,23 @@ export default function Home() {
             <HiOutlineArrowLeft className="inline-block text-3xl" />
           </animated.div>
         </div>
-        <Image
-          src="/img/team/Team.jpg"
-          alt="Photo des membres de la Temple Team"
-          title="Photo des membres de la Temple Team"
-          width={500}
-          height={500}
-          className="slef-center h-full justify-self-center object-contain 1050:col-start-2 1050:row-start-1 1050:row-end-2"
-        />
+        <motion.div
+          className={`relative slef-center h-full justify-self-center bg-neutral-200 object-contain 1050:col-start-2 1050:row-start-1 1050:row-end-2 ${
+            pulsing ? "animate-pulse" : ""
+          }`}
+        >
+          <Image
+            src="/img/team/Team.jpg"
+            alt="Photo des membres de la Temple Team"
+            title="Photo des membres de la Temple Team"
+            fill
+            sizes="(min-width: 1050px) 515px, 95vw"
+            onLoad={() => imageLoaded()}
+            className={`relative transition-opacity duration-300 ${
+              imageLoading ? "opacity-0" : ""
+            }`}
+          />
+        </motion.div>
       </section>
     );
   };

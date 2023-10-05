@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import Layout from "~/components/layout";
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { useWindowSize } from "~/components/elements";
 
 export default function Portfolio() {
   const LinkImage = ({
@@ -14,8 +15,11 @@ export default function Portfolio() {
     img: string;
     text: string;
   }) => {
+    const ref = useRef(null);
     const [imgLoading, setImgLoading] = useState(true);
     const [pulsing, setPulsing] = useState(true);
+    const isInView = useInView(ref, { margin: "-45% 10% -45%" });
+    const width = useWindowSize().width;
 
     const imageLoaded = () => {
       setImgLoading(false);
@@ -25,23 +29,29 @@ export default function Portfolio() {
     return (
       <motion.div
         className={`flex h-fit w-fit items-center justify-center self-center justify-self-center rounded-lg bg-neutral-200 ${
-          pulsing ? "pulse" : ""
-        } loadable`}
+          pulsing ? "animate-pulse" : ""
+        }`}
       >
         <Link
+          ref={ref}
           href={href}
           className="group flex h-fit w-fit items-center justify-center self-center justify-self-center"
         >
           <Image
             src={img}
             alt={img}
-            fill={true}
+            fill
+            sizes="(min-width: 424px) 384px, 95vw"
             onLoad={imageLoaded}
-            className={`relative h-56 w-96 rounded-lg object-cover transition-all duration-500 group-hover:brightness-75 overflow-hidden ${
+            className={`relative aspect-[3_/_2] w-screen md:w-[45vw] flex-grow overflow-hidden rounded-lg object-cover transition-all duration-500 group-hover:brightness-75 1050:h-80 1050:w-auto ${
               imgLoading ? "opacity-0 delay-500" : "opacity-100"
-            }`}
+            } ${width < 1050 && isInView ? "brightness-[.7]" : ""}`}
           />
-          <div className="absolute flex scale-100 items-center justify-center rounded-lg opacity-0 duration-500 group-hover:opacity-100">
+          <div
+            className={`absolute flex scale-100 items-center justify-center rounded-lg opacity-0 duration-500 group-hover:opacity-100 ${
+              width < 1050 && isInView ? "opacity-100" : ""
+            }`}
+          >
             <h1 className="text-4xl text-white drop-shadow-lg">{text}</h1>
           </div>
         </Link>

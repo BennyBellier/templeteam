@@ -33,9 +33,9 @@ const AlbumLink = ({ albumName, link, date, thumbnail }: AlbumsData) => {
 
   return (
     <motion.div
-      className={`justify-self-center flex aspect-video h-52 items-center justify-center self-center overflow-hidden rounded-lg bg-neutral-200 ${
-        pulsing ? "animate-pulse" : "group"
-      }`}
+      className={`flex aspect-video items-center justify-center self-center justify-self-center overflow-hidden rounded-lg bg-neutral-200 ${
+        pulsing ? "animate-pulse " : "group"
+      } ${width > 409 ? 'h-52' : ''}`}
     >
       <Link
         ref={ref}
@@ -46,8 +46,8 @@ const AlbumLink = ({ albumName, link, date, thumbnail }: AlbumsData) => {
         <Image
           src={thumbnail.file}
           alt={`${albumName} couverture`}
-          fill={true}
-          layout="fill"
+          fill
+          sizes="(min-width: 409px) 370px, 95vw"
           onLoad={imageLoaded}
           className={`relative aspect-video w-full grow rounded-lg object-cover object-center transition-transform duration-700 group-hover:scale-110 group-hover:brightness-75 ${
             width < 1050 && isInView ? "scale-110 brightness-75" : ""

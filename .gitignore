@@ -42,7 +42,7 @@ yarn-error.log*
 *.tsbuildinfo
 
 # content
-/public/img/portfolio/photos/*
+/public/img/portfolio/*
 /public/img/team/*
 /public/img/references/*
 /public/img/*.png

@@ -48,8 +48,8 @@ const AthleteCard = ({
       <AthleteVideo file={file} name={name} />
       <div className="auto-row-min grid w-[350px] gap-3 rounded-b-2xl bg-neutral-50 p-3 dark:bg-neutral-800 md:w-[375px] 1050:h-[400px] 1050:w-[400px] 1050:grid-rows-[36px_1fr_136px] 1050:rounded-r-2xl 1050:rounded-bl-none 1050:pb-4 1050:pt-5">
         <h1 className="h-fit text-center text-3xl capitalize">{name}</h1>
-        {nickname ? (
-          <h2 className="h-fit text-center text-xl">{nickname}</h2>
+        {nickname ? ( // with nickname capitalize the first letter
+          <h2 className="h-fit text-center text-xl">aka {nickname[0]?.toUpperCase() + nickname.slice(1)}</h2>
         ) : null}
         <Skills />
       </div>
@@ -71,7 +71,7 @@ export default function LaTeam() {
         >
           <AthleteCard
             name="julien daubord"
-            nickname="aka Coach"
+            nickname="Coach"
             file="Julien"
             skills={[
               { name: "État", level: 40 },
@@ -81,7 +81,7 @@ export default function LaTeam() {
           />
           <AthleteCard
             name="romain castillo"
-            nickname="aka Mowgli"
+            nickname="Mowgli"
             file="Romain"
             skills={[
               { name: "Acrobaties", level: 90 },
@@ -91,7 +91,7 @@ export default function LaTeam() {
           />
           <AthleteCard
             name="hugo rival"
-            nickname="aka Bboyrival"
+            nickname="Bboyrival"
             file="Hugo"
             skills={[
               { name: "Breakdance", level: 65 },
@@ -101,7 +101,7 @@ export default function LaTeam() {
           />
           <AthleteCard
             name="benjamin bellier"
-            nickname="aka Benny"
+            nickname="Benny"
             file="Benjamin"
             skills={[
               { name: "Cheville", level: 30 },

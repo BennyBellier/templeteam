@@ -43,7 +43,6 @@ const photosDir = path.join(
   "public",
   "img",
   "portfolio",
-  "photos"
 );
 
 function readJsonAlbum(folderPath: string) {
@@ -59,7 +58,8 @@ function readJsonAlbum(folderPath: string) {
 }
 
 export function getSortedAlbumData(): AlbumsData[] {
-  // Get files names under img/portfolio/photos/*
+  try {
+    // Get files names under img/portfolio/*
   const fileNames = fs
     .readdirSync(photosDir, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
@@ -76,7 +76,7 @@ export function getSortedAlbumData(): AlbumsData[] {
         link: fileName,
         date: new Date(albumJson.date),
         thumbnail: {
-          file: `/img/portfolio/photos/${fileName}/${albumJson.thumbnail}`,
+          file: `/img/portfolio/${fileName}/${albumJson.thumbnail}`,
           width: img.width!,
           height: img.height!,
         },
@@ -101,50 +101,64 @@ export function getSortedAlbumData(): AlbumsData[] {
         thumbnail: albumData.thumbnail,
       };
     });
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
 export function getAllAlbumNames() {
-  // Get files names under img/portfolio/photos/*
-  const albumNames = fs
-    .readdirSync(photosDir, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
+  try {
+    // Get files names under img/portfolio/*
+    const albumNames = fs
+      .readdirSync(photosDir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
 
-  // Get the paths we want to pre-render based on posts
-  return albumNames.map((albumName) => {
-    return {
-      params: {
-        id: albumName,
-      },
-    };
-  });
+    // Get the paths we want to pre-render based on posts
+    return albumNames.map((albumName) => {
+      return {
+        params: {
+          id: albumName,
+        },
+      };
+    });
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
 export function getAlbumData(albumName: string) {
-  // Get files names under img/portfolio/photos/*
-  const fullPath = path.join(photosDir, albumName);
-  const fileNames = fs
-    .readdirSync(fullPath)
-    .filter((fileName) => fileName !== "album.json");
-  const data = fileNames.map((fileName) => {
-    // Get the dimensions of the image
-    const img = sizeOf(path.join(photosDir, albumName, fileName));
+  try {
+    // Get files names under img/portfolio/*
+    const fullPath = path.join(photosDir, albumName);
+    const fileNames = fs
+      .readdirSync(fullPath)
+      .filter((fileName) => fileName !== "album.json");
+    const data = fileNames.map((fileName) => {
+      // Get the dimensions of the image
+      const img = sizeOf(path.join(photosDir, albumName, fileName));
+
+      return {
+        id: fileName.replace(/\.jpg$/, ""),
+        src: `/img/portfolio/${albumName}/${fileName}`,
+        width: img.width!,
+        height: img.height!,
+      };
+    });
+
+    // Get the contents of album.json of albumName
+    const albumJson = readJsonAlbum(fullPath);
 
     return {
-      id: fileName.replace(/\.jpg$/, ""),
-      src: `/img/portfolio/photos/${albumName}/${fileName}`,
-      width: img.width!,
-      height: img.height!,
+      albumName: albumJson.name,
+      date: new Date(albumJson.date).getFullYear(),
+      description: albumJson.description,
+      data,
     };
-  });
-
-  // Get the contents of album.json of albumName
-  const albumJson = readJsonAlbum(fullPath);
-
-  return {
-    albumName: albumJson.name,
-    date: new Date(albumJson.date).getFullYear(),
-    description: albumJson.description,
-    data,
-  };
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

@@ -14,6 +14,7 @@ import {
 } from "./elements";
 import type { LinkProps } from "../lib/links";
 import { links } from "../lib/links";
+import { motion } from "framer-motion";
 
 const SmallPrintList = () => {
   return (
@@ -93,7 +94,13 @@ const SocialNetworks = () => {
   );
 };
 
-const Dropdown = ({ name, links }: { name: string; links: LinkProps[] | undefined }) => {
+const Dropdown = ({
+  name,
+  links,
+}: {
+  name: string;
+  links: LinkProps[] | undefined;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const size = useWindowSize();
@@ -103,8 +110,7 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] | undefine
   };
 
   const dropdownSize = () => {
-    if (links)
-      return links.length * 2.25 + 0.5;
+    if (links) return links.length * 2.25 + 0.5;
     return 0;
   };
 
@@ -126,7 +132,7 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] | undefine
       <button
         ref={dropdownRef}
         onClick={handleOpen}
-        className="flex w-full items-center justify-between text-xl 1050:whitespace-nowrap 1050:text-base 1050:cursor-default"
+        className="flex w-full items-center justify-between text-xl 1050:cursor-default 1050:whitespace-nowrap 1050:text-base"
       >
         {name}
         <Expand isOpen={isOpen} className="1050:hidden" />
@@ -172,14 +178,14 @@ const Dropdown = ({ name, links }: { name: string; links: LinkProps[] | undefine
 const Navigation = () => {
   const templeTeamLinks: LinkProps[] = [];
   const othersLinks: LinkProps[] = [];
-  links.map((link) => { // map all links
+  links.map((link) => {
+    // map all links
     if (link.type === "link" || link.href === "/portfolio") {
       templeTeamLinks.push(link);
     } else {
       othersLinks.push(link);
     }
-  }
-  );
+  });
 
   return (
     <nav className="flex w-full flex-col gap-5 1050:h-fit 1050:w-fit 1050:flex-row">

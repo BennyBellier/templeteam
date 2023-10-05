@@ -74,7 +74,8 @@ const ImageWithLoading = ({
       <Image
         src={src}
         alt={id}
-        layout="fill"
+        fill
+        sizes=""
         onLoad={imageLoaded}
         className={`relative aspect-auto w-full grow items-center rounded-lg object-left-top duration-500 md:h-80 1050:h-80 ${
           imgLoading
