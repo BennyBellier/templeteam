@@ -1,9 +1,5 @@
-import Head from "next/head";
+import { AthleteVideo } from "~/components/AthleteVideoPart";
 import Layout from "~/components/layout";
-import Image from "next/image";
-import { useRef, useState } from "react";
-import { motion, useInView } from "framer-motion";
-import { useWindowSize } from "~/components/elements";
 
 interface skill {
   name: string;
@@ -21,81 +17,6 @@ const AthleteCard = ({
   file: string;
   skills: [skill, skill, skill];
 }) => {
-  const Video = () => {
-    const [imgLoading, setImgLoading] = useState(true);
-    const [videoLoading, setVideoLoading] = useState(true);
-    const [pulsing, setPulsing] = useState(true);
-    const videoRef = useRef(null);
-    const isInView = useInView(videoRef, { margin: "-45% 10% -45%" });
-    const width = useWindowSize().width;
-
-    const imageLoaded = () => {
-      setImgLoading(false);
-      setTimeout(() => setPulsing(false), 400);
-    };
-
-    const playVideo = () => {
-      if (videoRef.current && !videoLoading && !imgLoading)
-        void (videoRef.current as HTMLVideoElement).play();
-    };
-
-    const pauseVideo = () => {
-      if (videoRef.current && !videoLoading && !imgLoading)
-        void (videoRef.current as HTMLVideoElement).pause();
-    };
-
-    const resetVideo = () => {
-      if (videoRef.current && !videoLoading && !imgLoading) {
-        void (videoRef.current as HTMLVideoElement).fastSeek(0);
-      }
-    };
-
-    return (
-      <motion.div
-        className={`group relative flex h-[350px] w-[350px] items-center justify-center overflow-hidden rounded-t-2xl bg-neutral-200 md:h-[375px] md:w-[375px] 1050:h-[400px] 1050:w-[400px] 1050:rounded-l-2xl 1050:rounded-br-none 1050:rounded-tr-none ${
-          pulsing ? "animate-pulse" : ""
-        }`}
-        onMouseOver={playVideo}
-        onMouseOut={pauseVideo}
-      >
-        <Image
-          src={"/img/team/" + file + ".jpg"}
-          alt={name}
-          {...(width >= 1050
-            ? { width: 400, height: 400 }
-            : width >= 768
-            ? { width: 375, height: 375 }
-            : { width: 350, height: 350 })}
-          onLoad={imageLoaded}
-          className={`absolute h-[350px] w-[350px] rounded-t-2xl duration-500 md:h-[375px] md:w-[375px] 1050:h-[400px] 1050:w-[400px] 1050:rounded-l-2xl 1050:rounded-br-none 1050:rounded-tr-none ${
-            imgLoading ? "opacity-0" : "opacity-100"
-          }`}
-        />
-        <video
-          className={`h-[350px] w-[350px] rounded-t-2xl brightness-150 duration-500 md:h-[375px] md:w-[375px] 1050:h-[400px] 1050:w-[400px] 1050:rounded-l-2xl 1050:rounded-tr-none opacity-0 ${ imgLoading || videoLoading ? "" : "group-hover:opacity-100"}`}
-          preload="none"
-          onLoadStart={() => {console.log("start loading video")}}
-          onLoadedData={() => setVideoLoading(false)}
-          onEnded={resetVideo}
-          ref={videoRef}
-        >
-          {/* <source src={"/video/team/" + file + ".webm"} type="video/webm" />
-          <source src={"/video/team/" + file + ".mp4"} type="video/mp4" />
-          <source src={"/video/team/" + file + ".mov"} type="video/mov" /> */}
-          <source src="/video/team/Export_v2.3.mp4" type="video/mp4" />
-        </video>
-
-        <span
-          className={`absolute right-2 top-2 flex h-3 w-3 ${
-            videoLoading ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-sky-400 opacity-75"></span>
-          <span className="relative inline-flex h-3 w-3 rounded-full bg-sky-500"></span>
-        </span>
-      </motion.div>
-    );
-  };
 
   const Skills = () => {
     return (
@@ -124,7 +45,7 @@ const AthleteCard = ({
 
   return (
     <div className="grid h-fit w-fit grid-cols-1 grid-rows-2 self-center justify-self-center rounded-b-2xl shadow-xl dark:shadow-none 1050:grid-cols-2 1050:grid-rows-1 1050:rounded-r-2xl">
-      <Video />
+      <AthleteVideo file={file} name={name} />
       <div className="auto-row-min grid w-[350px] gap-3 rounded-b-2xl bg-neutral-50 p-3 dark:bg-neutral-800 md:w-[375px] 1050:h-[400px] 1050:w-[400px] 1050:grid-rows-[36px_1fr_136px] 1050:rounded-r-2xl 1050:rounded-bl-none 1050:pb-4 1050:pt-5">
         <h1 className="h-fit text-center text-3xl capitalize">{name}</h1>
         {nickname ? (

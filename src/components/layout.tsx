@@ -4,10 +4,6 @@ import ContactBar from "./contact_bar";
 import References from "./references";
 import Head from "next/head";
 
-function capitalize(string: string) {
-  return string.split(" ").map((word) => word[0]?.toUpperCase() + word.slice(1)).join(" ");
-}
-
 /**
  * @description
  * A layout with navigation, (contact, references) and footer
@@ -27,11 +23,27 @@ function capitalize(string: string) {
  * </Layout>
  * ```
  */
-export default function Layout({ title, subtitle, display, children }: { title: string, subtitle?: string, display?: {ref: boolean, contact: boolean}, children: React.ReactNode }) {
+export default function Layout({
+  title,
+  subtitle,
+  display,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  display?: { ref: boolean; contact: boolean };
+  children: React.ReactNode;
+}) {
   return (
     <>
       <Head>
-        <title>{capitalize(title)} | Temple Team</title>
+        <title>
+          {title
+            ?.split(" ")
+            .map((word) => word[0]?.toUpperCase() + word.slice(1))
+            .join(" ")}{" "}
+          | Temple Team
+        </title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navigation />

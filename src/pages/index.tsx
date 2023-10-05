@@ -1,8 +1,8 @@
-import { signIn, signOut, useSession } from "next-auth/react";
+// import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import Image from "next/image";
-import { api } from "~/utils/api";
+// import { api } from "~/utils/api";
 import Navigation from "../components/navigation";
 import Footer from "../components/footer";
 import ContactBar from "../components/contact_bar";
@@ -10,7 +10,7 @@ import References from "../components/references";
 import { useWindowSize } from "~/components/elements";
 import { useSpring, animated } from "@react-spring/web";
 import { HiOutlineArrowLeft } from "react-icons/hi2";
-import { Manrope, Rubik } from "next/font/google";
+// import { Manrope, Rubik } from "next/font/google";
 import { useReducedMotion } from "framer-motion";
 
 export default function Home() {

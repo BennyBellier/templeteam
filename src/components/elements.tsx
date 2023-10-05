@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { HiChevronDown, HiMoon, HiSun } from "react-icons/hi2";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export enum ThemeButtonTypes {
   MobileNav,

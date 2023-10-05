@@ -1,13 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { useWindowSize } from "~/components/elements";
 import Layout from "~/components/layout";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
 export default function Portfolio() {
-  const { width } = useWindowSize();
-
   const LinkImage = ({
     href,
     img,

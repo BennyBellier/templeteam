@@ -95,15 +95,15 @@ const HeaderLogo = () => {
 
   if (size.width >= 1050) {
     return (
-      <Image src={logo} alt="Logo de la Temple Team" width={70} height={70} />
+      <Image src={logo} alt="Logo de la Temple Team" width={70} height={70} className="w-auto h-auto"/>
     );
   } else if (size.width < 1050 && size.width >= 768) {
     return (
-      <Image src={logo} alt="Logo de la Temple Team" width={60} height={60} />
+      <Image src={logo} alt="Logo de la Temple Team" width={60} height={60} className="w-auto h-auto"/>
     );
   } else {
     return (
-      <Image src={logo} alt="Logo de la Temple Team" width={50} height={50} />
+      <Image src={logo} alt="Logo de la Temple Team" width={50} height={50} className="w-auto h-auto"/>
     );
   }
 };

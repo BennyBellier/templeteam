@@ -11,7 +11,6 @@ import {
 import { HiOutlineArrowsExpand } from "react-icons/hi";
 import { getAlbumData, getAllAlbumNames } from "~/lib/photos";
 import { type AlbumProps } from "~/utils/types";
-import Head from "next/head";
 
 export function getStaticPaths() {
   const paths = getAllAlbumNames();
@@ -135,19 +134,10 @@ export default function Portfolio({ albumData }: { albumData: AlbumProps }) {
   return (
     <>
       <Layout
-        title=""
+        title={albumData?.albumName}
         subtitle={albumData?.description}
         display={{ ref: true, contact: true }}
       >
-        <Head>
-          {/* Using title here and not in layout to avoid passing list with generation */}
-          <title>
-            {albumData?.albumName
-              .split(" ")
-              .map((word) => word[0]?.toUpperCase() + word.slice(1))
-              .join(" ") + " | Temple Team"}
-          </title>
-        </Head>
         <section className="flex flex-wrap justify-center gap-5 px-5 1050:px-1050">
           {albumData?.data.map(({ id, src, width, height }, index) => (
             <ImageWithLoading
