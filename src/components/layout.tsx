@@ -31,7 +31,7 @@ export default function Layout({
 }: {
   title: string;
   subtitle?: string;
-  display?: { ref: boolean; contact: boolean };
+  display?: { ref: boolean; contact: boolean};
   children: React.ReactNode;
 }) {
   return (
