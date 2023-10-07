@@ -50,3 +50,4 @@ yarn-error.log*
 /public/img/*.png
 /public/img/*.svg
 public/video/**
+/src/data/blog_posts/*

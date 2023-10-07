@@ -14,7 +14,6 @@ import {
 } from "./elements";
 import type { LinkProps } from "../lib/links";
 import { links } from "../lib/links";
-import { motion } from "framer-motion";
 
 const SmallPrintList = () => {
   return (

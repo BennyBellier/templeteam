@@ -8,6 +8,8 @@ import { type AlbumsData } from "~/utils/types";
 import { useInView } from "framer-motion";
 import { useWindowSize } from "~/components/elements";
 import { motion } from "framer-motion";
+import { api } from "~/utils/api";
+import { appRouter } from "~/server/api/root";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function getStaticProps() {
@@ -35,7 +37,7 @@ const AlbumLink = ({ albumName, link, date, thumbnail }: AlbumsData) => {
     <motion.div
       className={`flex aspect-video items-center justify-center self-center justify-self-center overflow-hidden rounded-lg bg-neutral-200 ${
         pulsing ? "animate-pulse " : "group"
-      } ${width > 409 ? 'h-52' : ''}`}
+      } ${width > 409 ? "h-52" : ""}`}
     >
       <Link
         ref={ref}
@@ -73,16 +75,17 @@ export default function Photos({
 }: {
   allAlbumsData: AlbumsData[];
 }) {
-
-  const PhotosMap = allAlbumsData?.map(({ albumName, link, date, thumbnail }) => (
-              <AlbumLink
-                key={albumName}
-                albumName={albumName}
-                link={link}
-                date={date}
-                thumbnail={thumbnail}
-              />
-            ));
+  const PhotosMap = allAlbumsData?.map(
+    ({ albumName, link, date, thumbnail }) => (
+      <AlbumLink
+        key={albumName}
+        albumName={albumName}
+        link={link}
+        date={date}
+        thumbnail={thumbnail}
+      />
+    )
+  );
 
   const Albums = () => {
     if (allAlbumsData === undefined)
@@ -98,7 +101,11 @@ export default function Photos({
         </p>
       );
     else return PhotosMap;
-  }
+  };
+
+  const revalidate = () => {
+    ;
+  };
 
   return (
     <>
@@ -118,6 +125,16 @@ export default function Photos({
           Vidéos
           <HiOutlineChevronRight className="text-4xl" />
         </Link>
+        <button
+          onClick={() => {fetch(
+            "http://localhost:3000/api/revalidate?path=/portfolio/photos"
+          )
+            .then((res) => res.json())
+            .then((data) => console.log(data))
+            .catch((err) => console.log(err))}}
+        >
+          Revalidate
+        </button>
       </Layout>
     </>
   );

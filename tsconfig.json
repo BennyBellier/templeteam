@@ -28,6 +28,6 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs"
-  ],
+, "src/pages/api/revalidate.ts"  ],
   "exclude": ["node_modules"]
 }

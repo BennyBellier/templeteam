@@ -135,3 +135,12 @@ export interface VideoProps {
   thumbnail: string;
   category: string;
 }
+
+export interface BlogPostProps {
+  title: string;
+  date: string;
+  description: string;
+  type: string;
+  image: string;
+  link?: string;
+}

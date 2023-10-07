@@ -1,3 +1,4 @@
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -21,4 +22,18 @@ export const exampleRouter = createTRPCRouter({
   getSecretMessage: protectedProcedure.query(() => {
     return "you can now see this secret message!";
   }),
+
+  revalidate: publicProcedure.input(z.object({ path: z.string() })).query(
+    ({ input }) => {
+
+      console.log("revalidating path", input.path);
+      revalidatePath(input.path);
+
+      return {
+        revalidated: true,
+        path: input.path,
+        date: new Date(),
+      };
+    }
+  ),
 });
