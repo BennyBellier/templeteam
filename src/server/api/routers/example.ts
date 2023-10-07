@@ -1,4 +1,3 @@
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -23,17 +22,19 @@ export const exampleRouter = createTRPCRouter({
     return "you can now see this secret message!";
   }),
 
-  revalidate: publicProcedure.input(z.object({ path: z.string() })).query(
-    ({ input }) => {
-
-      console.log("revalidating path", input.path);
-      revalidatePath(input.path);
-
-      return {
-        revalidated: true,
-        path: input.path,
-        date: new Date(),
-      };
-    }
-  ),
+  // revalidation procedure for next/cache
+  revalidate: publicProcedure
+    .input(z.object({ path: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      try {
+        if (!input.path || input.path.length === 0) {
+          throw new Error("No path provided");
+        }
+        console.log("[NextJS] revalidating '", input.path, "'");
+        await ctx.res?.revalidate(input.path);
+        return { revalidated: true };
+      } catch (error) {
+        console.log(error);
+      }
+    }),
 });

@@ -9,7 +9,6 @@ import { useInView } from "framer-motion";
 import { useWindowSize } from "~/components/elements";
 import { motion } from "framer-motion";
 import { api } from "~/utils/api";
-import { appRouter } from "~/server/api/root";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function getStaticProps() {
@@ -103,10 +102,6 @@ export default function Photos({
     else return PhotosMap;
   };
 
-  const revalidate = () => {
-    ;
-  };
-
   return (
     <>
       <Layout
@@ -125,16 +120,6 @@ export default function Photos({
           Vidéos
           <HiOutlineChevronRight className="text-4xl" />
         </Link>
-        <button
-          onClick={() => {fetch(
-            "http://localhost:3000/api/revalidate?path=/portfolio/photos"
-          )
-            .then((res) => res.json())
-            .then((data) => console.log(data))
-            .catch((err) => console.log(err))}}
-        >
-          Revalidate
-        </button>
       </Layout>
     </>
   );
