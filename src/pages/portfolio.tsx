@@ -73,7 +73,7 @@ export default function Portfolio() {
             text="Photos"
           />
           <LinkImage
-            href="/portfolio/photos"
+            href="/portfolio/videos"
             img="/img/references/outsider.jpg"
             text="Vidéos"
           />

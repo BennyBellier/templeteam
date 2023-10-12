@@ -8,10 +8,8 @@ import { type AlbumsData } from "~/utils/types";
 import { useInView } from "framer-motion";
 import { useWindowSize } from "~/components/elements";
 import { motion } from "framer-motion";
-import { api } from "~/utils/api";
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function getStaticProps() {
+export function getStaticProps() {
   const allAlbumsData = getSortedAlbumData();
   return {
     props: {

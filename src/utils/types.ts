@@ -47,6 +47,10 @@ export interface YOUTUBE_V3_SEARCH {
 export interface YOUTUBE_V3_VIDEOS {
   kind: string;
   etag: string;
+  pageInfo: {
+    totalResults: number;
+    resultsPerPage: number;
+  };
   items: {
     kind: string;
     etag: string;
@@ -88,10 +92,12 @@ export interface YOUTUBE_V3_VIDEOS {
       };
     };
   }[];
-  pageInfo: {
-    totalResults: number;
-    resultsPerPage: number;
-  };
+}
+
+export interface YOUTUBE_V3_PROPS {
+  videos: VideoProps[];
+  nextPublishedBefore: string;
+  nextTotalResults: number;
 }
 
 export const YOUTUBE_CATEGORY: Record<number, string> = {
@@ -133,7 +139,7 @@ export interface VideoProps {
   id: string;
   title: string;
   thumbnail: string;
-  category: string;
+  category: string | undefined;
 }
 
 export interface BlogPostProps {
