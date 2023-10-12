@@ -41,6 +41,9 @@ export interface YOUTUBE_V3_SEARCH {
       kind: string;
       videoId: string;
     };
+    snippet: {
+      publishedAt: string;
+    }
   }[];
 }
 
@@ -139,7 +142,8 @@ export interface VideoProps {
   id: string;
   title: string;
   thumbnail: string;
-  category: string | undefined;
+  category: string;
+  publishedAt: string;
 }
 
 export interface BlogPostProps {

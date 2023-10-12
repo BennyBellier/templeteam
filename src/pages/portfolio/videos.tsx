@@ -9,35 +9,15 @@ import {
 } from "../../utils/types";
 import { api } from "~/utils/api";
 import DotsLoader from "~/components/DotsLoader";
+import { getSortedYoutubeVideos } from "~/lib/videos";
 
-export function getStaticProps() {
-  // const response = await fetch(
-  //   `https://www.googleapis.com/youtube/v3/search?channelId=${env.YOUTUBE_CHANNEL_ID}&maxResults=${20}&order=date&type=video&key=${env.YOUTUBE_API_KEY}`
-  // );
-
-  // const res = (await response.json()) as YOUTUBE_V3_SEARCH;
-
-  // if (!response.ok) {
-  //   console.error(
-  //     `YOUTUBE SEARCH QUERY] Error fetching data: ${response.status} ${response.statusText}`
-  //   );
-  // }
-
-  // const repo = {
-  //       ok: response.ok,
-  //       status: response.status,
-  //       statusText: response.statusText,
-  //       queryLength: res.pageInfo.resultsPerPage,
-  //       totalLength: res.pageInfo.totalResults,
-  //       videoIds: res.items.map((item) => {
-  //         return item.id.videoId;
-  //       }),
-  //     };
+export async function getStaticProps() {
+  const repo = await getSortedYoutubeVideos();
   return {
     props: {
-      //     repo,
+      repo,
     },
-    //   revalidate: 86400, // revalidate every 24 hours
+      revalidate: 86400, // revalidate every 24 hours
   };
 }
 
@@ -92,28 +72,13 @@ function VideoItem({ video }: { video: VideoProps }) {
 }
 
 
-export default function VideosPage(/* {
+export default function VideosPage({
   repo,
 }: {
-  repo: YOUTUBE_V3_SEARCH_PROPS;
-} */) {
+  repo: VideoProps[];
+}) {
+  const [videos, setVideos] = useState<VideoProps[]>(repo);
   const videosQuery = api.example.fetchVideosList.useMutation();
-  const [videos, setVideos] = useState<VideoProps[]>([]);
-
-  useEffect(() => {
-    videosQuery.mutate({
-      publishedBefore: videosQuery.data?.nextPublishedBefore,
-      totalResults: videosQuery.data?.nextTotalResults,
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleMoreVideos = () => {
-    videosQuery.mutate({
-      publishedBefore: videosQuery.data?.nextPublishedBefore,
-      totalResults: videosQuery.data?.nextTotalResults,
-    });
-  }
 
   const VideosList = () => {
     if (videosQuery.isLoading)
@@ -124,14 +89,12 @@ export default function VideosPage(/* {
         <p className="text-center text-2xl font-bold">{`Une erreur s'est produite ! Veuillez réessayer`}</p>
       );
 
-    const videosList = videosQuery.data?.videos ?? [];
 
-    if (videosList.length === 0)
+
+    if (!videos || videos.length === 0)
       return (
         <p className="text-center text-2xl font-bold">{`Aucune vidéo n'est disponible pour le moment !`}</p>
       );
-
-    setVideos([...videos, ...videosList]);
 
     return (
       <>
@@ -141,6 +104,21 @@ export default function VideosPage(/* {
       </>
     );
   };
+
+  const handleMoreVideos = () => {
+    videosQuery.mutate({
+      totalResults: videosQuery.data?.nextTotalResults ?? repo.length,
+    });
+
+    if (videosQuery.isSuccess) {
+      setVideos([...videos, ...videosQuery.data?.videos]);
+    }
+  }
+
+  const moreVideoDisable = () => {
+    return false;
+    return videosQuery.isLoading || videosQuery.isError || videos.length === 0 || videos.length === videosQuery.data?.nextTotalResults;
+  }
 
   return (
     <>
@@ -153,7 +131,7 @@ export default function VideosPage(/* {
           <VideosList />
         </section>
 
-        <button onClick={handleMoreVideos} disabled={videosQuery.isLoading ||videosQuery.isError || videos.length === videosQuery.data?.nextTotalResults} className={`w-fit px-3 py-2 border border-neutral-900 rounded-lg self-center disabled:opacity-0`}>Afficher plus</button>
+        <button onClick={handleMoreVideos} disabled={moreVideoDisable()} className={`w-fit px-3 py-2 border border-neutral-900 rounded-lg self-center duration-200 disabled:opacity-0 hover:border-transparent hover:scale-95 hover:drop-shadow-lg`}>Afficher plus</button>
 
         <Link
           href={"/portfolio/photos"}
