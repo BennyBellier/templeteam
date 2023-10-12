@@ -78,7 +78,7 @@ export default function VideosPage({
   repo: VideoProps[];
 }) {
   const [videos, setVideos] = useState<VideoProps[]>(repo);
-  const videosQuery = api.example.fetchVideosList.useMutation();
+  const videosQuery = api.videos.fetchVideosList.useMutation();
 
   const VideosList = () => {
     if (videosQuery.isLoading)

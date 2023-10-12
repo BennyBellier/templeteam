@@ -28,6 +28,19 @@ model YoutubeVideos {
   publishedAt String
 }
 
+model BlogPosts {
+  id          String    @id @default(cuid()) // /posts/[id]
+  title       String
+  thumbnail   String
+  type        String?   @default("Article")
+  publishedAt DateTime? @default(now())
+  description String? // @db.VarChar(200)
+  readTime    Int?
+  extraLink   String?
+
+  @@unique([title, publishedAt], name: "unique_post")
+}
+
 // Necessary for Next auth
 model Account {
   id                String  @id @default(cuid())
