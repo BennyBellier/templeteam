@@ -6,7 +6,7 @@ import Image from "next/image";
 // import { api } from "~/utils/api";
 import Navigation from "../components/navigation";
 import Footer from "../components/footer";
-import ContactBar from "../components/contact_bar";
+import ContactBar from "../components/ContactBar";
 import References from "../components/references";
 import { useWindowSize } from "~/components/elements";
 import { useSpring, animated } from "@react-spring/web";
@@ -48,7 +48,7 @@ export default function Home() {
             </h2>
           </>
         ) : (
-          <aside className="absolute flex w-fit -translate-x-[255px] translate-y-10 items-end text-neutral-50 before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:from-red-550 before:to-red-550/0 before:content-[''] z-10">
+          <aside className="absolute z-10 flex w-fit -translate-x-[255px] translate-y-10 items-end text-neutral-50 before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:from-red-550 before:to-red-550/0 before:content-['']">
             <svg
               viewBox="0 0 409 191"
               fill="none"
@@ -168,7 +168,7 @@ export default function Home() {
           </animated.div>
         </div>
         <motion.div
-          className={`relative slef-center h-full justify-self-center bg-neutral-200 object-contain 1050:col-start-2 1050:row-start-1 1050:row-end-2 ${
+          className={`slef-center relative h-full justify-self-center bg-neutral-200 object-contain 1050:col-start-2 1050:row-start-1 1050:row-end-2 ${
             pulsing ? "animate-pulse" : ""
           }`}
         >

@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import ContactBar from "../components/contact_bar";
+import ContactBar from "../components/ContactBar";
 import { ThemeButton } from "../components/elements";
 
 describe("Contact Section", () => {
@@ -12,19 +12,19 @@ describe("Contact Section", () => {
   });
   it("Should render some contact links", () => {
     render(<ContactBar />);
-    expect(screen.getAllByRole('link')).toHaveLength(3);
+    expect(screen.getAllByRole("link")).toHaveLength(3);
   });
 });
 
 describe("Theme button", () => {
   it("Should render the theme button", () => {
     render(<ThemeButton type={0} />);
-    expect(screen.getByRole('button')).toBeInTheDocument();
+    expect(screen.getByRole("button")).toBeInTheDocument();
   });
   it("Should render the theme button", () => {
     render(<ThemeButton type={0} />);
-    expect(screen.getByTestId('moon-theme')).toBeInTheDocument();
-    expect(screen.getByTestId('moon')).toBeInTheDocument();
+    expect(screen.getByTestId("moon-theme")).toBeInTheDocument();
+    expect(screen.getByTestId("moon")).toBeInTheDocument();
   });
 
   it("Should render the theme button with the right text", () => {

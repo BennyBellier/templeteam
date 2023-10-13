@@ -1,6 +1,6 @@
 import Navigation from "./navigation";
 import Footer from "./footer";
-import ContactBar from "./contact_bar";
+import ContactBar from "./ContactBar";
 import References from "./references";
 import Head from "next/head";
 
@@ -31,7 +31,7 @@ export default function Layout({
 }: {
   title: string;
   subtitle?: string;
-  display?: { ref: boolean; contact: boolean};
+  display?: { ref: boolean; contact: boolean };
   children: React.ReactNode;
 }) {
   return (

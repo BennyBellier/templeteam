@@ -7,7 +7,14 @@ import {
 import { prisma } from "~/server/db";
 
 export const blogRouter = createTRPCRouter({
-  // TODO: implement getSortedPosts: publicProcedure
+  getSortedPosts: publicProcedure.query(async () => {
+    const posts = await prisma.blogPosts.findMany({
+      orderBy: {
+        publishedAt: "desc",
+      },
+    });
+    return posts;
+  }),
 
   // TODO: implement getPostData: publicProcedure
 

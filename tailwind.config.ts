@@ -4,7 +4,7 @@ import plugin from "tailwindcss/plugin";
 export default {
   important: true,
   content: ["./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: "class",
+  darkMode: ["class", '[data-mode="dark"]'],
   theme: {
     fontFamily: {
       display: ['"Manrope"', "Inter", "sans-serif"],
