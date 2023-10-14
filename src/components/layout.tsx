@@ -1,5 +1,5 @@
 import Navigation from "./navigation";
-import Footer from "./footer";
+import Footer from "./Footer";
 import ContactBar from "./ContactBar";
 import References from "./references";
 import Head from "next/head";

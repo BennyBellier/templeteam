@@ -3,12 +3,8 @@ import React from 'react';
 import { Button } from './Button';
 import './header.css';
 
-type User = {
-  name: string;
-};
-
 interface HeaderProps {
-  user?: User;
+  user?: {name: string};
   onLogin: () => void;
   onLogout: () => void;
   onCreateAccount: () => void;

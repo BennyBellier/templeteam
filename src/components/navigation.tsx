@@ -17,7 +17,7 @@ interface HamburgerMenuProps {
   setOpen: Dispatch<SetStateAction<boolean>>;
 }
 
-const MenuLink = ({
+export const MenuLink = ({
   href,
   subMenu,
   children,
@@ -59,8 +59,8 @@ const MenuLink = ({
   );
 };
 
-const HeaderLogo = () => {
-  const size = useWindowSize();
+export const HeaderLogo = () => {
+  const { width } = useWindowSize();
   const [logo, setLogo] = useState("/img/logo-light.png");
 
   // detect when html class get "dark" or not to change the logo
@@ -93,22 +93,14 @@ const HeaderLogo = () => {
     };
   });
 
-  if (size.width >= 1050) {
-    return (
-      <Image src={logo} alt="Logo de la Temple Team" width={70} height={70} className="w-auto h-auto"/>
-    );
-  } else if (size.width < 1050 && size.width >= 768) {
-    return (
-      <Image src={logo} alt="Logo de la Temple Team" width={60} height={60} className="w-auto h-auto"/>
-    );
-  } else {
-    return (
-      <Image src={logo} alt="Logo de la Temple Team" width={50} height={50} className="w-auto h-auto"/>
-    );
-  }
+  const size = width >= 1050 ? 70 : width >= 768 ? 60 : 50;
+
+  return (
+    <Image src={logo} alt="Logo de la Temple Team" width={size} height={size} className="w-auto h-auto"/>
+  );
 };
 
-const DropdownMenu = ({ group }: { group: LinkProps }) => {
+export const DropdownMenu = ({ group }: { group: LinkProps }) => {
   const [open, setOpen] = useState(false);
   const size = useWindowSize();
 
@@ -151,7 +143,12 @@ const DropdownMenu = ({ group }: { group: LinkProps }) => {
   );
 };
 
-const HamburgerMenu = ({ isOpen, setOpen }: HamburgerMenuProps) => {
+interface HamburgerMenuProps {
+  isOpen: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+export const HamburgerMenu = ({ isOpen, setOpen }: HamburgerMenuProps) => {
   // toggle the hamburger menu
   const handleToggle = () => {
     setOpen(!isOpen);
@@ -159,7 +156,7 @@ const HamburgerMenu = ({ isOpen, setOpen }: HamburgerMenuProps) => {
 
   return (
     <button
-      className={`hamburger hamburger--spin inline-block 1050:hidden ${
+      className={`hamburger hamburger--spin inline-block ${
         isOpen ? "is-active" : ""
       }`}
       type="button"
@@ -236,7 +233,7 @@ export default function Navigation() {
         >
           <HeaderLogo />
         </Link>
-        <HamburgerMenu isOpen={isOpen} setOpen={setOpen} />
+        {size.width < 1050 ? (<HamburgerMenu isOpen={isOpen} setOpen={setOpen} />) : (<></>)}
       </div>
       <div
         className={`relative top-[60px] flex h-screen w-screen flex-col gap-10 bg-white dark:bg-neutral-850 md:top-[70px] 1050:h-min 1050:items-center ${

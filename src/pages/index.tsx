@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 // import { api } from "~/utils/api";
 import Navigation from "../components/navigation";
-import Footer from "../components/footer";
+import Footer from "../components/Footer";
 import ContactBar from "../components/ContactBar";
 import References from "../components/references";
 import { useWindowSize } from "~/components/elements";

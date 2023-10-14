@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
 
-export default function DotsLoader() {
+interface DotsLoaderProps {
+  backgroundColor?: string;
+}
+
+export function DotsLoader({ backgroundColor, ...props }: DotsLoaderProps) {
+  const bgClass = backgroundColor ? "" : "bg-neutral-800";
   return (
-    <div className="flex items-center justify-center">
+    <div className={"flex items-center justify-center"} {...props}>
       <motion.div
         className="flex flex-col items-center justify-center"
         initial={{ opacity: 0 }}
@@ -13,7 +18,8 @@ export default function DotsLoader() {
           <motion.div
             animate={{ scale: [0, 1, 0, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-            className="mr-1 h-4 w-4 rounded-full bg-neutral-800"
+            className={`mr-1 h-4 w-4 rounded-full ${bgClass}`}
+            style = {{backgroundColor: backgroundColor}}
           />
           <motion.div
             animate={{ scale: [0, 1, 0, 0] }}
@@ -23,7 +29,8 @@ export default function DotsLoader() {
               delay: 0.25,
               ease: "linear",
             }}
-            className="mr-1 h-4 w-4 rounded-full bg-neutral-800"
+            style = {{backgroundColor: backgroundColor}}
+            className={`mr-1 h-4 w-4 rounded-full ${bgClass}`}
           />
           <motion.div
             animate={{ scale: [0, 1, 0, 0] }}
@@ -33,7 +40,8 @@ export default function DotsLoader() {
               delay: 0.5,
               ease: "linear",
             }}
-            className="h-4 w-4 rounded-full bg-neutral-800"
+            className={`h-4 w-4 rounded-full ${bgClass}`}
+            style = {{backgroundColor: backgroundColor}}
           />
         </div>
       </motion.div>

@@ -1,15 +1,17 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import ContactBar from '../components/ContactBar';
-import '../styles/globals.css'
+import ContactBar from '../../components/ContactBar';
 
 const meta = {
-  title: "Components/ContactBar",
+  title: "Components/Contact bar",
   component: ContactBar,
+  parameters: {
+    layout: 'centered',
+  },
   tags: ["autodocs"],
 } satisfies Meta<typeof ContactBar>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Normal: Story = {
+export const Default: Story = {
 };
