@@ -41,6 +41,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
+#vscode
+vscode
+
 # content
 /public/img/portfolio/*
 /public/img/team/*
