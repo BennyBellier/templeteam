@@ -37,7 +37,7 @@ const ThemeLogo = ({ theme, size, className }: ThemeLogoProps) => {
     (theme === "light" && (
       <motion.div
         data-testid="moon-theme"
-        className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden"
+        className="grid h-6 w-6 grid-cols-1 grid-rows-1 justify-center items-center overflow-hidden"
       >
         <HiMoon
           data-testid="moon"
@@ -48,7 +48,7 @@ const ThemeLogo = ({ theme, size, className }: ThemeLogoProps) => {
     )) || (
       <motion.div
         data-testid="sun-theme"
-        className="grid h-6 w-6 grid-cols-1 grid-rows-1 overflow-hidden"
+        className="grid h-6 w-6 grid-cols-1 grid-rows-1 justify-center items-center overflow-hidden"
       >
         <HiSun
           data-testid="sun"

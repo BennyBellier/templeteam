@@ -91,7 +91,7 @@ export function AthleteVideo({ file, name }: { file: string; name: string }) {
         fill
         onLoad={imageLoaded}
         sizes="(min-width: 1050px) 400px, (max-width: 1049px && min-width: 769px) 375px, 350px"
-        className={`h-full w-full transition-opacity duration-500 ${
+        className={`h-full w-full brightness-125 transition-opacity duration-500 ${
           imgLoading ? "opacity-0" : ""
         } ${videoLoading ? "" : "group-hover:opacity-0"} ${
           width < 1050 && videoPlayed ? "opacity-0" : ""

@@ -5,6 +5,13 @@ import { useState, useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { useWindowSize } from "~/components/elements";
 
+export function getStaticProps() {
+  return {
+    props: {
+    },
+  };
+}
+
 export default function Portfolio() {
   const LinkImage = ({
     href,

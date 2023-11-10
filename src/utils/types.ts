@@ -14,7 +14,7 @@ export interface PhotoProps {
 
 export interface AlbumsData {
   albumName: string;
-  link: string
+  link: string;
   date: number;
   thumbnail: { file: string; width: number; height: number };
 }
@@ -43,7 +43,7 @@ export interface YOUTUBE_V3_SEARCH {
     };
     snippet: {
       publishedAt: string;
-    }
+    };
   }[];
 }
 
@@ -147,10 +147,12 @@ export interface VideoProps {
 }
 
 export interface BlogPostProps {
+  id: string;
   title: string;
-  date: string;
-  description: string;
-  type: string;
-  image: string;
-  link?: string;
+  thumbnail: string;
+  type?: string;
+  publishedAt?: Date | string;
+  description?: string;
+  readTime?: number;
+  extraLink?: string;
 }

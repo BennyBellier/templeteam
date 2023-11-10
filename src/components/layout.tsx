@@ -47,7 +47,11 @@ export default function Layout({
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navigation />
-      <main className="relative top-[60px] flex min-h-screen w-full flex-col items-stretch justify-center gap-10 text-neutral-950 dark:bg-neutral-850 dark:text-neutral-50 md:top-[70px] 1050:top-[80px]">
+      <main
+        className={`bgPrimary colorText relative flex min-h-screen w-full flex-col items-stretch justify-center gap-10 ${
+          false ? "" : "mainTopNav"
+        }`}
+      >
         <section
           id="main-head"
           className="flex flex-col items-center gap-10 pt-5 text-center font-light 1050:px-1050"

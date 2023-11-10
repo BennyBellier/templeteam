@@ -1,12 +1,14 @@
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
-import { remark } from "remark";
-import html from "remark-html";
-import rehype from "rehype-sanitize";
+import { api } from "~/utils/api";
 
-// TODO: implement getSortedPosts function with api.blog
+// TODO: implement getSortedPostsDataByType function with api.blog
+export function getSortedPostsDataByType(type: string) {
+  return api.blog.getSortedPostsDataByType.useQuery({ type });
+}
 
 // TODO: implement getPostData function with api.blog
 
+
 // TODO: implement getAllPostsId function with api.blog
+export function getAllPostsId() {
+  return api.blog.getAllPostsId.useQuery();
+}

@@ -16,9 +16,37 @@ export const blogRouter = createTRPCRouter({
     return posts;
   }),
 
-  // TODO: implement getPostData: publicProcedure
+  getSortedPostsDataByType: publicProcedure
+    .input(z.object({ type: z.string() }))
+    .query(async ({ input }) => {
+      const posts = await prisma.blogPosts.findMany({
+        where: input.type === "All" ? {} : { type: input.type },
+        orderBy: {
+          publishedAt: "desc",
+        },
+      });
+      return posts;
+    }),
 
-  // TODO: implement getAllPostsId: publicProcedure
+  getPostData: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ input }) => {
+      const post = await prisma.blogPosts.findUnique({
+        where: {
+          id: input.id,
+        },
+      });
+      return post;
+    }),
+
+  getAllPostsId: publicProcedure.query(async () => {
+    const posts = await prisma.blogPosts.findMany({
+      select: {
+        id: true,
+      },
+    });
+    return posts;
+  }),
 
   // TODO: implement addPost: protectedProcedure
 

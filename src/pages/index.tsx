@@ -14,6 +14,13 @@ import { HiOutlineArrowLeft } from "react-icons/hi2";
 // import { Manrope, Rubik } from "next/font/google";
 import { motion, useReducedMotion } from "framer-motion";
 
+export function getStaticProps() {
+  return {
+    props: {
+    },
+  };
+}
+
 export default function Home() {
   const width = useWindowSize().width;
   const shouldReduceMotion = useReducedMotion();
@@ -196,7 +203,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Navigation />
-      <main className="relative top-[60px] flex min-h-screen w-full flex-col items-stretch justify-center text-neutral-950 dark:bg-neutral-850 dark:text-neutral-50 md:top-[70px] 1050:top-[80px]">
+      <main className="relative top-[60px] flex min-h-screen w-full flex-col items-stretch justify-center .bgPrimary .colorText md:top-[70px] 1050:top-[80px]">
         <HeroBanner />
         <ContactBar />
         <About />

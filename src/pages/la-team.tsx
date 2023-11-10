@@ -1,6 +1,14 @@
 import { AthleteVideo } from "~/components/AthleteVideoPart";
 import Layout from "~/components/layout";
 
+export function getStaticProps() {
+  return {
+    props: {
+      
+    },
+  }
+}
+
 interface skill {
   name: string;
   level: number;
@@ -107,6 +115,16 @@ export default function LaTeam() {
               { name: "Cheville", level: 30 },
               { name: "Vidéaste", level: 75 },
               { name: "Acrobaties", level: 50 },
+            ]}
+          />
+          <AthleteCard
+            name="Louis Richetti"
+            nickname="BboyChipper"
+            file="Louis"
+            skills={[
+              { name: "Breakdance", level: 77 },
+              { name: "Dragueur", level: 85 },
+              { name: "Acrobaties", level: 20 },
             ]}
           />
         </section>

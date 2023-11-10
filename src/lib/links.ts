@@ -1,6 +1,6 @@
 export interface LinkProps {
   readonly type: string;
-  readonly name: string;
+  readonly title: string;
   readonly href: string;
   readonly links?: LinkProps[];
 }
@@ -8,64 +8,64 @@ export interface LinkProps {
 export const links: LinkProps[] = [
   {
     type: "link",
-    name: "Acceuil",
+    title: "Accueil",
     href: "/",
   },
   {
     type: "link",
-    name: "La Team",
+    title: "La Team",
     href: "/la-team",
   },
   {
-    type: "dropdown",
-    name: "Portfolio",
+    type: "submenu",
+    title: "Portfolio",
     href: "/portfolio",
     links: [
       {
         type: "link",
-        name: "Photos",
+        title: "Photos",
         href: "/portfolio/photos",
       },
       {
         type: "link",
-        name: "Vidéos",
+        title: "Vidéos",
         href: "/portfolio/videos",
       },
     ],
   },
   {
     type: "link",
-    name: "Blog",
+    title: "Blog",
     href: "/blog",
   },
   {
     type: "link",
-    name: "Références",
+    title: "Références",
     href: "/references",
   },
   {
     type: "link",
-    name: "Contact",
+    title: "Contact",
     href: "/contact",
   },
   {
-    type: "dropdown",
-    name: "Association",
+    type: "submenu",
+    title: "Association",
     href: "/association",
     links: [
       {
         type: "link",
-        name: "Acceuil",
+        title: "Accueil",
         href: "/association",
       },
       {
         type: "link",
-        name: "Stage",
+        title: "Stage",
         href: "/association/stage",
       },
       {
         type: "link",
-        name: "Samedi sportif",
+        title: "Samedi sportif",
         href: "/association/samedi_sportif",
       },
     ],
