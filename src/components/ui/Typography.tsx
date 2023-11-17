@@ -60,7 +60,9 @@ const defaultElementMapping: Record<
   base: "p",
 } as const;
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
+
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
 const getDefaultElement = (variant: TypographyCvaProps["variant"]) => {};
 
 export function Typography<E extends ElementType = typeof defaultElement>({
