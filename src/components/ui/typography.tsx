@@ -1,5 +1,6 @@
 import { type VariantProps, cva } from "class-variance-authority";
 import type {
+  ComponentPropsWithRef,
   ComponentPropsWithoutRef,
   ElementType,
   PropsWithChildren,
@@ -10,11 +11,14 @@ interface PolymorphicAsProp<E extends ElementType> {
   as?:
     | E
     | React.ComponentType<Omit<ComponentPropsWithoutRef<E>, "as">>
-    | React.FunctionComponent<Omit<ComponentPropsWithoutRef<E>, "as">>;
+    | React.FunctionComponent<Omit<ComponentPropsWithoutRef<E>, "as">>
+    | React.ComponentType<Omit<ComponentPropsWithRef<E>, "as">>
+    | React.FunctionComponent<Omit<ComponentPropsWithRef<E>, "as">>;
 }
 
 type PolymorphicProps<E extends ElementType> = PropsWithChildren<
   Omit<ComponentPropsWithoutRef<E>, "as"> & PolymorphicAsProp<E>
+  | Omit<ComponentPropsWithRef<E>, "as"> & PolymorphicAsProp<E>
 >;
 
 const typographyVariants = cva("", {
@@ -77,7 +81,7 @@ export function Typography<E extends ElementType = typeof defaultElement>({
 
   return (
     <Component
-      {...(restProps as ComponentPropsWithoutRef<E>)}
+      {...(restProps as ComponentPropsWithRef<E> | ComponentPropsWithoutRef<E>)}
       className={cn(typographyVariants({ variant }), className)}
     >
       {children}

@@ -5,9 +5,7 @@ import { ChevronDownIcon } from "@radix-ui/react-icons";
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";
 import Link from "next/link";
-
 import { cn } from "@/lib/utils";
-import { URL } from "url";
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -20,10 +18,9 @@ const NavigationMenu = React.forwardRef<
         className
       )}
       {...props}
+      style={{justifyItems: "center"}}
     >
       {children}
-      <NavigationMenuIndicator />
-      <NavigationMenuViewport />
     </NavigationMenuPrimitive.Root>
 ));
 NavigationMenu.displayName = NavigationMenuPrimitive.Root.displayName
@@ -102,18 +99,26 @@ const NavigationMenuLink = React.forwardRef<
 const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport>
->(({ className, ...props }, ref) => (
-  <div className={cn("absolute left-0 top-full flex justify-center")}>
-    <NavigationMenuPrimitive.Viewport
+>(({ className, ...props }, ref) => {
+  const {style, ...rest} = props;
+  return (
+    <div
       className={cn(
-        "origin-top-center relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)] ",
-        className
+        "absolute top-full flex justify-center",
       )}
-      ref={ref}
-      {...props}
-    />
-  </div>
-))
+      style={style}
+    >
+      <NavigationMenuPrimitive.Viewport
+        className={cn(
+          "origin-top-center relative mt-1 h-[var(--radix-navigation-menu-viewport-height)] w-[var(--radix-navigation-menu-viewport-width)] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 ",
+          className,
+        )}
+        ref={ref}
+        {...rest}
+      />
+    </div>
+  );
+})
 NavigationMenuViewport.displayName =
   NavigationMenuPrimitive.Viewport.displayName
 
@@ -124,7 +129,7 @@ const NavigationMenuIndicator = React.forwardRef<
   <NavigationMenuPrimitive.Indicator
     ref={ref}
     className={cn(
-      "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in",
+      "top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in duration-500",
       className
     )}
     {...props}
