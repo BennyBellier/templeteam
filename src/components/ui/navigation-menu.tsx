@@ -6,6 +6,8 @@ import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -28,23 +30,30 @@ NavigationMenu.displayName = NavigationMenuPrimitive.Root.displayName
 const NavigationMenuList = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>
->(({ className, ...props }, ref) => (
-  <NavigationMenuPrimitive.List
-    ref={ref}
-    className={cn(
-      "group flex flex-1 list-none items-center justify-center space-x-1",
-      className
-    )}
-    {...props}
-  />
-))
+>(({ className, ...props }, ref) => {
+  const isLG = useMediaQuery("(min-width: 1050px)");
+  return (
+    <NavigationMenuPrimitive.List
+      ref={ref}
+      className={cn(
+        "group flex flex-1 list-none justify-center",
+        isLG ? "space-x-1 items-center" : "",
+        className
+      )}
+      {...props} />
+  );
+})
 NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName
 
 const NavigationMenuItem = NavigationMenuPrimitive.Item
 
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50"
+  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium transition-colors hovere:text-muted-foreground focus:text-muted-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:text-muted-foreground data-[state=open]:text-muted-foreground"
 )
+
+const navigationMenuLinkStyle = cva(
+  "inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:text-muted-foreground focus:text-muted-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 flex flex-col after:border-b after:border-ring after:w-full after:h-px after:duration-300 after:ease after:origin-left after:scale-x-0 hover:after:scale-x-100 focus:after:scale-x-100 aria-[current=page]:after:scale-x-100 aria-[current=page]:hover:text-foreground aria-[current=page]:focus:text-foreground",
+);
 
 const NavigationMenuTrigger = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Trigger>,
@@ -82,19 +91,25 @@ NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName
 const NavigationMenuLink = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Link>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Link>
->(({ href, className, ...props }, ref) => (
-  <>
-    <Link href={href ?? ""} legacyBehavior passHref>
-    <NavigationMenuPrimitive.Link
-      ref={ref}
-      className={navigationMenuTriggerStyle()}
-      {...props}
-    >
-      {props.children}
-    </NavigationMenuPrimitive.Link>
-    </Link>
-  </>
-));
+>(({ href, className, ...props }, ref) => {
+  const isLG = useMediaQuery("(min-width: 1050px)");
+  const pathname = usePathname();
+  const isActive = pathname === href;
+  return (
+    <>
+      <Link href={href ?? ""} legacyBehavior passHref>
+        <NavigationMenuPrimitive.Link
+          ref={ref}
+          className={cn(navigationMenuLinkStyle(), className)}
+          active={isActive}
+          {...props}
+        >
+          {props.children}
+        </NavigationMenuPrimitive.Link>
+      </Link>
+    </>
+  );
+});
 
 const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
@@ -142,6 +157,7 @@ NavigationMenuIndicator.displayName =
 
 export {
   navigationMenuTriggerStyle,
+  navigationMenuLinkStyle,
   NavigationMenu,
   NavigationMenuList,
   NavigationMenuItem,

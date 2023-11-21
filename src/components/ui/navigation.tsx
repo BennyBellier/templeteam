@@ -20,8 +20,9 @@ import {
 } from "@/components/ui/navigation-menu";
 import { NavigationLinks } from "@/lib/site-config";
 import { subscribe } from "diagnostics_channel";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-export function Navigation() {
+function NavigationLG() {
   const [offset, setOffset] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
   const [currentItemName, setCurrentItemName] = useState<string>();
@@ -33,7 +34,11 @@ export function Navigation() {
       const listWidth = list.offsetWidth;
       const listCenter = listWidth / 2;
 
-      const activeTriggerOffsetRight = listWidth - activeTrigger.offsetLeft - activeTrigger.offsetWidth + activeTrigger.offsetWidth / 2;
+      const activeTriggerOffsetRight =
+        listWidth -
+        activeTrigger.offsetLeft -
+        activeTrigger.offsetWidth +
+        activeTrigger.offsetWidth / 2;
 
       setOffset(listCenter - activeTriggerOffsetRight);
     }
@@ -61,7 +66,6 @@ export function Navigation() {
                     as={NavigationMenuLink}
                     href={item.href}
                     variant="link"
-                    className="text-muted-foreground hover:text-foreground"
                     key={item.href}
                   >
                     {item.name}
@@ -75,7 +79,6 @@ export function Navigation() {
                 as={NavigationMenuLink}
                 href={link.href}
                 variant="link"
-                className="text-muted-foreground hover:text-foreground"
               >
                 {link.name}
               </Typography>
@@ -91,4 +94,62 @@ export function Navigation() {
       />
     </NavigationMenu>
   );
+}
+
+function NavigationSM() {
+  return (
+    <NavigationMenu orientation="vertical">
+      <NavigationMenuList className="flex-col justify-start">
+        {NavigationLinks.map((link) =>
+          link.content ? (
+            <>
+              <NavigationMenuItem key={link.href}>
+                <Typography
+                  as={NavigationMenuLink}
+                  href={link.href}
+                  variant="link"
+                >
+                  {link.name}
+                </Typography>
+              </NavigationMenuItem>
+
+              {link.content.map((item) => (
+                <NavigationMenuItem key={item.href}>
+                  <Typography
+                    as={NavigationMenuLink}
+                    href={item.href}
+                    variant="link"
+                    className="ml-5"
+                    key={item.href}
+                  >
+                    {item.name}
+                  </Typography>
+                </NavigationMenuItem>
+              ))}
+            </>
+          ) : (
+            <NavigationMenuItem key={link.href}>
+              <Typography
+                as={NavigationMenuLink}
+                href={link.href}
+                variant="link"
+              >
+                {link.name}
+              </Typography>
+            </NavigationMenuItem>
+          ),
+        )}
+      </NavigationMenuList>
+    </NavigationMenu>
+  );
+}
+
+export function Navigation() {
+  const isLG = useMediaQuery("(min-width: 1050px)");
+
+  if (!isLG) {
+    return <NavigationSM />;
+  } else {
+    return <NavigationLG />;
+  }
 }
