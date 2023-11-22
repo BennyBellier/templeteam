@@ -7,6 +7,9 @@
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
 
+    --invert-background: 0 0% 12%;
+    --invert-foreground: 0 0% 98%;
+
     --card: 0 0% 98%;
     --card-foreground: 0 0% 3.9%;
 
@@ -38,6 +41,9 @@
   .dark {
     --background: 0 0% 12%;
     --foreground: 0 0% 98%;
+
+    --invert-background: 0 0% 100%;
+    --invert-foreground: 0 0% 3.9%;
 
     --card: 0 0% 15%;
     --card-foreground: 0 0% 98%;

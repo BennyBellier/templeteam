@@ -1,4 +1,4 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function useMediaQuery(query: string): boolean {
   const getMatches = (query: string): boolean => {
@@ -13,7 +13,7 @@ export function useMediaQuery(query: string): boolean {
     setMatches(getMatches(query));
   }
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const matchMedia = window.matchMedia(query);
 
     // trigger initial match

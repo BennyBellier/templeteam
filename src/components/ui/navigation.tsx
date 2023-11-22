@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { Typography } from "@/components/ui/typography";
 import {
   NavigationMenu,
@@ -19,10 +13,8 @@ import {
   NavigationMenuIndicator,
 } from "@/components/ui/navigation-menu";
 import { NavigationLinks } from "@/lib/site-config";
-import { subscribe } from "diagnostics_channel";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
 
-function NavigationLG() {
+export function NavigationBar({ className }: { className?: string }) {
   const [offset, setOffset] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
   const [currentItemName, setCurrentItemName] = useState<string>();
@@ -45,7 +37,11 @@ function NavigationLG() {
   }, [activeTrigger]);
 
   return (
-    <NavigationMenu value={currentItemName} onValueChange={setCurrentItemName}>
+    <NavigationMenu
+      value={currentItemName}
+      onValueChange={setCurrentItemName}
+      className={className}
+    >
       <NavigationMenuList ref={listRef}>
         {NavigationLinks.map((link) =>
           link.content ? (
@@ -57,6 +53,7 @@ function NavigationLG() {
                   }
                   return node;
                 }}
+                className="font-light"
               >
                 {link.name}
               </NavigationMenuTrigger>
@@ -66,7 +63,7 @@ function NavigationLG() {
                     as={NavigationMenuLink}
                     href={item.href}
                     variant="link"
-                    key={item.href}
+                    key={item.name + item.href}
                   >
                     {item.name}
                   </Typography>
@@ -96,39 +93,51 @@ function NavigationLG() {
   );
 }
 
-function NavigationSM() {
+function NavigationSidebarContent({
+  link,
+}: {
+  link: {
+    name: string;
+    href: string;
+    content: { name: string; href: string }[];
+  };
+}) {
   return (
-    <NavigationMenu orientation="vertical">
+    <>
+      <NavigationMenuItem>
+        <Typography as={NavigationMenuLink} href={link.href} variant="link">
+          {link.name}
+        </Typography>
+      </NavigationMenuItem>
+
+      {link.content.map((item) => (
+        <NavigationMenuItem key={"Mobile content:" + link.name + item.href}>
+          <Typography
+            as={NavigationMenuLink}
+            href={item.href}
+            variant="link"
+            className="ml-5"
+          >
+            {item.name}
+          </Typography>
+        </NavigationMenuItem>
+      ))}
+    </>
+  );
+}
+
+export function NavigationSidebar({ className }: { className?: string }) {
+  return (
+    <NavigationMenu orientation="vertical" className={className}>
       <NavigationMenuList className="flex-col justify-start">
         {NavigationLinks.map((link) =>
           link.content ? (
-            <>
-              <NavigationMenuItem key={link.href}>
-                <Typography
-                  as={NavigationMenuLink}
-                  href={link.href}
-                  variant="link"
-                >
-                  {link.name}
-                </Typography>
-              </NavigationMenuItem>
-
-              {link.content.map((item) => (
-                <NavigationMenuItem key={item.href}>
-                  <Typography
-                    as={NavigationMenuLink}
-                    href={item.href}
-                    variant="link"
-                    className="ml-5"
-                    key={item.href}
-                  >
-                    {item.name}
-                  </Typography>
-                </NavigationMenuItem>
-              ))}
-            </>
+            <NavigationSidebarContent
+              key={"Mobile:" + link.name + link.href}
+              link={link}
+            />
           ) : (
-            <NavigationMenuItem key={link.href}>
+            <NavigationMenuItem key={"Mobile:" + link.name + link.href}>
               <Typography
                 as={NavigationMenuLink}
                 href={link.href}
@@ -142,14 +151,4 @@ function NavigationSM() {
       </NavigationMenuList>
     </NavigationMenu>
   );
-}
-
-export function Navigation() {
-  const isLG = useMediaQuery("(min-width: 1050px)");
-
-  if (!isLG) {
-    return <NavigationSM />;
-  } else {
-    return <NavigationLG />;
-  }
 }

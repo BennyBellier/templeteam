@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { TailwindIndicator } from "@/components/util/TailwindIndicator";
 
-const fontTitle = Manrope({ subsets: ["latin"], variable: '--font-caption' });
-const fontBody = Rubik({ subsets: ["latin"], variable: '--font-body' });
+const fontCaption = Manrope({ subsets: ["latin"], variable: '--font-caption' });
+const fontSans = Rubik({ subsets: ["latin"], variable: '--font-sans' });
 
 export const metadata: Metadata = {
   title: "Temple Team | Parkour Freerun Gymnastique",
@@ -28,7 +28,7 @@ export default function RootLayout({
       <body
         className={cn(
           "h-full bg-background font-sans antialiased",
-          fontBody.className,
+          fontSans.variable,
         )}
       >
         <TRPCReactProvider cookies={cookies().toString()}>

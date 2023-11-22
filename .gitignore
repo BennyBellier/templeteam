@@ -54,3 +54,6 @@ src/stories/assets/*
 .storybook/*
 
 tailwind.config (1).*
+conf tailwind.js
+.gitignore
+conf tailwind.ts

@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
@@ -31,16 +29,15 @@ const NavigationMenuList = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List>
 >(({ className, ...props }, ref) => {
-  const isLG = useMediaQuery("(min-width: 1050px)");
   return (
     <NavigationMenuPrimitive.List
       ref={ref}
       className={cn(
-        "group flex flex-1 list-none justify-center",
-        isLG ? "space-x-1 items-center" : "",
-        className
+        "group flex flex-1 list-none lg:items-center justify-center lg:space-x-1",
+        className,
       )}
-      {...props} />
+      {...props}
+    />
   );
 })
 NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName
