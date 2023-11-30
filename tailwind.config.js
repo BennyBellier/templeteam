@@ -29,6 +29,10 @@ module.exports = {
           DEFAULT: "hsl(var(--invert-background))",
           foreground: "hsl(var(--invert-foreground))",
         },
+        footer: {
+          DEFAULT: "hsl(var(--footer-background))",
+          foreground: "hsl(var(--footer-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -62,6 +66,9 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      padding: {
+        "1050": "0 calc((100vw - 1050px) / 2)",
       },
       keyframes: {
         "accordion-down": {

@@ -53,7 +53,7 @@ export function NavigationBar({ className }: { className?: string }) {
                   }
                   return node;
                 }}
-                className="font-light"
+                className="text-xl font-normal lg:text-base lg:font-light"
               >
                 {link.name}
               </NavigationMenuTrigger>
@@ -129,7 +129,7 @@ function NavigationSidebarContent({
 export function NavigationSidebar({ className }: { className?: string }) {
   return (
     <NavigationMenu orientation="vertical" className={className}>
-      <NavigationMenuList className="flex-col justify-start">
+      <NavigationMenuList className="flex-col">
         {NavigationLinks.map((link) =>
           link.content ? (
             <NavigationSidebarContent

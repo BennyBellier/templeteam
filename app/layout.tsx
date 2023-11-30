@@ -4,13 +4,14 @@ import "./globals.css";
 import { Providers } from "./Providers";
 import { cookies } from "next/headers";
 import { TRPCReactProvider } from "@/components/trpc/TrpcProvider";
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect, useContext } from "react";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { TailwindIndicator } from "@/components/util/TailwindIndicator";
 
-const fontCaption = Manrope({ subsets: ["latin"], variable: '--font-caption' });
-const fontSans = Rubik({ subsets: ["latin"], variable: '--font-sans' });
+const fontCaption = Manrope({ subsets: ["latin"], variable: "--font-caption" });
+const fontSans = Rubik({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Temple Team | Parkour Freerun Gymnastique",
@@ -19,26 +20,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-  modal
+  modal,
 }: PropsWithChildren<{
   modal?: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="h-full" suppressHydrationWarning>
-      <body
-        className={cn(
-          "h-full bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
+    <html lang="fr" className="h-full" data-scroll="0" suppressHydrationWarning>
+      <body className={cn("h-full font-sans antialiased", fontSans.variable)}>
         <TRPCReactProvider cookies={cookies().toString()}>
           <Providers>
-            <div className="relative flex min-h-screen flex-col">
+            <div className="relative flex h-full w-screen flex-col overflow-x-hidden">
               <Header />
-              <div className="flex-1">
-                {children}
-              </div>
-              {/* <Footer /> */}
+              <div className="flex-1 px-2 lg:p-1050">{children}</div>
+              <Footer />
             </div>
             <TailwindIndicator />
             {modal}
