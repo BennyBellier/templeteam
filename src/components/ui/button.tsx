@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         themeSidebar:
-          "bg-invert text-invert-foreground hover:bg-primary/90",
+          "bg-invert text-invert-foreground hover:bg-primary",
         invisible: "bg-transparent text-primary-foreground items-end",
       },
       size: {

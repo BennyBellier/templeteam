@@ -30,8 +30,9 @@ module.exports = {
           foreground: "hsl(var(--invert-foreground))",
         },
         footer: {
-          DEFAULT: "hsl(var(--footer-background))",
+          DEFAULT: "hsl(var(--footer))",
           foreground: "hsl(var(--footer-foreground))",
+          navSeparator: "hsl(var(--footer-nav-separator))",
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
@@ -68,7 +69,7 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       padding: {
-        "1050": "0 calc((100vw - 1050px) / 2)",
+        1050: "0 calc((100vw - 1050px) / 2)",
       },
       keyframes: {
         "accordion-down": {
@@ -81,8 +82,8 @@ module.exports = {
         },
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "accordion-down": "accordion-down 0.5s ease",
+        "accordion-up": "accordion-up 0.5s ease",
       },
     },
   },

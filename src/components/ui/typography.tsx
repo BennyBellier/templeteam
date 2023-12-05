@@ -35,7 +35,8 @@ const typographyVariants = cva("", {
       large: "text-lg font-semibold",
       small: "text-sm font-medium leading-none",
       muted: "text-sm text-muted-foreground",
-      link: "font-normal lg:font-light text-xl lg:text-base",
+      link: "font-normal lg:font-light text-xl lg:text-lg",
+      footerLink: "font-light lg:font-light text-xl lg:text-base",
     },
   },
   defaultVariants: {
@@ -61,6 +62,7 @@ const defaultElementMapping: Record<
   small: "p",
   muted: "p",
   link: "a",
+  footerLink: "a",
   base: "p",
 } as const;
 

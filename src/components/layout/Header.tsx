@@ -51,7 +51,7 @@ export function Header() {
         as={Link}
         href="/"
         variant="h2"
-        className="inline-flex items-end"
+        className="inline-flex items-end gap-0.5"
       >
         <ThemedLogo
           sizes="(max-width 648px) 50px, (max-width 768px) 60px, 70px"
@@ -64,15 +64,15 @@ export function Header() {
 
       <div
         className={cn(
-          "absolute left-0 top-[60px] flex h-full max-h-screen w-screen flex-col gap-5 bg-background px-5 md:top-[70px]",
-          "items-center justify-start",
+          "absolute left-0 top-[60px] flex h-full max-h-screen w-screen flex-col gap-5",
+          "items-center justify-start bg-background px-5 md:top-[70px]",
           "lg:static lg:h-full lg:w-fit lg:flex-row lg:px-0",
           "transition-transform duration-1000 ease-in-out lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
         <Navigation />
-        <ThemeToggle className="hidden lg:inline-flex" />
+        <ThemeToggle className="hidden lg:inline-flex hover:bg-transparent" />
         <ThemeToggleSidebar className="inline-flex w-full justify-around lg:hidden" />
       </div>
     </header>

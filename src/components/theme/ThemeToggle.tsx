@@ -30,12 +30,16 @@ export function ThemeToggleSidebar({ className }: { className?: string }) {
     <Button
       variant="themeSidebar"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className={"h-12 " + className}
+      className={"h-16 md:h-24 " + className}
     >
+      <Typography className="font-caption hidden w-48 text-3xl font-bold dark:block md:text-4xl">
+        Thème clair
+      </Typography>
+      <Typography className="font-caption w-48 text-3xl font-bold dark:hidden md:text-4xl">
+        Thème sombre
+      </Typography>
       <Sun className="h-[2.25rem] w-[1.95rem] dark:hidden" />
       <Moon className="hidden h-9 w-9 dark:block" />
-      <Typography className="hidden dark:block text-2xl w-48">Thème clair</Typography>
-      <Typography className="dark:hidden text-2xl w-48">Thème sombre</Typography>
       <span className="sr-only">Toggle theme</span>
     </Button>
   );

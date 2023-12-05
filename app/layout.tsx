@@ -26,10 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="h-full" data-scroll="0" suppressHydrationWarning>
-      <body className={cn("h-full font-sans antialiased", fontSans.variable)}>
+      <body
+        className={cn(
+          "h-full font-sans antialiased",
+          fontSans.variable,
+        )}
+      >
         <TRPCReactProvider cookies={cookies().toString()}>
           <Providers>
-            <div className="relative flex h-full w-screen flex-col overflow-x-hidden">
+            <div className="relative flex h-full w-screen overflow-x-hidden overflow-y-hidden flex-col">
               <Header />
               <div className="flex-1 px-2 lg:p-1050">{children}</div>
               <Footer />

@@ -44,11 +44,11 @@ NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName
 const NavigationMenuItem = NavigationMenuPrimitive.Item
 
 const navigationMenuTriggerStyle = cva(
-  "group inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:text-muted-foreground focus:text-muted-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:text-muted-foreground data-[state=open]:text-muted-foreground"
-)
+  "group relative inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:text-muted-foreground focus:text-muted-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:text-muted-foreground data-[state=open]:text-muted-foreground after:absolute after:border-b after:border-foreground after:w-9/12 after:h-4/6 after:duration-300 after:ease after:origin-left after:scale-x-0 hover:after:scale-x-100 focus:after:scale-x-100 aria-[current=page]:after:scale-x-100",
+);
 
 const navigationMenuLinkStyle = cva(
-  "inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:text-muted-foreground focus:text-muted-foreground focus:outline-none transition-colors disabled:pointer-events-none disabled:opacity-50 flex flex-col after:border-b after:border-ring after:w-full after:h-px after:duration-300 after:ease after:origin-left after:scale-x-0 hover:after:scale-x-100 focus:after:scale-x-100 aria-[current=page]:after:scale-x-100 aria-[current=page]:hover:text-foreground aria-[current=page]:focus:text-foreground",
+  "inline-flex h-9 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium hover:text-muted-foreground focus:text-muted-foreground focus:outline-none transition-colors disabled:pointer-events-none disabled:opacity-50 flex flex-col after:border-b after:border-foreground after:w-full after:h-px after:duration-300 after:ease after:origin-left after:scale-x-0 hover:after:scale-x-100 focus:after:scale-x-100 aria-[current=page]:after:scale-x-100 aria-[current=page]:hover:text-foreground aria-[current=page]:focus:text-foreground",
 );
 
 const NavigationMenuTrigger = React.forwardRef<

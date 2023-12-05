@@ -53,7 +53,7 @@ export function NavigationBar({ className }: { className?: string }) {
                   }
                   return node;
                 }}
-                className="text-xl font-normal lg:text-base lg:font-light"
+                className="text-xl font-normal lg:text-lg lg:font-light"
               >
                 {link.name}
               </NavigationMenuTrigger>
