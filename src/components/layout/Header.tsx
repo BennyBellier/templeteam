@@ -14,6 +14,7 @@ import { ThemedLogo } from "../ui/logo";
 import { SidebarContext } from "../sidebar/SidebarProvider";
 import { Hamburger } from "../ui/hamburger";
 
+
 export function Navigation() {
   return (
     <>
@@ -41,7 +42,7 @@ export function Header() {
   return (
     <header
       className={cn(
-        "group-[:not([data-scroll='0'])]/html top-0 z-40 px-2",
+        "group-[:not([data-scroll='0'])]/html sticky top-0 z-40 px-2",
         "flex w-full items-center justify-between bg-background transition-shadow duration-200",
         "lg:items-center lg:p-1050",
         "h-[60px] md:h-[70px] lg:h-[80px]",
@@ -51,12 +52,12 @@ export function Header() {
         as={Link}
         href="/"
         variant="h2"
-        className="inline-flex items-end gap-0.5"
+        className="text-2xl inline-flex items-end gap-0.5 whitespace-nowrap"
       >
-        <ThemedLogo
-          sizes="(max-width 648px) 50px, (max-width 768px) 60px, 70px"
-          className="h-[50px] w-[50px] object-contain md:h-[60px] md:w-[60px] lg:h-[70px] lg:w-[70px]"
-        />
+          <ThemedLogo
+            sizes="(max-width 648px) 50px, (max-width 768px) 60px, 70px"
+            className="object-contain"
+          />
         Temple Team
       </Typography>
 

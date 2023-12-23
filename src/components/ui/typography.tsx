@@ -24,13 +24,14 @@ type PolymorphicProps<E extends ElementType> = PropsWithChildren<
 const typographyVariants = cva("", {
   variants: {
     variant: {
-      h1: "scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl font-caption",
+      h1: "scroll-m-20 text-5xl font-extrabold tracking-tight lg:text-5xl font-caption",
       h2: "scroll-m-20 text-3xl font-semibold tracking-tight transition-colors first:mt-0 font-caption",
       h3: "scroll-m-20 text-xl font-semibold tracking-tight font-caption",
       p: "leading-7 [&:not(:first-child)]:mt-6",
       base: "",
       quote: "mt-6 border-l-2 pl-6 italic",
       code: "relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold",
+      alert: "text-destructive",
       lead: "text-xl text-muted-foreground",
       large: "text-lg font-semibold",
       small: "text-sm font-medium leading-none",
@@ -57,6 +58,7 @@ const defaultElementMapping: Record<
   p: "p",
   quote: "blockquote" as "p",
   code: "code",
+  alert: "p",
   lead: "p",
   large: "p",
   small: "p",

@@ -34,7 +34,7 @@ export default function RootLayout({
       >
         <TRPCReactProvider cookies={cookies().toString()}>
           <Providers>
-            <div className="relative flex h-full w-screen overflow-x-hidden overflow-y-hidden flex-col">
+            <div className="relative flex h-full w-screen overflow-x-hidden flex-col">
               <Header />
               <div className="flex-1 px-2 lg:p-1050">{children}</div>
               <Footer />

@@ -32,6 +32,7 @@ module.exports = {
         footer: {
           DEFAULT: "hsl(var(--footer))",
           foreground: "hsl(var(--footer-foreground))",
+          separator: "hsl(var(--footer-separator))",
           navSeparator: "hsl(var(--footer-nav-separator))",
         },
         primary: {

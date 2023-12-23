@@ -31,11 +31,11 @@ import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "../theme/ThemeToggle";
 
 const socialLinksClass = cva(
-  "group flex h-14 w-14 items-center justify-center rounded-full border border-footer-foreground transition-colors duration-200 hover:bg-footer-foreground",
+  "group flex h-14 w-14 items-center justify-center rounded-full border border-footer-foreground transition-colors duration-200 hover:bg-footer-foreground focus:bg-footer-foreground focus:outline-none",
 );
 
 const socialLinksIconClass = cva(
-  "h-8 w-8 text-footer-foreground transition-colors duration-200 group-hover:text-footer group-hover:scale-90 transition-transform",
+  "h-8 w-8 text-footer-foreground transition-colors duration-200 group-hover:text-footer group-focus:text-footer group-hover:scale-90 group-focus:scale-90 transition-transform focus:outline-none",
 );
 
 export function Footer() {
@@ -119,6 +119,7 @@ export function Footer() {
             <AccordionItem
               key={"Footer Mobile:" + link.name + i}
               value={link.name}
+              className="border-footer-separator"
             >
               <Typography
                 variant="h3"
@@ -161,7 +162,10 @@ export function Footer() {
         </Accordion>
         <ul className="hidden gap-4 lg:flex">
           <li>
-            <Separator orientation="vertical" className="bg-footer-navSeparator" />
+            <Separator
+              orientation="vertical"
+              className="bg-footer-separator lg:bg-footer-navSeparator"
+            />
           </li>
           {nav.map((link, i) => (
             <>
@@ -187,7 +191,7 @@ export function Footer() {
                       >
                         <span
                           className={cn(
-                            "flex text-lg w-fit flex-col after:origin-left after:scale-x-0 after:border-b after:border-footer-foreground after:duration-300 group-hover:after:scale-x-100",
+                            "flex w-fit flex-col text-lg after:origin-left after:scale-x-0 after:border-b after:border-footer-foreground after:duration-300 group-hover:after:scale-x-100",
                           )}
                         >
                           {sublink.name}
@@ -200,16 +204,16 @@ export function Footer() {
               <li>
                 <Separator
                   orientation="vertical"
-                  className="bg-footer-navSeparator"
+                  className="bg-footer-separator lg:bg-footer-navSeparator"
                 />
               </li>
             </>
           ))}
         </ul>
       </nav>
-      <div className="flex justify-between lg:flex-col gap-5 lg:justify-start lg:items-end">
+      <div className="flex justify-between gap-5 lg:flex-col lg:items-end lg:justify-start">
         <DropdownMenu>
-          <DropdownMenuTrigger className="group flex items-center gap-3 border-b border-footer-foreground pb-1 focus:outline-none h-fit">
+          <DropdownMenuTrigger className="group flex h-fit items-center gap-3 border-b border-footer-foreground pb-1 focus:outline-none">
             <Languages className="h-5 w-5" /> Langue
             <ChevronDownIcon
               className="relative top-[1px] ml-1 h-3 w-3 transition duration-300 group-data-[state=open]:rotate-180"
@@ -228,7 +232,45 @@ export function Footer() {
 
         <ThemeToggle className="hover:bg-transparent hover:text-footer-foreground" />
       </div>
-      <Separator orientation="horizontal" />
+      <Separator
+        orientation="horizontal"
+        className="bg-footer-separator lg:col-span-4"
+      />
+      <div className="w-full flex flex-col md:flex-row items-center gap-4 md:justify-between lg:col-span-4 -translate-y-3">
+        <div className="flex flex-col items-center gap-2 md:flex-row">
+          <Typography
+            variant="base"
+            href="/legal/"
+            as={Link}
+            className="text-xs"
+          >
+            Mentions légales
+          </Typography>
+          <Separator className="w-3 bg-footer-separator" />
+          <Typography
+            variant="base"
+            href="/legal/privacy"
+            as={Link}
+            className="text-xs"
+          >
+            Politique de confidentialité
+          </Typography>
+          <Separator className="w-3 bg-footer-separator" />
+          <Typography
+            variant="base"
+            href="/legal"
+            as={Link}
+            className="text-xs"
+          >
+            Gestion des cookies
+          </Typography>
+        </div>
+        <div className="flex w-fit items-center">
+          <Typography variant="base" className="text-xs">
+            &copy; {new Date().getFullYear()} Temple Team
+          </Typography>
+        </div>
+      </div>
     </footer>
   );
 }
