@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { cva } from "class-variance-authority";
+import { v4 as uuidv4 } from "uuid";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "../theme/ThemeToggle";
 
@@ -38,9 +39,55 @@ const socialLinksIconClass = cva(
   "h-8 w-8 text-footer-foreground transition-colors duration-200 group-hover:text-footer group-focus:text-footer group-hover:scale-90 group-focus:scale-90 transition-transform focus:outline-none",
 );
 
+function LinkList({
+  link,
+}: {
+  link: {
+    name: string;
+    content: { name: string; href: string }[];
+  };
+}) {
+  return (
+    <>
+      <li>
+        <Typography variant="h3" className="whitespace-nowrap">
+          {link.name}
+        </Typography>
+        <ul>
+          {link.content?.map((sublink, i) => (
+            <li key={uuidv4()}>
+              <Typography
+                variant="footerLink"
+                href={sublink.href}
+                as={Link}
+                className="group whitespace-nowrap"
+              >
+                <span
+                  className={cn(
+                    "flex w-fit flex-col text-lg after:origin-left after:scale-x-0 after:border-b after:border-footer-foreground after:duration-300 group-hover:after:scale-x-100",
+                  )}
+                >
+                  {sublink.name}
+                </span>
+              </Typography>
+            </li>
+          ))}
+        </ul>
+      </li>
+      <li>
+        <Separator
+          orientation="vertical"
+          className="bg-footer-separator lg:bg-footer-navSeparator"
+        />
+      </li>
+    </>
+  );
+}
+
 export function Footer() {
   const router = useRouter();
 
+  // Use to create each accordion
   const nav = new Array<{
     name: string;
     content: { name: string; href: string }[];
@@ -58,7 +105,7 @@ export function Footer() {
   });
 
   return (
-    <footer className="flex flex-col justify-center gap-8 bg-footer px-2 pb-4 pt-8 text-footer-foreground lg:grid lg:grid-flow-row lg:auto-rows-auto lg:grid-cols-3 lg:p-1050 lg:pb-6 lg:pt-10">
+    <footer className="flex flex-col justify-center gap-8 bg-footer px-2 pb-4 pt-8 text-footer-foreground lg:grid lg:grid-flow-row lg:auto-rows-auto lg:grid-cols-3 lg:px-1050 lg:pb-6 lg:pt-10">
       <div className="flex w-full flex-col gap-8 lg:col-end-1 lg:grid">
         <div className="flex w-fit flex-col gap-4 self-center">
           <Image
@@ -117,7 +164,7 @@ export function Footer() {
         <Accordion type="single" collapsible className="lg:hidden">
           {nav.map((link, i) => (
             <AccordionItem
-              key={"Footer Mobile:" + link.name + i}
+              key={uuidv4()}
               value={link.name}
               className="border-footer-separator"
             >
@@ -131,14 +178,7 @@ export function Footer() {
               <AccordionContent>
                 <ul className="flex flex-col gap-2">
                   {link.content?.map((sublink, i) => (
-                    <li
-                      key={
-                        "Footer Mobile content:" +
-                        sublink.name +
-                        sublink.href +
-                        i
-                      }
-                    >
+                    <li key={uuidv4()}>
                       <Typography
                         variant="footerLink"
                         href={sublink.href}
@@ -168,46 +208,7 @@ export function Footer() {
             />
           </li>
           {nav.map((link, i) => (
-            <>
-              <li key={"Footer Desktop:" + link.name + i}>
-                <Typography variant="h3" className="whitespace-nowrap">
-                  {link.name}
-                </Typography>
-                <ul>
-                  {link.content?.map((sublink, i) => (
-                    <li
-                      key={
-                        "Footer Desktop content:" +
-                        sublink.name +
-                        sublink.href +
-                        i
-                      }
-                    >
-                      <Typography
-                        variant="footerLink"
-                        href={sublink.href}
-                        as={Link}
-                        className="group whitespace-nowrap"
-                      >
-                        <span
-                          className={cn(
-                            "flex w-fit flex-col text-lg after:origin-left after:scale-x-0 after:border-b after:border-footer-foreground after:duration-300 group-hover:after:scale-x-100",
-                          )}
-                        >
-                          {sublink.name}
-                        </span>
-                      </Typography>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-              <li>
-                <Separator
-                  orientation="vertical"
-                  className="bg-footer-separator lg:bg-footer-navSeparator"
-                />
-              </li>
-            </>
+            <LinkList key={uuidv4()} link={link} />
           ))}
         </ul>
       </nav>
@@ -236,7 +237,7 @@ export function Footer() {
         orientation="horizontal"
         className="bg-footer-separator lg:col-span-4"
       />
-      <div className="w-full flex flex-col md:flex-row items-center gap-4 md:justify-between lg:col-span-4 -translate-y-3">
+      <div className="flex w-full -translate-y-3 flex-col items-center gap-4 md:flex-row md:justify-between lg:col-span-4">
         <div className="flex flex-col items-center gap-2 md:flex-row">
           <Typography
             variant="base"

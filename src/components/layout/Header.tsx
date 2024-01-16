@@ -44,20 +44,20 @@ export function Header() {
       className={cn(
         "group-[:not([data-scroll='0'])]/html sticky top-0 z-40 px-2",
         "flex w-full items-center justify-between bg-background transition-shadow duration-200",
-        "lg:items-center lg:p-1050",
-        "h-[60px] md:h-[70px] lg:h-[80px]",
+        "lg:items-center lg:px-1050",
+        "py-[10px] h-[60px] md:h-[70px] lg:h-[80px]",
       )}
     >
       <Typography
         as={Link}
         href="/"
         variant="h2"
-        className="text-2xl inline-flex items-end gap-0.5 whitespace-nowrap"
+        className="inline-flex items-end gap-0.5 whitespace-nowrap text-2xl"
       >
-          <ThemedLogo
-            sizes="(max-width 648px) 50px, (max-width 768px) 60px, 70px"
-            className="object-contain"
-          />
+        <ThemedLogo
+          sizes="(max-width 648px) 50px, (max-width 768px) 60px, 70px"
+          className="h-[50px] object-contain md:h-[60px] lg:h-[70px]"
+        />
         Temple Team
       </Typography>
 
@@ -65,7 +65,7 @@ export function Header() {
 
       <div
         className={cn(
-          "absolute left-0 top-[60px] flex h-full max-h-screen w-screen flex-col gap-5",
+          "absolute left-0 top-[60px] flex h-screen max-h-screen w-screen flex-col gap-5",
           "items-center justify-start bg-background px-5 md:top-[70px]",
           "lg:static lg:h-full lg:w-fit lg:flex-row lg:px-0",
           "transition-transform duration-1000 ease-in-out lg:translate-x-0",
@@ -73,7 +73,7 @@ export function Header() {
         )}
       >
         <Navigation />
-        <ThemeToggle className="hidden lg:inline-flex hover:bg-transparent" />
+        <ThemeToggle className="hidden hover:bg-transparent lg:inline-flex" />
         <ThemeToggleSidebar className="inline-flex w-full justify-around lg:hidden" />
       </div>
     </header>

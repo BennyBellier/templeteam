@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { Typography } from "@/components/ui/typography";
+import { LayoutSection } from "./layout";
 import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
 
@@ -14,7 +15,7 @@ const iconClass = cva(
 
 export default function ContactDiv() {
   return (
-    <div className="flex flex-col gap-8">
+    <LayoutSection className="flex flex-col gap-8">
       <div className="flex w-full flex-wrap items-center justify-around gap-5">
         <Typography variant="h1" className="tracking-wide md:text-7xl ">
           CONTACT
@@ -28,7 +29,7 @@ export default function ContactDiv() {
           </Typography>
         </div>
       </div>
-      <div className="flex justify-around">
+      <div className="flex justify-around w-full">
         <Link
           href="/Contact"
           className={cn(linkClass())}
@@ -51,6 +52,6 @@ export default function ContactDiv() {
           <MapPin strokeWidth={1.1} className={cn(iconClass())} />
         </Link>
       </div>
-    </div>
+    </LayoutSection>
   );
 }

@@ -36,7 +36,7 @@ export default function RootLayout({
           <Providers>
             <div className="relative flex h-full w-screen overflow-x-hidden flex-col">
               <Header />
-              <div className="flex-1 px-2 lg:p-1050">{children}</div>
+              <div className="flex-1 pt-5 pb-10 grid auto-rows-auto gap-6">{children}</div>
               <Footer />
             </div>
             <TailwindIndicator />

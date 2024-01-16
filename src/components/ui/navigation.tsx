@@ -12,6 +12,7 @@ import {
   NavigationMenuViewport,
   NavigationMenuIndicator,
 } from "@/components/ui/navigation-menu";
+import { v4 as uuidv4 } from 'uuid';
 import { NavigationLinks } from "@/lib/site-config";
 
 export function NavigationBar({ className }: { className?: string }) {
@@ -21,6 +22,7 @@ export function NavigationBar({ className }: { className?: string }) {
   const [activeTrigger, setActiveTrigger] = useState<HTMLButtonElement>();
 
   useEffect(() => {
+    console.log("execute useEffect");
     const list = listRef.current;
     if (activeTrigger && list) {
       const listWidth = list.offsetWidth;
@@ -45,10 +47,11 @@ export function NavigationBar({ className }: { className?: string }) {
       <NavigationMenuList ref={listRef}>
         {NavigationLinks.map((link) =>
           link.content ? (
-            <NavigationMenuItem key={link.href} value={link.name}>
+            <NavigationMenuItem key={link.id} value={link.name}>
               <NavigationMenuTrigger
                 ref={(node: HTMLButtonElement) => {
                   if (currentItemName === link.name && activeTrigger !== node) {
+                    console.log("node = " + node, "\nactiveTrigger = " + activeTrigger, activeTrigger === node);
                     setActiveTrigger(node);
                   }
                   return node;
@@ -63,7 +66,7 @@ export function NavigationBar({ className }: { className?: string }) {
                     as={NavigationMenuLink}
                     href={item.href}
                     variant="link"
-                    key={item.name + item.href}
+                    key={uuidv4()}
                   >
                     {item.name}
                   </Typography>
@@ -71,7 +74,7 @@ export function NavigationBar({ className }: { className?: string }) {
               </NavigationMenuContent>
             </NavigationMenuItem>
           ) : (
-            <NavigationMenuItem key={link.href}>
+            <NavigationMenuItem key={uuidv4()}>
               <Typography
                 as={NavigationMenuLink}
                 href={link.href}
@@ -111,7 +114,7 @@ function NavigationSidebarContent({
       </NavigationMenuItem>
 
       {link.content.map((item) => (
-        <NavigationMenuItem key={"Mobile content:" + link.name + item.href}>
+        <NavigationMenuItem key={uuidv4()}>
           <Typography
             as={NavigationMenuLink}
             href={item.href}
@@ -132,12 +135,9 @@ export function NavigationSidebar({ className }: { className?: string }) {
       <NavigationMenuList className="flex-col">
         {NavigationLinks.map((link) =>
           link.content ? (
-            <NavigationSidebarContent
-              key={"Mobile:" + link.name + link.href}
-              link={link}
-            />
+            <NavigationSidebarContent key={uuidv4()} link={link} />
           ) : (
-            <NavigationMenuItem key={"Mobile:" + link.name + link.href}>
+            <NavigationMenuItem key={uuidv4()}>
               <Typography
                 as={NavigationMenuLink}
                 href={link.href}

@@ -63,6 +63,9 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        aside: {
+          heroBanner: "hsl(var(--hero-banner-aside))",
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -70,7 +73,7 @@ module.exports = {
         sm: "calc(var(--radius) - 4px)",
       },
       padding: {
-        1050: "0 calc((100vw - 1050px) / 2)",
+        1050: "calc((100% - 1050px) / 2)",
       },
       keyframes: {
         "accordion-down": {

@@ -1,54 +1,66 @@
 export const NavigationLinks = [
   {
-    name: 'Accueil',
-    href: '/'
+    id: "home",
+    name: "Accueil",
+    href: "/",
   },
   {
-    name: 'La Team',
-    href: '/team'
+    id: "team",
+    name: "La Team",
+    href: "/team",
   },
   {
-    name: 'Portfolio',
-    href: '/portoflio',
+    id: "portfolio",
+    name: "Portfolio",
+    href: "/portoflio",
     content: [
       {
-        name: 'Photos',
-        href: '/portoflio/photos'
+        id: "portfolio_photos",
+        name: "Photos",
+        href: "/portoflio/photos",
       },
       {
-        name: 'Vidéos',
-        href: '/portoflio/videos'
+        id: "portfolio_videos",
+        name: "Vidéos",
+        href: "/portoflio/videos",
       },
     ],
   },
   {
-    name: 'Contact',
-    href: '/contact'
+    id: "contact",
+    name: "Contact",
+    href: "/contact",
   },
   {
-    name: 'Blog',
-    href: '/blog'
+    id: "blog",
+    name: "Blog",
+    href: "/blog",
   },
   {
-    name: 'Références',
-    href: '/references'
+    id: "references",
+    name: "Références",
+    href: "/references",
   },
   {
-    name: 'Association',
-    href: '/association',
+    id: "association",
+    name: "Association",
+    href: "/association",
     content: [
       {
-        name: 'Acceuil',
-        href: '/association'
+        id: "association_home",
+        name: "Acceuil",
+        href: "/association",
       },
       {
-        name: 'Stage',
-        href: '/association/stage'
+        id: "association_courses",
+        name: "Stage",
+        href: "/association/stage",
       },
       {
-        name: 'Samedi sportif',
-        href: '/association/samedi_sportif'
-      }
+        id: "association_sportsSaturday",
+        name: "Samedi sportif",
+        href: "/association/samedi_sportif",
+      },
     ],
-  }
+  },
 ];
