@@ -8,7 +8,7 @@ import { cookies } from "next/headers";
 import { type AppRouter } from "./api/root";
 import { getUrl, transformer } from "./shared";
 
-export const api = createTRPCProxyClient<AppRouter>({
+export const prisma = createTRPCProxyClient<AppRouter>({
   transformer,
   links: [
     loggerLink({

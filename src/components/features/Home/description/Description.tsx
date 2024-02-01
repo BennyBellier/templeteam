@@ -1,10 +1,15 @@
+"use client";
 import TeamPicture from "@/../public/img/team/Team.jpg";
 import { LayoutSection } from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 
 export const Description = () => {
+  const [x, setX] = useState(0);
   return (
     <LayoutSection className="relative grid gap-5 bg-secondary lg:grid-cols-[50%_50%]">
       <Typography
@@ -24,10 +29,20 @@ export const Description = () => {
         événements. C'est une combinaison puissante, d'autant que l'équipe veut
         promouvoir son sport et vous émerveiller, vous et vos enfants.
       </Typography>
-      <div className="w-fit">
-        <Typography as={Button} className="py-3">
+      <div
+        className="flex w-fit items-center gap-4"
+        onPointerEnter={() => setX(-10)}
+        onPointerLeave={() => setX(0)}
+      >
+        <Typography
+          as={Button}
+          className="text-lg py-5 font-bold"
+        >
           Plus d'infos
         </Typography>
+        <motion.div animate={{ x }} transition={{ type: "spring" }}>
+          <ArrowLeft size={28}/>
+        </motion.div>
       </div>
       <Image
         src={TeamPicture}

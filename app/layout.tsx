@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "./Providers";
 import { cookies } from "next/headers";
 import { TRPCReactProvider } from "@/components/trpc/TrpcProvider";
-import { PropsWithChildren, useEffect, useContext } from "react";
+import { PropsWithChildren } from "react";
 import { cn } from "@/lib/utils";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -25,18 +25,20 @@ export default function RootLayout({
   modal?: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="h-full group/html" data-scroll="0" suppressHydrationWarning>
-      <body
-        className={cn(
-          "h-full font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
+    <html
+      lang="fr"
+      className="group/html h-full"
+      data-scroll="0"
+      suppressHydrationWarning
+    >
+      <body className={cn("w-full font-sans antialiased", fontSans.variable)}>
         <TRPCReactProvider cookies={cookies().toString()}>
           <Providers>
-            <div className="relative flex h-full w-screen overflow-x-hidden flex-col">
+            <div className="relative flex flex-col overflow-x-hidden">
               <Header />
-              <div className="flex-1 pt-5 pb-10 grid auto-rows-auto gap-6">{children}</div>
+              <div className="relative grid top-[60px] flex-1 auto-rows-auto gap-6 pb-10 pt-5 md:top-[70px] lg:top-[80px]" aria-hidden="true">
+                {children}
+              </div>
               <Footer />
             </div>
             <TailwindIndicator />

@@ -1,6 +1,6 @@
 "use client";
 
-import { api } from "@/lib/server";
+import { prisma } from "@/lib/server";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
 import { References, ReferenceCategory } from "@prisma/client";
@@ -22,7 +22,7 @@ export const ReferencesProvider: React.FC<PropsWithChildren> = ({
 
   const fetchReferences = async () => {
     try {
-      const fetchedReferences = await api.references.get.query();
+      const fetchedReferences = await prisma.references.get.query();
       setReferences(fetchedReferences);
     } catch (error) {
       console.error("Query references failed: ", error);

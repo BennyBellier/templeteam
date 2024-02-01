@@ -25,8 +25,6 @@ const OPTIONS: EmblaOptionsType = {
 export const References = () => {
   const { references } = useReferences();
 
-  console.log("JSX: ", references);
-
   return (
     <LayoutSection className="gap-5">
       <Typography variant="h1" className="tracking-widest w-fit">

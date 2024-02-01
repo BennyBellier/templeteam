@@ -7,11 +7,11 @@ import {
 import { NavigationBar, NavigationSidebar } from "@/components/ui/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect } from "react";
 import { useSidebarState } from "../sidebar/SidebarProvider";
 import { Hamburger } from "../ui/hamburger";
 import { ThemedLogo } from "../ui/logo";
 import { Typography } from "../ui/typography";
+import { useEffect, useState } from "react";
 
 export function Navigation() {
   return (
@@ -24,26 +24,26 @@ export function Navigation() {
 
 export function Header() {
   const { sidebarOpen } = useSidebarState();
+  const [scrollY, setScrollY] = useState(0)
 
   useEffect(() => {
-    function detectScroll() {
-      document.documentElement.dataset.scroll = window.scrollY.toFixed();
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
     }
 
-    window.addEventListener("scroll", detectScroll);
+    window.addEventListener('scroll', handleScroll);
 
-    return () => {
-      window.removeEventListener("scroll", detectScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <header
       className={cn(
-        "group-[:not([data-scroll='0'])]/html sticky top-0 z-40 px-2",
-        "flex w-full items-center justify-between bg-background transition-shadow duration-200",
+        "fixed top-0 z-40 px-2",
+        "flex w-full items-center justify-between bg-background transition-shadow ease duration-300",
         "lg:items-center lg:px-1050",
         "h-[60px] py-[10px] md:h-[70px] lg:h-[80px]",
+        scrollY > 0 ? "shadow-md" : "",
       )}
     >
       <Typography
