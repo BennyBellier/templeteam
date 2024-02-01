@@ -29,6 +29,9 @@ module.exports = {
           DEFAULT: "hsl(var(--invert-background))",
           foreground: "hsl(var(--invert-foreground))",
         },
+        const: {
+          white: "hsl(var(--const-white))",
+        },
         footer: {
           DEFAULT: "hsl(var(--footer))",
           foreground: "hsl(var(--footer-foreground))",
@@ -65,7 +68,7 @@ module.exports = {
         },
         aside: {
           heroBanner: "hsl(var(--hero-banner-aside))",
-        }
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -1,11 +1,11 @@
-import { type VariantProps, cva } from "class-variance-authority";
-import type {
-  ComponentPropsWithRef,
+import { cn } from "@/lib/utils";
+import { cva, VariantProps } from "class-variance-authority";
+import {
   ComponentPropsWithoutRef,
+  ComponentPropsWithRef,
   ElementType,
   PropsWithChildren,
 } from "react";
-import { cn } from "../../lib/utils";
 
 interface PolymorphicAsProp<E extends ElementType> {
   as?:
@@ -17,8 +17,8 @@ interface PolymorphicAsProp<E extends ElementType> {
 }
 
 type PolymorphicProps<E extends ElementType> = PropsWithChildren<
-  Omit<ComponentPropsWithoutRef<E>, "as"> & PolymorphicAsProp<E>
-  | Omit<ComponentPropsWithRef<E>, "as"> & PolymorphicAsProp<E>
+  | (Omit<ComponentPropsWithoutRef<E>, "as"> & PolymorphicAsProp<E>)
+  | (Omit<ComponentPropsWithRef<E>, "as"> & PolymorphicAsProp<E>)
 >;
 
 const typographyVariants = cva("", {
@@ -67,8 +67,6 @@ const defaultElementMapping: Record<
   footerLink: "a",
   base: "p",
 } as const;
-
-
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
 const getDefaultElement = (variant: TypographyCvaProps["variant"]) => {};

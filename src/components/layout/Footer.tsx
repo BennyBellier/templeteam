@@ -30,13 +30,14 @@ import { cva } from "class-variance-authority";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "../theme/ThemeToggle";
+import FooterLogo from "@/../public/img/footer.png"
 
 const socialLinksClass = cva(
-  "group flex h-14 w-14 items-center justify-center rounded-full border border-footer-foreground transition-colors duration-200 hover:bg-footer-foreground focus:bg-footer-foreground focus:outline-none",
+  "group flex h-14 w-14 items-center justify-center rounded-full border border-const-white transition-colors duration-200 hover:bg-const-white focus:bg-const-white focus:outline-none",
 );
 
 const socialLinksIconClass = cva(
-  "h-8 w-8 text-footer-foreground transition-colors duration-200 group-hover:text-footer group-focus:text-footer group-hover:scale-90 group-focus:scale-90 transition-transform focus:outline-none",
+  "h-8 w-8 texte-const-white transition-colors duration-200 group-hover:text-footer group-focus:text-footer group-hover:scale-90 group-focus:scale-90 transition-transform focus:outline-none",
 );
 
 function LinkList({
@@ -64,7 +65,7 @@ function LinkList({
               >
                 <span
                   className={cn(
-                    "flex w-fit flex-col text-lg after:origin-left after:scale-x-0 after:border-b after:border-footer-foreground after:duration-300 group-hover:after:scale-x-100",
+                    "flex w-fit flex-col text-lg after:origin-left after:scale-x-0 after:border-b after:border-const-white after:duration-300 group-hover:after:scale-x-100",
                   )}
                 >
                   {sublink.name}
@@ -105,17 +106,15 @@ export function Footer() {
   });
 
   return (
-    <footer className="flex flex-col justify-center gap-8 bg-footer px-2 pb-4 pt-8 text-footer-foreground lg:grid lg:grid-flow-row lg:auto-rows-auto lg:grid-cols-3 lg:px-1050 lg:pb-6 lg:pt-10">
-      <div className="flex w-full flex-col gap-8 lg:col-end-1 lg:grid">
-        <div className="flex w-fit flex-col gap-4 self-center">
+    <footer className="flex flex-col justify-center gap-8 px-2 pt-8 pb-4 bg-footer text-const-white lg:grid lg:grid-flow-row lg:auto-rows-auto lg:grid-cols-3 lg:px-1050 lg:pb-6 lg:pt-10">
+      <div className="flex flex-col w-full gap-8 lg:col-end-1 lg:grid">
+        <div className="flex flex-col self-center gap-4 w-fit">
           <Image
-            src="/img/footer.png"
-            width={651}
-            height={271}
+            src={FooterLogo}
             alt="Logo de la Temple Team"
             className="w-[300px] saturate-150"
           />
-          <Typography variant="h3" className="text-center font-sans font-light">
+          <Typography variant="h3" className="font-sans font-light text-center">
             {" "}
             La Temple Team s'occupe de tout !
           </Typography>
@@ -170,7 +169,7 @@ export function Footer() {
             >
               <Typography
                 variant="h3"
-                className="font-caption font-semibold"
+                className="font-semibold font-caption"
                 as={AccordionTrigger}
               >
                 {link.name}
@@ -187,7 +186,7 @@ export function Footer() {
                       >
                         <span
                           className={cn(
-                            "flex w-fit flex-col after:origin-left after:scale-x-0 after:border-b after:border-footer-foreground after:duration-300 group-hover:after:scale-x-100",
+                            "flex w-fit flex-col after:origin-left after:scale-x-0 after:border-b after:border-const-white after:duration-300 group-hover:after:scale-x-100",
                           )}
                         >
                           {sublink.name}
@@ -214,8 +213,8 @@ export function Footer() {
       </nav>
       <div className="flex justify-between gap-5 lg:flex-col lg:items-end lg:justify-start">
         <DropdownMenu>
-          <DropdownMenuTrigger className="group flex h-fit items-center gap-3 border-b border-footer-foreground pb-1 focus:outline-none">
-            <Languages className="h-5 w-5" /> Langue
+          <DropdownMenuTrigger className="flex items-center gap-3 pb-1 border-b group h-fit border-const-white focus:outline-none">
+            <Languages className="w-5 h-5" /> Langue
             <ChevronDownIcon
               className="relative top-[1px] ml-1 h-3 w-3 transition duration-300 group-data-[state=open]:rotate-180"
               aria-hidden="true"
@@ -231,13 +230,13 @@ export function Footer() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <ThemeToggle className="hover:bg-transparent hover:text-footer-foreground" />
+        <ThemeToggle className="hover:bg-transparent hover:text-const-white" />
       </div>
       <Separator
         orientation="horizontal"
         className="bg-footer-separator lg:col-span-4"
       />
-      <div className="flex w-full -translate-y-3 flex-col items-center gap-4 md:flex-row md:justify-between lg:col-span-4">
+      <div className="flex flex-col items-center w-full gap-4 -translate-y-3 md:flex-row md:justify-between lg:col-span-4">
         <div className="flex flex-col items-center gap-2 md:flex-row">
           <Typography
             variant="base"
@@ -266,7 +265,7 @@ export function Footer() {
             Gestion des cookies
           </Typography>
         </div>
-        <div className="flex w-fit items-center">
+        <div className="flex items-center w-fit">
           <Typography variant="base" className="text-xs">
             &copy; {new Date().getFullYear()} Temple Team
           </Typography>

@@ -26,7 +26,7 @@
     --input: 0 0% 89.8%;
     --ring: 354.9 86.9% 48.0%;
     --footer: 0 0% 14.9%;
-    --footer-foreground: 0 0% 98%;
+    --const-white: 0 0% 98%;
     --footer-nav-separator: 355 85% 65%;
     --footer-separator: 0.0 0.0% 90%;
     --radius: 0.5rem;

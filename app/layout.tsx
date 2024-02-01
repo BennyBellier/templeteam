@@ -25,7 +25,7 @@ export default function RootLayout({
   modal?: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="h-full" data-scroll="0" suppressHydrationWarning>
+    <html lang="fr" className="h-full group/html" data-scroll="0" suppressHydrationWarning>
       <body
         className={cn(
           "h-full font-sans antialiased",

@@ -14,10 +14,10 @@ export function HeroBanner() {
 
   return (
     <LayoutSection>
-      <Typography variant="h1" className="lg:hidden bg-aside-heroBanner text-invert-foreground w-full text-center pt-1 pb-2 xs:text-xl">
+      <Typography variant="h1" className="w-full pt-1 pb-2 tracking-widest text-center lg:hidden bg-aside-heroBanner text-const-white xs:text-xl">
         Temple Team
       </Typography>
-      <aside className="self-start before:from-aside-heroBanner before:to-aside-heroBanner/0 absolute z-10 lg:flex w-fit items-end -translate-x-64 translate-y-10 text-neutral-50 before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:content-[''] hidden">
+      <aside className="self-start before:from-aside-heroBanner before:to-aside-heroBanner/0 absolute z-10 lg:flex w-fit items-end -translate-x-64 translate-y-10 text-const-white before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:content-[''] hidden">
         <svg
           viewBox="0 0 409 191"
           fill="none"
@@ -29,7 +29,7 @@ export function HeroBanner() {
             fill="#F24150"
           />
         </svg>
-        <h2 className="font-display absolute -translate-y-28 translate-x-64 pl-1 text-5xl font-bold">
+        <h2 className="absolute pl-1 text-5xl font-bold translate-x-64 font-display -translate-y-28">
           TEMPLE TEAM
         </h2>
         <em className="font-display absolute w-64 -translate-y-5 translate-x-64 pl-1 text-xl/10 font-semibold not-italic tracking-[.25rem]">
@@ -40,7 +40,7 @@ export function HeroBanner() {
         <Typography
           variant="h2"
           className={cn(
-            "absolute w-full bg-gradient-to-b from-neutral-900/40 to-transparent pb-2 pt-1 text-center text-invert-foreground lg:hidden xs:text-lg"
+            "absolute w-full bg-gradient-to-b from-neutral-900/40 to-transparent pb-2 pt-1 text-center text-const-white lg:hidden xs:text-lg"
           )}
         >
           La Temple Team s'occupe de tout

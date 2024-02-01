@@ -22,7 +22,6 @@ export function NavigationBar({ className }: { className?: string }) {
   const [activeTrigger, setActiveTrigger] = useState<HTMLButtonElement>();
 
   useEffect(() => {
-    console.log("execute useEffect");
     const list = listRef.current;
     if (activeTrigger && list) {
       const listWidth = list.offsetWidth;

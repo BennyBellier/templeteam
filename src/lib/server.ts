@@ -20,7 +20,6 @@ export const api = createTRPCProxyClient<AppRouter>({
       url: getUrl(),
       headers() {
         return {
-          cookie: cookies().toString(),
           "x-trpc-source": "rsc",
         };
       },

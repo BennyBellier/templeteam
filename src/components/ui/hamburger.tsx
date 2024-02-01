@@ -1,10 +1,10 @@
 import { useContext } from "react";
 import { Button } from "./button";
-import { SidebarContext } from "../sidebar/SidebarProvider";
+import { SidebarContext, useSidebarState } from "../sidebar/SidebarProvider";
 import { cn } from "@/lib/utils";
 
 export function Hamburger({ className, ...props }: { className?: string }) {
-  const { sidebarOpen, handleSiberbarChange } = useContext(SidebarContext);
+  const { sidebarOpen, handleSiberbarChange } = useSidebarState();
   return (
     <Button
       variant="invisible"

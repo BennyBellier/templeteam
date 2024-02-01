@@ -7,7 +7,7 @@ export const LayoutSection = (props: ComponentPropsWithoutRef<"div">) => {
     <div
       {...props}
       className={cn(
-        "relative flex h-fit flex-col items-center lg:px-1050",
+        "relative flex h-fit flex-col items-center py-6 px-5 lg:px-1050",
         props.className,
       )}
     />

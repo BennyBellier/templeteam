@@ -1,11 +1,13 @@
 import Image from "next/image";
+import LogoLightPng from "@/../public/img/logo-light.png";
+import LogoDarkPng from "@/../public/img/logo-dark.png";
 
 export function LogoLight({...props}) {
-  return <Image src="/img/logo-light.png" alt="⛩️" {...props} />;
+  return <Image src={LogoLightPng} alt="⛩️" {...props} />;
 }
 
 export function LogoDark({...props}) {
-  return <Image src="/img/logo-dark.png" alt="⛩️" {...props} />;
+  return <Image src={LogoDarkPng} alt="⛩️" {...props} />;
 }
 
 export function ThemedLogo({
