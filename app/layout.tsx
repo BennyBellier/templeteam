@@ -1,14 +1,14 @@
+import { Footer } from "@/components/layout/Footer";
+import { Header } from "@/components/layout/Header";
+import { TRPCReactProvider } from "@/components/trpc/TrpcProvider";
+import { TailwindIndicator } from "@/components/util/TailwindIndicator";
+import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Manrope, Rubik } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./Providers";
 import { cookies } from "next/headers";
-import { TRPCReactProvider } from "@/components/trpc/TrpcProvider";
 import { PropsWithChildren } from "react";
-import { cn } from "@/lib/utils";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { TailwindIndicator } from "@/components/util/TailwindIndicator";
+import { Providers } from "./Providers";
+import "./globals.css";
 
 const fontCaption = Manrope({ subsets: ["latin"], variable: "--font-caption" });
 const fontSans = Rubik({ subsets: ["latin"], variable: "--font-sans" });
@@ -27,16 +27,19 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className="group/html h-full"
+      className="group/html h-full light"
       data-scroll="0"
-      suppressHydrationWarning
+
     >
-      <body className={cn("w-full font-sans antialiased", fontSans.variable)}>
+      <body className={cn("h-full font-sans antialiased", fontSans.variable)}>
         <TRPCReactProvider cookies={cookies().toString()}>
           <Providers>
-            <div className="relative flex flex-col overflow-x-hidden">
+            <div id="main-content" className="flex h-full flex-col overflow-x-hidden overflow-y-auto">
               <Header />
-              <div className="relative grid top-[60px] flex-1 auto-rows-auto gap-6 pb-10 pt-5 md:top-[70px] lg:top-[80px]" aria-hidden="true">
+              <div
+                className="grid grow auto-rows-auto gap-6 pb-10 pt-5"
+                aria-hidden="true"
+              >
                 {children}
               </div>
               <Footer />
