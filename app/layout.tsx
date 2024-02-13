@@ -1,6 +1,7 @@
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { TRPCReactProvider } from "@/components/trpc/TrpcProvider";
+import { PlaygroundLink } from "@/components/util/PlaygroundLink";
 import { TailwindIndicator } from "@/components/util/TailwindIndicator";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -25,25 +26,21 @@ export default function RootLayout({
   modal?: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="fr"
-      className="group/html h-full light"
-      data-scroll="0"
-
-    >
+    <html lang="fr" className="group/html light h-full" data-scroll="0">
       <body className={cn("h-full font-sans antialiased", fontSans.variable)}>
         <TRPCReactProvider cookies={cookies().toString()}>
           <Providers>
-            <div id="main-content" className="flex h-full flex-col overflow-x-hidden overflow-y-auto">
+            <div
+              id="main-content"
+              className="flex h-full flex-col overflow-y-auto overflow-x-hidden"
+            >
               <Header />
-              <div
-                className="grid grow auto-rows-auto gap-6 pb-10 pt-5"
-                aria-hidden="true"
-              >
+              <div className="grid grow auto-rows-auto gap-6 pb-10 pt-5">
                 {children}
               </div>
               <Footer />
             </div>
+            <PlaygroundLink />
             <TailwindIndicator />
             {modal}
           </Providers>

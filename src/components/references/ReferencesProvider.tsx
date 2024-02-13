@@ -1,10 +1,9 @@
 "use client";
 
 import { prisma } from "@/lib/server";
+import { Prisma, References } from "@prisma/client";
 import { PropsWithChildren, createContext, useContext, useState } from "react";
 import { useEffectOnce } from "usehooks-ts";
-import { References, ReferenceCategory } from "@prisma/client";
-
 
 export const ReferencesContext = createContext({
   references: {} as References[] | null,
@@ -39,3 +38,7 @@ export const ReferencesProvider: React.FC<PropsWithChildren> = ({
     </ReferencesContext.Provider>
   );
 };
+
+export type ReferenceCardProps = Prisma.PromiseReturnType<
+  typeof prisma.references.get.query
+>[number];
