@@ -21,6 +21,6 @@ jobs:
             cd ${{ secrets.PROD_DIR }}
             git checkout ${{ secrets.MAIN_BRANCH }}
             git pull
-            npm init
+            npm install
             npm run build
             npm start
