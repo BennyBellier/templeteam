@@ -20,6 +20,7 @@ jobs:
           script: |
             cd ${{ secrets.PROD_DIR }}
             git checkout ${{ secrets.MAIN_BRANCH }}
+            ${{ secrets.VIRTUAL_ENV_ACCESS }}
             git pull
             npm install
             npm run build
