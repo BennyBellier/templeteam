@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "curl -d \"$(hostname -I | cut -d' ' -f1):3000\" ntfy.sh/bennybellier && next dev",
+    "dev": "next dev",
     "postinstall": "prisma generate",
     "poststart": "prisma validate && prisma db push",
     "lint": "next lint",
