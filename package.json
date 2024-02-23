@@ -2,6 +2,7 @@
   "name": "templeteam",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://templeteam.fr",
   "scripts": {
     "dev": "next dev",
     "test": "jest -- --watch",
@@ -17,6 +18,7 @@
     "lint": "next lint",
     "build": "next build",
     "start": "next start",
+    "custom:start": "NODE_ENV=production node server.js",
     "cypress:open": "cypress open"
   },
   "dependencies": {
