@@ -53,3 +53,4 @@ public/video/**
 /src/data/blog_posts/*
 src/stories/assets/*
 .storybook/*
+server.js

@@ -8,6 +8,7 @@ interface ThemeButtonProps {
    */
   type: 'mobile' | 'desktop' | 'footer';
   size?: number;
+  className?: string;
 }
 
 interface ThemeLogoProps {
@@ -16,7 +17,7 @@ interface ThemeLogoProps {
   /**
    * Whether the logo should be change color or keep white color
    */
-  withTheme: boolean;
+  withTheme?: boolean;
 }
 
 /**
@@ -60,7 +61,7 @@ const ThemeLogo = ({ theme, size, withTheme, ...props }: ThemeLogoProps) => {
  *
  * @returns {JSX.Element} a button to toggle the theme
  */
-export const ThemeButton = ({ type, size }: ThemeButtonProps) => {
+export const ThemeButton = ({ type, size, className }: ThemeButtonProps) => {
   const [theme, setTheme] = useState("light");
   const [text, setText] = useState("Thème sombre");
 
@@ -108,7 +109,7 @@ export const ThemeButton = ({ type, size }: ThemeButtonProps) => {
       return (
         <button
           className={
-            "ease w-${width} h-${height} group flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-2xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20 " +
+            "ease w-${width} h-${height} group flex w-full items-center justify-between rounded-md bg-neutral-800 px-8 py-4 text-2xl font-bold text-neutral-50 shadow-md shadow-neutral-800/25 duration-300 hover:scale-90 hover:bg-red-550 dark:bg-neutral-50 dark:text-neutral-800 dark:shadow-neutral-50/25 dark:hover:bg-red-450 md:px-20 "
           }
           onClick={toggleTheme}
         >

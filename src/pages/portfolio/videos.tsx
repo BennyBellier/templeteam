@@ -4,11 +4,9 @@ import Link from "next/link";
 import Layout from "~/components/layout";
 import { HiOutlineChevronLeft } from "react-icons/hi2";
 import { motion } from "framer-motion";
-import {
-  type VideoProps,
-} from "../../utils/types";
+import { type VideoProps } from "../../utils/types";
 import { api } from "~/utils/api";
-import DotsLoader from "~/components/DotsLoader";
+import { DotsLoader } from "~/components/Loader";
 import { getSortedYoutubeVideos } from "~/lib/videos";
 
 export async function getStaticProps() {
@@ -17,7 +15,7 @@ export async function getStaticProps() {
     props: {
       repo,
     },
-      revalidate: 86400, // revalidate every 24 hours
+    revalidate: 86400, // revalidate every 24 hours
   };
 }
 
@@ -71,27 +69,19 @@ function VideoItem({ video }: { video: VideoProps }) {
   );
 }
 
-
-export default function VideosPage({
-  repo,
-}: {
-  repo: VideoProps[];
-}) {
+export default function VideosPage({ repo }: { repo: VideoProps[] }) {
   const [videos, setVideos] = useState<VideoProps[]>(repo);
   const videosQuery = api.videos.fetchVideosList.useMutation();
 
   const VideosList = () => {
-    if (videosQuery.isLoading)
-      return <DotsLoader />;
+    if (videosQuery.isLoading) return <DotsLoader />;
 
     if (videosQuery.isError)
       return (
         <p className="text-center text-2xl font-bold">{`Une erreur s'est produite ! Veuillez réessayer`}</p>
       );
 
-
-
-    if (!videos || videos.length === 0)
+    if (!videos || videos.length === 0)
       return (
         <p className="text-center text-2xl font-bold">{`Aucune vidéo n'est disponible pour le moment !`}</p>
       );
@@ -113,12 +103,17 @@ export default function VideosPage({
     if (videosQuery.isSuccess) {
       setVideos([...videos, ...videosQuery.data?.videos]);
     }
-  }
+  };
 
   const moreVideoDisable = () => {
     return false;
-    return videosQuery.isLoading || videosQuery.isError || videos.length === 0 || videos.length === videosQuery.data?.nextTotalResults;
-  }
+    return (
+      videosQuery.isLoading ||
+      videosQuery.isError ||
+      videos.length === 0 ||
+      videos.length === videosQuery.data?.nextTotalResults
+    );
+  };
 
   return (
     <>
@@ -131,7 +126,13 @@ export default function VideosPage({
           <VideosList />
         </section>
 
-        <button onClick={handleMoreVideos} disabled={moreVideoDisable()} className={`w-fit px-3 py-2 border border-neutral-900 rounded-lg self-center duration-200 disabled:opacity-0 hover:border-transparent hover:scale-95 hover:drop-shadow-lg`}>Afficher plus</button>
+        <button
+          onClick={handleMoreVideos}
+          disabled={moreVideoDisable()}
+          className={`w-fit self-center rounded-lg border border-neutral-900 px-3 py-2 duration-200 hover:scale-95 hover:border-transparent hover:drop-shadow-lg disabled:opacity-0`}
+        >
+          Afficher plus
+        </button>
 
         <Link
           href={"/portfolio/photos"}
