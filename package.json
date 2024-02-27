@@ -18,7 +18,6 @@
     "lint": "next lint",
     "build": "next build",
     "start": "next start",
-    "custom:start": "NODE_ENV=production node server.js",
     "cypress:open": "cypress open"
   },
   "dependencies": {

@@ -40,6 +40,9 @@ yarn-error.log*
 #vscode
 .vscode
 
+# sst
+.sst
+
 # content
 /public/img/portfolio/*
 /public/img/team/*
