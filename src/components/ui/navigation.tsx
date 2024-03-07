@@ -50,7 +50,6 @@ export function NavigationBar({ className }: { className?: string }) {
               <NavigationMenuTrigger
                 ref={(node: HTMLButtonElement) => {
                   if (currentItemName === link.name && activeTrigger !== node) {
-                    console.log("node = " + node, "\nactiveTrigger = " + activeTrigger, activeTrigger === node);
                     setActiveTrigger(node);
                   }
                   return node;

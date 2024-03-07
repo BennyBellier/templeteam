@@ -1,21 +1,22 @@
 import TeamPicture from "@/../public/img/team/Team.jpg";
+import { ButtonWithArrow } from "@/components/features/animated/ButtonWithArrow";
+import { VideoWithLoader } from "@/components/features/withLoader/VideoWithLoader";
 import { ContactBar as Contact } from "@/components/layout/Contact";
 import { LayoutSection } from "@/components/layout/layout";
 import { References } from "@/components/references/References";
 import { Typography } from "@/components/ui/typography";
+import { getServerAuthSession } from "@/lib/auth";
 import { prisma } from "@/lib/server";
+import { cn } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
-import { ButtonWithArrow } from "@/components/features/animated/ButtonWithArrow";
-import { VideoWithLoader } from "@/components/features/withLoader/VideoWithLoader";
-import { cn } from "@/lib/utils";
 
 export default async function Home() {
   const hello = await prisma.post.hello.query({ text: "Worldy !" });
 
   return (
     <>
-    {/* Hero Banner */}
+      {/* Hero Banner */}
       <LayoutSection>
         <Typography
           variant="h1"

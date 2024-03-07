@@ -4,7 +4,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { VideoNotFound } from "@/components/ui/videoNotFound";
 import { cn } from "@/lib/utils";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
-import React, { ReactNode, VideoHTMLAttributes, useEffect, useRef, useState } from "react";
+import React, {
+  ReactNode,
+  VideoHTMLAttributes,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 export interface VideoWithLoaderProps
   extends VideoHTMLAttributes<HTMLVideoElement> {
@@ -30,11 +36,16 @@ export const VideoWithLoader: React.FC<VideoWithLoaderProps> = ({
   };
 
   useEffect(() => {
-    if (videoRef.current?.readyState! === 0) {
+    if (videoRef.current?.readyState === 0) {
       setError(true);
     }
 
-  }, [videoRef.current?.readyState])
+    if (videoRef.current?.readyState! >= 2) {
+      setError(false);
+      setIsLoading(false);
+      onLoaded;
+    }
+  }, [videoRef.current?.readyState]);
 
   return (
     <AspectRatio ratio={props.ratio ? props.ratio : 16 / 9}>
