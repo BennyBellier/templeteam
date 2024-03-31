@@ -16,4 +16,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: whoami
+          script: |
+            cd ${{ secrets.PROD_DIR }}
+            git checkout ${{ secrets.MAIN_BRANCH }}
+            git pull
+            ${{ secrets.STOP_SCRIPT }}
+            npm run build
+            ${{ secrets.START_SCRIPT }}
