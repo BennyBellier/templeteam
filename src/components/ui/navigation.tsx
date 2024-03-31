@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Typography } from "@/components/ui/typography";
 import {
   NavigationMenu,
   NavigationMenuContent,
+  NavigationMenuIndicator,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
   NavigationMenuViewport,
-  NavigationMenuIndicator,
 } from "@/components/ui/navigation-menu";
-import { v4 as uuidv4 } from 'uuid';
+import { Typography } from "@/components/ui/typography";
 import { NavigationLinks } from "@/lib/site-config";
+import { useEffect, useRef, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 export function NavigationBar({ className }: { className?: string }) {
   const [offset, setOffset] = useState(0);

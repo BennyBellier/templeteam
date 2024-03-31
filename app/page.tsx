@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import TeamPicture from "@/../public/img/team/Team.jpg";
 import { ButtonWithArrow } from "@/components/features/animated/ButtonWithArrow";
 import { VideoWithLoader } from "@/components/features/withLoader/VideoWithLoader";
@@ -5,14 +6,15 @@ import { ContactBar as Contact } from "@/components/layout/Contact";
 import { LayoutSection } from "@/components/layout/layout";
 import { References } from "@/components/references/References";
 import { Typography } from "@/components/ui/typography";
-import { getServerAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/server";
+// import { prisma } from "@/server/";
 import { cn } from "@/lib/utils";
+import { getServerAuthSession } from "@/server/auth";
 import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
 export default async function Home() {
-  const hello = await prisma.post.hello.query({ text: "Worldy !" });
+  // const hello = await prisma.post.hello.query({ text: "Worldy !" });
+  const session = await getServerAuthSession();
 
   return (
     <>
@@ -20,11 +22,11 @@ export default async function Home() {
       <LayoutSection>
         <Typography
           variant="h1"
-          className="xs:text-xl w-full bg-aside-heroBanner pb-2 pt-1 text-center tracking-widest text-const-white lg:hidden"
+          className="xs:text-xl bg-aside-heroBanner text-const-white w-full pb-2 pt-1 text-center tracking-widest lg:hidden"
         >
           Temple Team
         </Typography>
-        <aside className="absolute z-10 hidden w-fit -translate-x-64 translate-y-10 items-end self-start text-const-white before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:from-aside-heroBanner before:to-aside-heroBanner/0 before:content-[''] lg:flex">
+        <aside className="text-const-white before:from-aside-heroBanner before:to-aside-heroBanner/0 absolute z-10 hidden w-fit -translate-x-64 translate-y-10 items-end self-start before:h-[182px] before:w-64 before:-translate-y-[1px] before:translate-x-[2px] before:bg-gradient-to-l before:content-[''] lg:flex">
           <svg
             viewBox="0 0 409 191"
             fill="none"
@@ -47,7 +49,7 @@ export default async function Home() {
           <Typography
             variant="h2"
             className={cn(
-              "xs:text-lg absolute z-10 w-full bg-gradient-to-b from-neutral-900/40 to-transparent pb-2 pt-1 text-center text-const-white lg:hidden",
+              "xs:text-lg text-const-white absolute z-10 w-full bg-gradient-to-b from-neutral-900/40 to-transparent pb-2 pt-1 text-center lg:hidden",
             )}
           >
             La Temple Team s'occupe de tout

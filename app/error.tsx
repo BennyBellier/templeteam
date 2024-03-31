@@ -4,10 +4,10 @@ import { useEffect } from "react";
 
 export default function Error({
   error,
-  reset,
+  _reset,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  _reset: () => void;
 }) {
   useEffect(() => {
     // Log the error to an error reporting service

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import Image from "next/image";
@@ -97,7 +98,7 @@ export function Footer() {
   NavigationLinks.forEach((link) => {
     if (!link.content) {
       if (nav.findIndex((e) => e.name === "Temple Team") === -1) {
-        nav.push({ name: "Temple Team", content: Array() });
+        nav.push({ name: "Temple Team", content: [] });
       }
       nav[nav.findIndex((e) => e.name === "Temple Team")]?.content.push(link);
     } else {
@@ -119,7 +120,7 @@ export function Footer() {
             La Temple Team s'occupe de tout !
           </Typography>
         </div>
-        <div className="flex justify-around">
+        <div className="flex justify-around flex-wrap gap-2">
           <a
             href="https://www.youtube.com/@TempleTeam"
             className={socialLinksClass()}

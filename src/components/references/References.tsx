@@ -1,7 +1,8 @@
 "use client";
 
-import { EmblaOptionsType } from "embla-carousel";
-import { Suspense, lazy } from "react";
+import { trpc } from "@/trpc/TrpcProvider";
+import type { EmblaOptionsType } from "embla-carousel";
+import { useMemo } from "react";
 import { LayoutSection } from "../layout/layout";
 import {
   Carousel,
@@ -11,7 +12,6 @@ import {
 } from "../ui/carousel";
 import { Skeleton } from "../ui/skeleton";
 import { Typography } from "../ui/typography";
-import { useReferences } from "./ReferencesProvider";
 import { ReferenceCard } from "./referenceCard";
 
 const OPTIONS: EmblaOptionsType = {
@@ -24,7 +24,8 @@ const OPTIONS: EmblaOptionsType = {
 };
 
 export const References = () => {
-  const { references } = useReferences();
+  const { data: references } = trpc.references.get.useQuery();
+  const memoizedReferences = useMemo(() => references ?? null, [references]);
 
   return (
     <LayoutSection className="gap-5">
@@ -37,9 +38,9 @@ export const References = () => {
       >
         <CarouselContent className="ml-0.5 flex h-[150px] items-center">
           {references === null ? <Skeleton /> : null}
-            {references?.map((reference) => (
-              <ReferenceCard key={reference.id} reference={reference} />
-            ))}
+          {memoizedReferences?.map((reference) => (
+            <ReferenceCard key={reference.id} reference={reference} />
+          ))}
         </CarouselContent>
         <CarouselPrevious />
         <CarouselNext />

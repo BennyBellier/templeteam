@@ -8,9 +8,9 @@ import { Suspense } from "react";
 
 export default async function Playground() {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-16">
+    <div className="flex flex-col items-center justify-center h-full gap-16">
       <ImageWithLoader
-        src="/img/team/Benjami.jpg"
+        src="/img/team/Benjamin.jpg"
         alt=""
         width={300}
         height={300}

@@ -1,23 +1,19 @@
 "use client";
 
-import { ReferencesProvider } from "@/components/references/ReferencesProvider";
 import { SidebarProvider } from "@/components/sidebar/SidebarProvider";
-import { Toaster } from "@/components/ui/sonner";
-import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "next-themes";
-import { type PropsWithChildren } from "react";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { Toaster } from "@/components/ui/toaster";
+import { type ReactNode } from "react";
 
-export const Providers = ({ children }: PropsWithChildren) => {
+export default function Providers({ children }: { children: ReactNode }) {
   return (
     <>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <ReferencesProvider>
-          <SidebarProvider>
-            <Toaster />
-            <SessionProvider>{children}</SessionProvider>
-          </SidebarProvider>
-        </ReferencesProvider>
+        <SidebarProvider>
+          <Toaster />
+          {children}
+        </SidebarProvider>
       </ThemeProvider>
     </>
   );
-};
+}

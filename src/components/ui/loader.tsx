@@ -4,7 +4,7 @@ export const Loader = ({className}: {className?: string}) => {
       className={className}
     >
       <svg
-        className="relative z-10 w-5 h-5 text-white animate-spin"
+        className="relative z-10 w-5 h-5 animate-spin"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

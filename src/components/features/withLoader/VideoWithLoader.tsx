@@ -5,16 +5,17 @@ import { VideoNotFound } from "@/components/ui/videoNotFound";
 import { cn } from "@/lib/utils";
 import { AspectRatio } from "@radix-ui/react-aspect-ratio";
 import React, {
-  ReactNode,
-  VideoHTMLAttributes,
   useEffect,
   useRef,
   useState,
+  type ReactNode,
+  type SyntheticEvent,
+  type VideoHTMLAttributes,
 } from "react";
 
 export interface VideoWithLoaderProps
   extends VideoHTMLAttributes<HTMLVideoElement> {
-  onLoaded?: (e: any) => void;
+  onLoaded?: (e?: SyntheticEvent<HTMLVideoElement, Event>) => void;
   fallback?: ReactNode;
   ratio?: number;
 }
@@ -30,9 +31,9 @@ export const VideoWithLoader: React.FC<VideoWithLoaderProps> = ({
   const [error, setError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const handleCanPlay = () => {
+  const handleCanPlay = (e: SyntheticEvent<HTMLVideoElement, Event>) => {
     setIsLoading(false);
-    onLoaded;
+    if (onLoaded) onLoaded(e);
   };
 
   useEffect(() => {
@@ -40,12 +41,12 @@ export const VideoWithLoader: React.FC<VideoWithLoaderProps> = ({
       setError(true);
     }
 
-    if (videoRef.current?.readyState! >= 2) {
+    if (videoRef.current?.readyState && videoRef.current?.readyState >= 2) {
       setError(false);
       setIsLoading(false);
       onLoaded;
     }
-  }, [videoRef.current?.readyState]);
+  }, [onLoaded, videoRef.current?.readyState]);
 
   return (
     <AspectRatio ratio={props.ratio ? props.ratio : 16 / 9}>
@@ -55,10 +56,10 @@ export const VideoWithLoader: React.FC<VideoWithLoaderProps> = ({
           isLoading && !error ? "" : "animate-none opacity-0",
         )}
       />
-      {error && <>{fallback || <VideoNotFound />}</>}
+      {error && <>{fallback ?? <VideoNotFound />}</>}
       <video
         ref={videoRef}
-        onCanPlay={handleCanPlay}
+        onCanPlay={(e) => handleCanPlay(e)}
         className={cn(
           "ease flex items-center justify-center duration-200",
           className,

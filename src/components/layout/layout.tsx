@@ -8,12 +8,12 @@ export const Layout = ({
   children,
   noContact,
   noReferences,
-  props,
+  _props,
 }: {
   children?: ReactNode;
   noContact?: boolean;
   noReferences?: boolean;
-  props?: ComponentPropsWithoutRef<"div">;
+  _props?: ComponentPropsWithoutRef<"div">;
 }) => {
   return (
     <>

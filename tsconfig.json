@@ -3,27 +3,26 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "es5",
+    "target": "es2022",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
+
     /* Strictness */
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "checkJs": true,
+
     /* Bundled projects */
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": ["dom", "dom.iterable", "ES2022"],
     "noEmit": true,
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "Bundler",
     "jsx": "preserve",
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "plugins": [{ "name": "next" }],
     "incremental": true,
+
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
@@ -34,13 +33,13 @@
     ".eslintrc.cjs",
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.js",
     "**/*.tsx",
     "**/*.cjs",
-    "**/*.mjs",
+    "**/*.js",
     ".next/types/**/*.ts",
-    "build/types/**/*.ts",
-    "server.js"
+    "src/env.mjs",
+    "middleware.ts",
+    "src/components/references/ReferencesProvider.ts"
   ],
   "exclude": ["node_modules"]
 }

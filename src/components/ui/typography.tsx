@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { cva, VariantProps } from "class-variance-authority";
-import {
+import { cva, type VariantProps } from "class-variance-authority";
+import type {
   ComponentPropsWithoutRef,
   ComponentPropsWithRef,
   ElementType,

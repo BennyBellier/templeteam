@@ -11,8 +11,8 @@ export default function Team() {
       <LayoutHeader>
         <LayoutTitle>La Team</LayoutTitle>
         <LayoutDescription>
-          7 athlètes, une seule équipe, des années d'entraînement, il est
-          maintenant l'heure de vous les présenter.
+          7 athlètes, une seule équipe, des années d&apos;entraînement, il est
+          maintenant l&apos;heure de vous les présenter.
         </LayoutDescription>
       </LayoutHeader>
     </Layout>

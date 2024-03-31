@@ -8,6 +8,10 @@
 # testing
 /coverage
 
+# database
+/prisma/db.sqlite
+/prisma/db.sqlite-journal
+
 # next.js
 /.next/
 /out/
@@ -40,9 +44,6 @@ yarn-error.log*
 #vscode
 .vscode
 
-# sst
-.sst
-
 # content
 /public/img/portfolio/*
 /public/img/team/*
@@ -53,11 +54,3 @@ yarn-error.log*
 /public/img/*.svg
 public/video/**
 /src/data/blog_posts/*
-src/stories/assets/*
-.storybook/*
-
-tailwind.config (1).*
-conf tailwind.js
-conf tailwind.ts
-
-server.js
