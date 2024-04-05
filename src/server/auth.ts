@@ -1,66 +1,163 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { type GetServerSidePropsContext } from "next";
+import { env } from "@/env.mjs";
+import {
+  jwtHelper,
+  tokenOnWeek,
+  tokenOneDay,
+} from "@/lib/jwtHelper";
+import loginErrors from "@/lib/loginErrors";
+import { prisma } from "@/server/db";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { compare } from "bcrypt";
 import {
   getServerSession,
-  type NextAuthOptions,
   type DefaultSession,
+  type NextAuthOptions,
+  type User,
 } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
-import { env } from "~/env.mjs";
-import { prisma } from "~/server/db";
+import { type Adapter } from "next-auth/adapters";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { z } from "zod";
 
-/**
- * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
- * object and keep type safety.
- *
- * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
- */
 declare module "next-auth" {
-  interface Session extends DefaultSession {
-    user: DefaultSession["user"] & {
-      id: string;
-      // ...other properties
-      // role: UserRole;
-    };
+  interface User {
+    name?: string;
+    email?: string;
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface Session extends DefaultSession {
+    user: {
+      id?: string;
+    } & DefaultSession["user"];
+    error?: "RefreshAccessTokenError";
+  }
 }
 
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
- *
- * @see https://next-auth.js.org/configuration/options
- */
+declare module "next-auth/jwt" {
+  interface JWT {
+    accessToken: string;
+    refreshToken: string;
+    accessTokenExpired: number;
+    refreshTokenExpired: number;
+    error?: "RefreshAccessTokenError";
+  }
+}
+
+const LoginDelay = 2000;
+
 export const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7,
+  },
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
+    async jwt({ token, user }) {
+      // credentials provider:  Save the access token and refresh token in the JWT on the initial login
+      if (user) {
+        const accessToken = await jwtHelper.createAcessToken(token);
+        const refreshToken = await jwtHelper.createRefreshToken(token);
+        const accessTokenExpired = Date.now() / 1000 + tokenOneDay;
+        const refreshTokenExpired = Date.now() / 1000 + tokenOnWeek;
+
+        const jwt = {
+          ...token,
+          accessToken,
+          refreshToken,
+          accessTokenExpired,
+          refreshTokenExpired,
+        };
+        console.log("🚀 ~ jwt ~ jwt generated:", jwt);
+
+        return {
+          ...token,
+          accessToken,
+          refreshToken,
+          accessTokenExpired,
+          refreshTokenExpired,
+        };
+      } else {
+        if (token) {
+          // In subsequent requests, check access token has expired, try to refresh it
+          if (Date.now() / 1000 > token.accessTokenExpired) {
+            const verifyToken = await jwtHelper.verifyToken(token.refreshToken);
+
+            if (verifyToken) {
+              const user = await prisma.user.findFirst({
+                where: {
+                  name: token.name,
+                },
+              });
+
+              if (user) {
+                const accessToken = await jwtHelper.createAcessToken(token);
+                const accessTokenExpired = Date.now() / 1000 + tokenOneDay;
+
+                return {
+                  ...token,
+                  accessToken,
+                  accessTokenExpired,
+                };
+              }
+            }
+
+            return { ...token, error: "RefreshAccessTokenError" };
+          }
+        }
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user = {
+          name: token.name,
+          id: token.sub,
+        };
+      }
+      session.error = token.error;
+      return session;
+    },
+  },
+  adapter: PrismaAdapter(prisma) as Adapter,
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      authorize: async (credentials, _req) => {
+        if (!credentials?.password) {
+          // Adding 1.5 s time to response to avoid bruteforce and DDOS
+          await new Promise((resolve) => setTimeout(resolve, LoginDelay));
+          throw new Error("No password", {
+            cause: loginErrors.MISSING_PASSWORD,
+          });
+        }
+
+        const parseCredentials = z
+          .object({ password: z.string() })
+          .safeParse(credentials);
+
+        if (!parseCredentials.success) {
+          // Adding 1.5 s time to response to avoid bruteforce and DDOS
+          await new Promise((resolve) => setTimeout(resolve, LoginDelay));
+          throw new Error("Invalid password", {
+            cause: loginErrors.INVALID_PASSWORD,
+          });
+        } else {
+          const { password } = parseCredentials.data;
+          const login_data = await login(password);
+          return login_data;
+        }
+      },
+      credentials: {
+        password: {
+          label: "Password",
+          type: "password",
+        },
       },
     }),
-  },
-  adapter: PrismaAdapter(prisma),
-  providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
-    }),
-    /**
-     * ...add more providers here.
-     *
-     * Most other providers require a bit more work than the Discord provider. For example, the
-     * GitHub provider requires you to add the `refresh_token_expires_in` field to the Account
-     * model. Refer to the NextAuth.js docs for the provider you want to use. Example:
-     *
-     * @see https://next-auth.js.org/providers/github
-     */
   ],
+  pages: {
+    signIn: "/login",
+    error: "/login",
+  },
 };
 
 /**
@@ -68,9 +165,28 @@ export const authOptions: NextAuthOptions = {
  *
  * @see https://next-auth.js.org/configuration/nextjs
  */
-export const getServerAuthSession = (ctx: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
-}) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
-};
+export const getServerAuthSession = () => getServerSession(authOptions);
+
+const login = z
+  .function()
+  .args(z.string())
+  .implement(async (password) => {
+    const user = await prisma.user.findFirst({
+      where: {
+        name: env.ADMIN_ID,
+      },
+    });
+    if (!user) {
+      // Adding 1.5 s time to response to avoid bruteforce and DDOS
+      await new Promise((resolve) => setTimeout(resolve, LoginDelay));
+      throw new Error(loginErrors.USER_NOT_FOUND);
+    }
+    // if user exist -> check password
+    if (await compare(password, user.password)) {
+      user.password = "";
+      return user as User;
+    } else {
+      await new Promise((resolve) => setTimeout(resolve, LoginDelay));
+      throw new Error(loginErrors.USER_PASSWORD_MISSMATCH);
+    }
+  });
