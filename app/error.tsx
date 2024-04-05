@@ -1,5 +1,6 @@
 "use client"; // Error components must be Client Components
 
+import { Typography } from "@/components/ui/typography";
 import { useEffect } from "react";
 
 export default function Error({
@@ -11,8 +12,18 @@ export default function Error({
 }) {
   useEffect(() => {
     // Log the error to an error reporting service
-    console.error(error);
+    console.error("Error page: ", error.message);
   }, [error]);
 
-  return <div>{error.message}</div>;
+  return (
+    <>
+      <header className="flex w-full flex-col items-center gap-10 border-b border-border px-1050 pb-16 md:flex-1">
+        <Typography variant="title">Erreur</Typography>
+        <Typography variant="description" className="w-3/4">
+          {error.message}
+        </Typography>
+      </header>
+      <div className="flex-6"></div>
+    </>
+  );
 }

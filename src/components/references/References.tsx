@@ -1,8 +1,5 @@
-"use client";
-
-import { trpc } from "@/trpc/TrpcProvider";
+import { getReferences } from "@/server/get-references";
 import type { EmblaOptionsType } from "embla-carousel";
-import { useMemo } from "react";
 import { LayoutSection } from "../layout/layout";
 import {
   Carousel,
@@ -23,9 +20,8 @@ const OPTIONS: EmblaOptionsType = {
   },
 };
 
-export const References = () => {
-  const { data: references } = trpc.references.get.useQuery();
-  const memoizedReferences = useMemo(() => references ?? null, [references]);
+export const References = async () => {
+  const references = await getReferences();
 
   return (
     <LayoutSection className="gap-5">
@@ -38,7 +34,7 @@ export const References = () => {
       >
         <CarouselContent className="ml-0.5 flex h-[150px] items-center">
           {references === null ? <Skeleton /> : null}
-          {memoizedReferences?.map((reference) => (
+          {references?.map((reference) => (
             <ReferenceCard key={reference.id} reference={reference} />
           ))}
         </CarouselContent>

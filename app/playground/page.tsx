@@ -1,36 +1,28 @@
 import { VideoWithOverlay } from "@/components/features/videoWithOverlay/VideoWithOverlay";
 import { ImageWithLoader } from "@/components/features/withLoader/ImageWithLoader";
 
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Skeleton } from "@/components/ui/skeleton";
-import Image from "next/image";
-import { Suspense } from "react";
-
 export default async function Playground() {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-16">
+    <div className="flex h-full flex-col items-center justify-center gap-16">
       <ImageWithLoader
         src="/img/team/Benjamin.jpg"
-        alt=""
-        width={300}
-        height={300}
+        alt="Benny"
+        className="h-[400px] w-[400px]"
+        fill
+        sizes="(min-width: 1050px) 400px, 100vw"
       />
 
       <VideoWithOverlay
-        className="w-[300px]"
+        className="w-48"
         ratio={1}
         videoSrc={["/video/team/Benny.mov", "/video/team/Benny.webm"]}
-        imageSrc="/img/team/Benjamin.jpg"
-        imageAlt="Benny"
-      ></VideoWithOverlay>
-      {/* <VideoWithOverlay className="w-60" ratio={1/1} videoSrc={["/video/team/Benny.mov", "/video/team/Benny.webm"]} imageSrc="/img/team/Romain.jpg" imageAlt="Benny">
-          </VideoWithOverlay>
-        <VideoWithOverlay className="w-60" ratio={1/1} videoSrc={["/video/team/Benny.mov", "/video/team/Benny.webm"]} imageSrc="/img/team/Hugo.jpg" imageAlt="Benny">
-          </VideoWithOverlay>
-        <VideoWithOverlay className="w-60" ratio={1/1} videoSrc={["/video/team/Benny.mov", "/video/team/Benny.webm"]} imageSrc="/img/team/Julien.jpg" imageAlt="Benny">
-          </VideoWithOverlay>
-        <VideoWithOverlay className="w-60" ratio={1/1} videoSrc={["/video/team/Benny.mov", "/video/team/Benny.webm"]} imageSrc="/img/team/Louis.jpg" imageAlt="Benny">
-          </VideoWithOverlay> */}
+        image={{
+          src: "/img/team/Benjamin.jpg",
+          alt: "Benny",
+          fill: true,
+          sizes: "(min-width: 1050px) 400px, 100vw",
+        }}
+      />
     </div>
   );
 }

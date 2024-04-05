@@ -10,6 +10,7 @@ import type { Metadata } from "next";
 import { Manrope, Rubik } from "next/font/google";
 import type { PropsWithChildren } from "react";
 import Providers from "./Providers";
+import { preloadReferences } from "@/server/get-references";
 
 const fontCaption = Manrope({ subsets: ["latin"], variable: "--font-caption" });
 const fontSans = Rubik({ subsets: ["latin"], variable: "--font-sans" });
@@ -25,6 +26,8 @@ export default function RootLayout({
 }: PropsWithChildren<{
   modal?: React.ReactNode;
 }>) {
+  preloadReferences();
+
   return (
     <html lang="fr" className="group/html light h-full" data-scroll="0">
       <body
@@ -41,9 +44,9 @@ export default function RootLayout({
               className="flex h-full flex-col overflow-y-auto overflow-x-hidden"
             >
               <Header />
-              <div className="grid grow auto-rows-auto gap-6 pb-10 pt-5">
+              <main className="grid grow auto-rows-auto gap-6 pb-10 pt-5">
                 {children}
-              </div>
+              </main>
               <Footer />
             </div>
             <PlaygroundLink />

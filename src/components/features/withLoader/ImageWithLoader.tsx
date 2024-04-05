@@ -3,20 +3,14 @@
 import { ImageNotFound } from "@/components/ui/imageNotFound";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
-import { ReactNode, useState } from "react";
+import Image, { type ImageProps } from "next/image";
+import { useState, type ReactNode, type SyntheticEvent } from "react";
 
-export interface ImageWithLoaderProps {
+export interface ImageWithLoaderProps extends ImageProps {
   className?: string;
-  onLoaded?: (e: any) => void;
-  onError?: (e: any) => void;
-  src: string;
-  alt: string;
-  width?: number;
-  height?: number;
-  fit?: string;
-  fill?: boolean;
-  sizes?: string;
+  onLoaded?: (e?: SyntheticEvent<HTMLImageElement, Event>) => void;
+  onError?: (e?: SyntheticEvent<HTMLImageElement, Event>) => void;
+  fit?: "contain" | "cover" | "fill" | "none" | "scale-down";
   fallback?: ReactNode;
 }
 
@@ -26,6 +20,7 @@ export const ImageWithLoader: React.FC<ImageWithLoaderProps> = ({
   onError,
   fallback,
   fit,
+  alt,
   ...props
 }) => {
   const [load, setLoad] = useState(true);
@@ -44,25 +39,25 @@ export const ImageWithLoader: React.FC<ImageWithLoaderProps> = ({
   return (
     <div
       className={cn(
-        "relative flex w-full justify-center self-center",
+        "relative grid w-full grid-cols-1 grid-rows-1 justify-center self-center",
         className,
       )}
     >
       <Skeleton
         className={cn(
-          "absolute z-10 h-full w-full rounded-none",
+          "z-10 h-auto w-full rounded-none",
           load && !error ? "" : "animate-none opacity-0",
         )}
       />
-      {error && <>{fallback || <ImageNotFound />}</>}
+      {error && <>{fallback ?? <ImageNotFound />}</>}
       <Image
         onLoad={handleLoad}
         onError={handleError}
         className={cn(
-          " h-full w-full",
           load || error ? "opacity-0" : "",
           fit ? "object" + fit : "",
         )}
+        alt={alt}
         {...props}
       />
     </div>

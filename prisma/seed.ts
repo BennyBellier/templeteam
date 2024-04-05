@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
@@ -35,11 +36,64 @@ const referencesCategory = [
   },
 ];
 
+const Members = [
+  {
+    name: "Romain Castillo",
+    nickname: "Mowgli",
+    labels: [
+      { label: "Accro", percent: 90 },
+      { label: "QI", percent: 30 },
+      { label: "Biceps", percent: 99 },
+    ],
+  },
+  {
+    name: "Julien Daubord",
+    nickname: "Coach",
+    labels: [
+      { label: "État", percent: 40 },
+      { label: "Accro", percent: 75 },
+      { label: "Ponctualité", percent: 5 },
+    ],
+  },
+  {
+    name: "Hugo Rival",
+    nickname: "",
+    labels: [
+      { label: "Breakdance", percent: 65 },
+      { label: "Parkour", percent: 77 },
+      { label: "Calvitie", percent: 15 },
+    ],
+  },
+  {
+    name: "Louis Berchiatti",
+    nickname: "Bboychipper",
+    labels: [
+      { label: "Breakdance", percent: 76 },
+      { label: "", percent: 0 },
+      { label: "", percent: 0 },
+    ],
+  },
+  {
+    name: "Benjamin Bellier",
+    nickname: "Benny",
+    videos: ["/video/team/Benny.mov", "/video/team/Benny.webm"],
+    image: { path: "/img/team/Benjamin.jpg", alt: "Benny" },
+    labels: [
+      { label: "Cheville", percent: 30 },
+      { label: "Vidéaste", percent: 75 },
+      { label: "Accro", percent: 50 },
+    ],
+  },
+];
+
 const main = async () => {
   await prisma.references.deleteMany();
   await prisma.referenceCategory.deleteMany();
   await prisma.user.deleteMany();
   await prisma.blogPosts.deleteMany();
+  await prisma.teamMembers.deleteMany();
+  await prisma.teamMembersVideo.deleteMany();
+  await prisma.teamMembersSkill.deleteMany();
 
   for (let i = 0; i < 10; i++) {
     const hashed = await hash(faker.internet.password(), 12);
@@ -76,6 +130,41 @@ const main = async () => {
   references.map(async (ref) => {
     await prisma.references.create({ data: ref });
   });
+
+  for (const member of Members) {
+    const createdMember = await prisma.teamMembers.create({
+      data: {
+        name: member.name,
+        nickname: member.nickname,
+        imagePath: member.image?.path,
+        imageAlt: member.image?.alt,
+      },
+    });
+
+    if (member.videos) {
+      for (const videoPath of member.videos) {
+        await prisma.teamMembersVideo.create({
+          data: {
+            path: videoPath,
+            teamMembersId: createdMember.id,
+          },
+        });
+      }
+    }
+
+    if (member.labels) {
+      for (const label of member.labels) {
+        await prisma.teamMembersSkill.create({
+          data: {
+            label: label.label,
+            percent: label.percent,
+            teamMembersId: createdMember.id,
+          },
+        });
+      }
+    }
+    console.info("Database seed with member: " + member.name);
+  }
 };
 
 main()
