@@ -58,15 +58,6 @@ export const authOptions: NextAuthOptions = {
         const accessTokenExpired = Date.now() / 1000 + tokenOneDay;
         const refreshTokenExpired = Date.now() / 1000 + tokenOnWeek;
 
-        const jwt = {
-          ...token,
-          accessToken,
-          refreshToken,
-          accessTokenExpired,
-          refreshTokenExpired,
-        };
-        console.log("🚀 ~ jwt ~ jwt generated:", jwt);
-
         return {
           ...token,
           accessToken,

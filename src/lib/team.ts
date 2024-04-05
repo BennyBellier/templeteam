@@ -10,6 +10,3 @@ export declare type MemberType = {
     label_three?: string;
     percent_three?: number;
 }
-
-
-export 

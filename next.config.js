@@ -9,6 +9,12 @@ const config = {
   compiler: {
     styledComponents: true,
   },
+
+  // Required on webserver
+  experimental: {
+    workerThreads: true,
+    cpus: 4,
+  },
 };
 
 export default config;
