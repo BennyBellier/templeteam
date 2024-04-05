@@ -1,132 +1,197 @@
 @tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@import url('./embla.css');
-@import url('./hamburger-spin.min.css');
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 5.3% 11.2%;
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+    --invert-background: 0 0% 11.8%;
+    --invert-foreground: 210 25% 98.4%;
 
-html {
-  font-family: 'Manrope', sans-serif;
+    --card: 0 0% 98%;
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 353 100% 59%;
+    --primary-foreground: 0 85.7% 97.3%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
+    --destructive: 354.9 86.9% 52%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 89.8%;
+    --ring: 354.9 86.9% 48%;
+    --footer: 0 0% 14.9%;
+    --const-white: 0 0% 98%;
+
+    --footer-nav-separator: 355 85% 65%;
+    --footer-separator: 0 0% 90%;
+
+    --radius: 0.5rem;
+
+    --hero-banner-aside: 354.915 87% 60%;
+  }
+
+  .dark {
+    --background: 0 0% 11.8%;
+    --foreground: 210 25% 98.4%;
+
+    --invert-background: 0 0% 100%;
+    --invert-foreground: 220 5.3% 11.2%;
+
+    --card: 0 0% 14.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 11.8%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 353 95% 60%;
+    --primary-foreground: 0 85.7% 97.3%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 80.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 27.8%;
+    --input: 0 0% 27.8%;
+    --ring: 355 85% 65%;
+
+    --hero-banner-aside: 354.915 87% 60%;
+  }
 }
 
-body {
-  font-family: 'Rubik', sans-serif;
-  scrollbar-track-color: transparent;
-}
+@layer base {
+  * {
+    @apply border-border;
+  }
 
-h1 {
-  font-family: 'Manrope', sans-serif;
-  font-weight: 800;
-}
+  body {
+    @apply bg-background text-foreground;
+  }
 
-#hero-banner--subtitle {
-  width: calc(100vw - 2.5rem);
-}
+  html:not([data-scroll="0"]) header {
+    @apply fixed;
+    @apply shadow-md;
+  }
 
-/*!
+  /*!
  * Hamburgers
  * @description Tasty CSS-animated hamburgers
  * @author Jonathan Suh @jonsuh
  * @site https://jonsuh.com/hamburgers
  * @link https://github.com/jonsuh/hamburgers
  */
-.hamburger {
-  @apply p-0;
-  @apply cursor-pointer;
-  transition-property: opacity, filter;
-  transition-duration: .15s;
-  transition-timing-function: linear;
-  font: inherit;
-  color: inherit;
-  text-transform: none;
-  @apply bg-transparent;
-  @apply border-none;
-  @apply m-0;
-  @apply overflow-visible;
+  .hamburger {
+    padding: 0;
+    cursor: pointer;
+    transition-property: opacity, filter;
+    transition-duration: 0.15s;
+    transition-timing-function: linear;
+    font: inherit;
+    color: inherit;
+    text-transform: none;
+    @apply bg-transparent;
+    border: 0;
+    margin: 0;
+    overflow: visible;
+  }
+
+  .hamburger-box {
+    width: 32px;
+    height: 24px;
+    display: inline-block;
+    position: relative;
+  }
+
+  .hamburger-inner {
+    display: block;
+    top: 50%;
+    margin-top: -2px;
+  }
+
+  .hamburger-inner,
+  .hamburger-inner::after,
+  .hamburger-inner::before {
+    width: 32px;
+    height: 4px;
+    border-radius: 4px;
+    position: absolute;
+    transition-property: transform;
+    transition-duration: 0.15s;
+    transition-timing-function: ease;
+  }
+
+  .hamburger-inner::after,
+  .hamburger-inner::before {
+    content: "";
+    display: block;
+  }
+
+  .hamburger-inner::before {
+    top: -10px;
+  }
+
+  .hamburger-inner::after {
+    bottom: -10px;
+  }
+
+  .hamburger--spin .hamburger-inner {
+    transition-duration: 0.22s;
+    transition-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+
+  .hamburger--spin .hamburger-inner::before {
+    transition:
+      top 0.1s 0.25s ease-in,
+      opacity 0.1s ease-in;
+  }
+
+  .hamburger--spin .hamburger-inner::after {
+    transition:
+      bottom 0.1s 0.25s ease-in,
+      transform 0.22s cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+
+  .hamburger--spin.is-active .hamburger-inner {
+    transform: rotate(225deg);
+    transition-delay: 0.12s;
+    transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  .hamburger--spin.is-active .hamburger-inner::before {
+    top: 0;
+    opacity: 0;
+    transition:
+      top 0.1s ease-out,
+      opacity 0.1s 0.12s ease-out;
+  }
+
+  .hamburger--spin.is-active .hamburger-inner::after {
+    bottom: 0;
+    transform: rotate(-90deg);
+    transition:
+      bottom 0.1s ease-out,
+      transform 0.22s 0.12s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
 }
-
-.hamburger-box {
-  @apply w-8;
-  @apply h-6;
-  @apply inline-block;
-  @apply relative;
-}
-
-.hamburger-inner {
-  @apply block;
-  @apply top-1/2;
-  @apply mt-0.5;
-}
-
-.hamburger-inner,
-.hamburger-inner::after,
-.hamburger-inner::before {
-  @apply w-8;
-  @apply h-1;
-  @apply rounded;
-  @apply absolute;
-  transition-property: transform;
-  transition-duration: .15s;
-  transition-timing-function: ease;
-}
-
-.hamburger-inner::after,
-.hamburger-inner::before {
-  @apply content-[""];
-  @apply block;
-}
-
-.hamburger-inner::before {
-  top: -10px
-}
-
-.hamburger-inner::after {
-  bottom: -10px
-}
-
-.hamburger--spin .hamburger-inner {
-  transition-duration: .22s;
-  transition-timing-function: cubic-bezier(.55, .055, .675, .19)
-}
-
-.hamburger--spin .hamburger-inner::before {
-  transition: top .1s .25s ease-in, opacity .1s ease-in
-}
-
-.hamburger--spin .hamburger-inner::after {
-  transition: bottom .1s .25s ease-in, transform .22s cubic-bezier(.55, .055, .675, .19)
-}
-
-.hamburger--spin.is-active .hamburger-inner {
-  transform: rotate(225deg);
-  transition-delay: .12s;
-  transition-timing-function: cubic-bezier(.215, .61, .355, 1)
-}
-
-.hamburger--spin.is-active .hamburger-inner::before {
-  @apply top-0;
-  @apply opacity-0;
-  transition: top .1s ease-out, opacity .1s .12s ease-out
-}
-
-.hamburger--spin.is-active .hamburger-inner::after {
-  @apply bottom-0;
-  @apply rotate-90;
-  transition: bottom .1s ease-out, transform .22s .12s cubic-bezier(.215, .61, .355, 1)
-}
-
-.embla__button {
-  @apply appearance-none;
-  @apply bg-transparent;
-  @apply touch-manipulation;
-  @apply inline-flex;
-  text-decoration: none;
-  @apply cursor-pointer;
-  @apply border-0;
-  @apply p-0;
-  @apply m-0;
-}
-
-@tailwind components;
-
-@tailwind utilities;

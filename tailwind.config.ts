@@ -1,67 +1,110 @@
-import { type Config } from "tailwindcss";
-import plugin from "tailwindcss/plugin";
+import type { Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
-export default {
-  important: true,
-  content: ["./src/**/*.{js,ts,jsx,tsx}"],
-  darkMode: ["class", '[data-mode="dark"]'],
+const config = {
+  darkMode: ["class"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
+  prefix: "",
   theme: {
-    fontFamily: {
-      display: ['"Manrope"', "Inter", "sans-serif"],
-      body: ['"Rubik"', "Inter", "sans-serif"],
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
     },
     extend: {
       screens: {
-        "1050": "1050px",
+        lg: "1050px",
       },
-      display: ["group-hover"],
+      fontFamily: {
+        sans: ["var(--font-sans)", ...fontFamily.sans],
+        caption: ["var(--font-caption)", ...fontFamily.mono],
+      },
       colors: {
-        red: {
-          450: "#f25c69",
-          550: "#f24150",
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        invert: {
+          DEFAULT: "hsl(var(--invert-background))",
+          foreground: "hsl(var(--invert-foreground))",
         },
-        neutral: {
-          850: "rgb(30,30,30)",
+        const: {
+          white: "hsl(var(--const-white))",
+        },
+        footer: {
+          DEFAULT: "hsl(var(--footer))",
+          foreground: "hsl(var(--footer-foreground))",
+          separator: "hsl(var(--footer-separator))",
+          navSeparator: "hsl(var(--footer-nav-separator))",
+        },
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        aside: {
+          heroBanner: "hsl(var(--hero-banner-aside))",
         },
       },
-      transformOrigin: {
-        "top-center": "top center",
+      borderRadius: {
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
+      },
+      padding: {
+        1050: "calc((100% - 1050px) / 2)",
       },
       transitionProperty: {
-        height: "height",
+        size: "width, height",
       },
-      dropShadow: {
-        contact: "0.25rem 2px 3px rgb(38 38 38 / var(--tw-border-opacity))",
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
       },
     },
   },
-  plugins: [
-    require("tailwindcss"),
-    require("autoprefixer"),
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    plugin(({ addUtilities }: { addUtilities: Function }) => {
-      addUtilities({
-        ".rotate-x-0": {
-          transform:
-            "translate(var(--tw-translate-x), var(--tw-translate-y)) rotateX(0) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
-        },
-        ".rotate-x-90": {
-          transform:
-            "translate(var(--tw-translate-x), var(--tw-translate-y)) rotateX(90deg) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
-        },
-        ".rotate-x-180": {
-          transform:
-            "translate(var(--tw-translate-x), var(--tw-translate-y)) rotateX(180deg) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
-        },
-        ".-rotate-x-90": {
-          transform:
-            "translate(var(--tw-translate-x), var(--tw-translate-y)) rotateX(-90deg) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))",
-        },
-        ".px-1050": {
-          paddingLeft: "calc((100vw - 1050px) / 2)",
-          paddingRight: "calc((100vw - 1050px) / 2)",
-        },
-      });
-    }),
-  ],
+  plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
+export default config;
