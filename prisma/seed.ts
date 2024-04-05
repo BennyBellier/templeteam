@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
-import { hash } from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -89,22 +88,10 @@ const Members = [
 const main = async () => {
   await prisma.references.deleteMany();
   await prisma.referenceCategory.deleteMany();
-  await prisma.user.deleteMany();
   await prisma.blogPosts.deleteMany();
   await prisma.teamMembers.deleteMany();
   await prisma.teamMembersVideo.deleteMany();
   await prisma.teamMembersSkill.deleteMany();
-
-  for (let i = 0; i < 10; i++) {
-    const hashed = await hash(faker.internet.password(), 12);
-    await prisma.user.create({
-      data: {
-        name: faker.person.firstName(),
-        email: faker.internet.email(),
-        password: hashed,
-      },
-    });
-  }
 
   for (let i = 0; i < 20; i++) {
     await prisma.blogPosts.create({
