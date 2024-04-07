@@ -63,7 +63,7 @@ function Skill({
   percent: number;
   delay: number;
 }) {
-  const isDesktop = useMediaQuery("min-width: 1050px");
+  const isDesktop = useMediaQuery("(min-width: 1050px)");
   const ref = useRef(null);
   const isInView = useInView(ref, {
     once: true,

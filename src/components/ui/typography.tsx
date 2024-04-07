@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 import type {
-  ComponentPropsWithoutRef,
   ComponentPropsWithRef,
+  ComponentPropsWithoutRef,
   ElementType,
   PropsWithChildren,
 } from "react";
@@ -42,6 +42,7 @@ const typographyVariants = cva("", {
       muted: "text-sm text-muted-foreground",
       link: "font-normal lg:font-light text-xl lg:text-lg",
       footerLink: "font-light lg:font-light text-xl lg:text-base",
+      portfolio: "text-5xl text-white drop-shadow font-caption font-medium",
     },
   },
   defaultVariants: {
@@ -72,6 +73,7 @@ const defaultElementMapping: Record<
   link: "a",
   footerLink: "a",
   base: "p",
+  portfolio: "h1",
 } as const;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars

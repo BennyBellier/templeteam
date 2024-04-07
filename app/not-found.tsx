@@ -18,7 +18,9 @@ export default function Error({
   return (
     <>
       <header className="flex w-full flex-col items-center gap-10 border-b border-border px-1050 pb-16 md:flex-1">
-        <Typography as="h1" variant="title">Erreur</Typography>
+        <Typography as="h1" variant="title">
+          Erreur 404
+        </Typography>
         <Typography as="h2" variant="description" className="w-3/4">
           {error.message}
         </Typography>

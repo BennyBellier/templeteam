@@ -88,6 +88,9 @@ const config = {
       transitionProperty: {
         size: "width, height",
       },
+      transitionDuration: {
+        5000: "5000ms",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
