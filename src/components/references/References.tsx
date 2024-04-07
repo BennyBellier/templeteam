@@ -25,7 +25,7 @@ export const References = async () => {
 
   return (
     <LayoutSection className="gap-5">
-      <Typography variant="h1" className="w-fit tracking-widest">
+      <Typography variant="h1" className="w-fit tracking-widest text-center">
         Ils nous font confiance
       </Typography>
       <Carousel
@@ -38,8 +38,8 @@ export const References = async () => {
             <ReferenceCard key={reference.id} reference={reference} />
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="ml-2"/>
+        <CarouselNext className="mr-2"/>
       </Carousel>
     </LayoutSection>
   );

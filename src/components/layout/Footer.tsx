@@ -225,7 +225,7 @@ export function Footer() {
             <DropdownMenuItem onSelect={() => router.push("/")}>
               Français
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => router.push("/")}>
+            <DropdownMenuItem onSelect={() => router.push("/")} disabled aria-disabled>
               Anglais
             </DropdownMenuItem>
           </DropdownMenuContent>

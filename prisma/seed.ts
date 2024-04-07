@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
-import { hash } from "bcrypt";
 
 const prisma = new PrismaClient();
 
