@@ -12,17 +12,17 @@ export const NavigationLinks = [
   {
     id: "portfolio",
     name: "Portfolio",
-    href: "/portoflio",
+    href: "/portfolio",
     content: [
       {
         id: "portfolio_photos",
         name: "Photos",
-        href: "/portoflio/photos",
+        href: "/portfolio/photos",
       },
       {
         id: "portfolio_videos",
         name: "Vidéos",
-        href: "/portoflio/videos",
+        href: "/portfolio/videos",
       },
     ],
   },

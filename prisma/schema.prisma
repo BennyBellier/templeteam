@@ -144,7 +144,7 @@ model References {
 
 model TeamMembers {
   id        String             @id @default(uuid())
-  name      String
+  name      String             @unique
   nickname  String?
   videos    TeamMembersVideo[]
   imagePath String?            @unique
@@ -169,4 +169,17 @@ model TeamMembersSkill {
   // relation
   TeamMembers   TeamMembers? @relation(fields: [teamMembersId], references: [id])
   teamMembersId String?
+}
+
+model Photos {
+  id     String @id @default(uuid())
+  name   String
+  alt    String
+  src    String @unique
+  width  Int
+  height Int
+
+  // author
+  author String
+  authorLink String?
 }

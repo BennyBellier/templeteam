@@ -32,6 +32,8 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string(),
 
     ADMIN_ID: z.string(),
+
+    LOG_FOLDER: z.string().optional(),
   },
 
   /**
@@ -55,6 +57,7 @@ export const env = createEnv({
     DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     ADMIN_ID: process.env.ADMIN_ID,
+    LOG_FOLDER: process.env.LOG_FOLDER,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

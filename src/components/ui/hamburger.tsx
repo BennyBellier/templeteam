@@ -1,15 +1,14 @@
-import { useContext } from "react";
 import { Button } from "./button";
-import { SidebarContext, useSidebarState } from "../sidebar/SidebarProvider";
+import { useSidebarState } from "../sidebar/SidebarProvider";
 import { cn } from "@/lib/utils";
 
-export function Hamburger({ className, ...props }: { className?: string }) {
+export function Hamburger({ className, ..._props }: { className?: string }) {
   const { sidebarOpen, handleSiberbarChange } = useSidebarState();
   return (
     <Button
       variant="invisible"
       size="icon"
-      onClick={handleSiberbarChange}
+      onClick={() => handleSiberbarChange()}
       className={cn(
         "hamburger hamburger--spin inline-block h-12",
         sidebarOpen ? "is-active" : "",

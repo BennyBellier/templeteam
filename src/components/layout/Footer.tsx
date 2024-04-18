@@ -162,7 +162,7 @@ export function Footer() {
       </div>
       <nav className="h-full justify-self-center lg:col-start-1 lg:col-end-3">
         <Accordion type="single" collapsible className="lg:hidden">
-          {nav.map((link, i) => (
+          {nav.map((link) => (
             <AccordionItem
               key={uuidv4()}
               value={link.name}
@@ -177,7 +177,7 @@ export function Footer() {
               </Typography>
               <AccordionContent>
                 <ul className="flex flex-col gap-2">
-                  {link.content?.map((sublink, i) => (
+                  {link.content?.map((sublink) => (
                     <li key={uuidv4()}>
                       <Typography
                         variant="footerLink"
@@ -207,7 +207,7 @@ export function Footer() {
               className="bg-footer-separator lg:bg-footer-navSeparator"
             />
           </li>
-          {nav.map((link, i) => (
+          {nav.map((link) => (
             <LinkList key={uuidv4()} link={link} />
           ))}
         </ul>

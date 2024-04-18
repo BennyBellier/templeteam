@@ -6,6 +6,7 @@ import type {
 } from "@prisma/client";
 import { cache } from "react";
 import "server-only";
+import { logger } from "./logger";
 
 export const preloadTeamMembers = () => {
   void getTeamMembers();
@@ -17,11 +18,17 @@ type TeamMembersDB = {
 } & TeamMembers;
 
 export const getTeamMembers = cache(async () => {
-  const members = await prisma.teamMembers.get();
-  const teamMembers = members.map((member: TeamMembersDB) => ({
-    ...member,
-    videos: member.videos.map((video: TeamMembersVideo) => video.path),
-  }));
+  try {
+    const members = await prisma.teamMembers.get();
+    const teamMembers = members.map((member: TeamMembersDB) => ({
+      ...member,
+      videos: member.videos.map((video: TeamMembersVideo) => video.path),
+    }));
 
-  return teamMembers;
+    logger.debug("getTeamMembers: ", members);
+    return teamMembers;
+  } catch (error) {
+    logger.error(error);
+  }
+  return [];
 });
