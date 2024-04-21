@@ -49,7 +49,7 @@ export const PhotosCarousel = ({ content, ..._props }: CarouselProps) => {
         className="absolute right-5 top-5 hover:bg-transparent"
         onClick={() => {
           setCarouselIdx(null);
-          api?.scrollTo(0, true)
+          api?.scrollTo(0, true);
         }}
       >
         <X />
@@ -59,7 +59,7 @@ export const PhotosCarousel = ({ content, ..._props }: CarouselProps) => {
           {content.map((photo) => (
             <CarouselItem
               key={photo.id}
-              className="relative grid w-auto basis-full grid-cols-1 grid-rows-1 items-center justify-center overflow-hidden"
+              className="relative grid basis-full grid-cols-1 grid-rows-1 items-center justify-center overflow-hidden"
             >
               <div className="relative flex self-center justify-self-center">
                 <Image
@@ -67,7 +67,7 @@ export const PhotosCarousel = ({ content, ..._props }: CarouselProps) => {
                   alt={photo.alt}
                   width={photo.width}
                   height={photo.height}
-                  className="h-[83.333333vh] w-auto select-none drop-shadow-2xl"
+                  className="h-auto lg:h-[83.333333vh] w-auto select-none drop-shadow-2xl aspect-auto"
                 />
 
                 <Badge
@@ -87,8 +87,8 @@ export const PhotosCarousel = ({ content, ..._props }: CarouselProps) => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className={isDesktop ? "" : "hidden"} />
-        <CarouselNext className={isDesktop ? "" : "hidden"} />
+        <CarouselPrevious className={isDesktop ? "flex" : "hidden"} />
+        <CarouselNext className={isDesktop ? "flex" : "hidden"} />
       </Carousel>
     </section>
   );
