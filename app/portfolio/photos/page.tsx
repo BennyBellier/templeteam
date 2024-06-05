@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Layout,
   LayoutDescription,
@@ -5,12 +7,16 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import { getPhotos } from "@/server/get-photos";
+import { trpc } from "@/trpc/TrpcProvider";
 import { Photos } from "./photos";
 import { PhotosCarousel } from "./photosCarousel";
 
-export default async function Albums() {
-  const photos = await getPhotos();
+export default function Albums() {
+  const { data, error } = trpc.photos.get.useQuery();
+
+  if (error) {
+    console.error(error);
+  }
 
   return (
     <>
@@ -23,11 +29,11 @@ export default async function Albums() {
         </LayoutHeader>
         <LayoutSection>
           <ul className="flex h-full w-full flex-wrap justify-center gap-3">
-            <Photos photos={photos} />
+            <Photos photos={error ? data! : []} />
           </ul>
         </LayoutSection>
       </Layout>
-      <PhotosCarousel content={photos} />
+      <PhotosCarousel content={data ?? []} />
     </>
   );
 }

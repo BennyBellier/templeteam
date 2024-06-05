@@ -7,8 +7,11 @@ import {
 } from "@/components/layout/layout";
 import { Typography } from "@/components/ui/typography";
 import ContactForm from "./contactForm";
+import { env } from "@/env.mjs";
 
-export const Page = () => {
+export const revalidate = env.REVALIDATE_TIME ?? 3600;
+
+export default function Page() {
   return (
     <Layout noContact>
       <LayoutHeader>
@@ -83,5 +86,3 @@ export const Page = () => {
     </Layout>
   );
 };
-
-export default Page;

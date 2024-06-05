@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { faker } from "@faker-js/faker";
-import { PrismaClient } from "@prisma/client";
+import { BlogCategory, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -99,8 +99,12 @@ const main = async () => {
         title: faker.lorem.sentence(),
         thumbnail: faker.system.filePath(),
         published:
-          faker.number.float() > 0.8 ? faker.date.past() : faker.date.future(),
-        type: faker.helpers.arrayElement(["Article", "Event", "Information"]),
+          faker.number.float() > 0.5 ? faker.date.past() : faker.date.future(),
+        category: faker.helpers.arrayElement([
+          BlogCategory.ARTICLE,
+          BlogCategory.EVENT,
+          BlogCategory.INFORMATION,
+        ]),
         description: faker.lorem.paragraph(),
         readTime: faker.helpers.rangeToNumber({ min: 1, max: 8 }),
         extraLink: faker.helpers.maybe(faker.internet.url, {
@@ -155,14 +159,10 @@ const main = async () => {
 };
 
 main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (error) => {
-    // eslint-disable-next-line no-console
+  .catch((error) => {
     console.error(error);
-
-    await prisma.$disconnect();
-
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });

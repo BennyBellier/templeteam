@@ -1,6 +1,7 @@
 "use client";
 
 import { CarouselPhotosProvider } from "@/components/Photos/CarouselPhotosProvider";
+import { ReferencesProvider } from "@/components/references/ReferencesProvider";
 import { SidebarProvider } from "@/components/sidebar/SidebarProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,10 +12,12 @@ export default function Providers({ children }: { children: ReactNode }) {
     <>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <SidebarProvider>
-          <CarouselPhotosProvider>
-            <Toaster />
-            {children}
-          </CarouselPhotosProvider>
+          <ReferencesProvider>
+            <CarouselPhotosProvider>
+              <Toaster />
+              {children}
+            </CarouselPhotosProvider>
+          </ReferencesProvider>
         </SidebarProvider>
       </ThemeProvider>
     </>

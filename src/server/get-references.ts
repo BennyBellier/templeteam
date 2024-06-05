@@ -1,6 +1,7 @@
+import "server-only";
+
 import { prisma } from "@/trpc/server";
 import { cache } from "react";
-import "server-only";
 import { logger } from "./logger";
 
 export const preloadReferences = () => {

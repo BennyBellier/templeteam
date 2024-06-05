@@ -18,7 +18,7 @@
     "lib": ["dom", "dom.iterable", "ES2022"],
     "noEmit": true,
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "Bundler", // "node",
     "jsx": "preserve",
     "plugins": [{ "name": "next" }],
     "incremental": true,
@@ -39,7 +39,8 @@
     ".next/types/**/*.ts",
     "src/env.mjs",
     "middleware.ts",
-    "src/components/references/ReferencesProvider.ts"
+    "src/components/references/ReferencesProvider.ts",
+    "prisma/*.ts",
   ],
   "exclude": ["node_modules"]
 }

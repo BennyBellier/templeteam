@@ -1,4 +1,5 @@
-import { getReferences } from "@/server/get-references";
+"use client";
+
 import type { EmblaOptionsType } from "embla-carousel";
 import { LayoutSection } from "../layout/layout";
 import {
@@ -9,6 +10,7 @@ import {
 } from "../ui/carousel";
 import { Skeleton } from "../ui/skeleton";
 import { Typography } from "../ui/typography";
+import { useReferences } from "./ReferencesProvider";
 import { ReferenceCard } from "./referenceCard";
 
 const OPTIONS: EmblaOptionsType = {
@@ -20,12 +22,12 @@ const OPTIONS: EmblaOptionsType = {
   },
 };
 
-export const References = async () => {
-  const references = await getReferences();
+export const References = () => {
+  const references = useReferences();
 
   return (
     <LayoutSection className="gap-5">
-      <Typography variant="h1" className="w-fit tracking-widest text-center">
+      <Typography variant="h1" className="w-fit text-center tracking-widest">
         Ils nous font confiance
       </Typography>
       <Carousel
@@ -38,8 +40,8 @@ export const References = async () => {
             <ReferenceCard key={reference.id} reference={reference} />
           ))}
         </CarouselContent>
-        <CarouselPrevious className="ml-2"/>
-        <CarouselNext className="mr-2"/>
+        <CarouselPrevious className="ml-2" />
+        <CarouselNext className="mr-2" />
       </Carousel>
     </LayoutSection>
   );

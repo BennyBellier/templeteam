@@ -38,6 +38,10 @@ export const env = createEnv({
     ADMIN_ID: z.string(),
 
     LOG_FOLDER: z.string().optional(),
+
+    BLOG_PAGINATION_SIZE: z.number().min(0).max(100).optional(),
+
+    REVALIDATE_TIME: z.number().min(0).optional(),
   },
 
   /**
@@ -66,6 +70,8 @@ export const env = createEnv({
     NOREPLY_MAIL: process.env.NOREPLY_MAIL,
     ADMIN_ID: process.env.ADMIN_ID,
     LOG_FOLDER: process.env.LOG_FOLDER,
+    BLOG_PAGINATION_SIZE: process.env.BLOG_PAGINATION,
+    REVALIDATE_TIME: process.env.REVALIDATE_TIME,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

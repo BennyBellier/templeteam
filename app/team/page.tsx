@@ -6,8 +6,11 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
+import { env } from "@/env.mjs";
 import { getTeamMembers } from "@/server/get-team";
 import Card from "./card";
+
+export const revalidate = env.REVALIDATE_TIME ?? 3600;
 
 export default async function Team() {
   const members = await getTeamMembers();

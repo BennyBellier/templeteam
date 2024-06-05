@@ -31,7 +31,7 @@ export const ReferenceCard = (props: ReferenceCardProps) => {
               className="object-contain"
             />
           </div>
-          <span className="text-md ease group-hover/item:text-red-550 flex-1 self-center font-semibold duration-300">
+          <span className="text-md ease group-hover/item:text-red-550 flex-1 self-center font-semibold duration-300 capitalize">
             {props.reference.name}
           </span>
         </Link>

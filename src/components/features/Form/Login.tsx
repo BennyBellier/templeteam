@@ -1,5 +1,17 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Loader } from "@/components/ui/loader";
 import LoginErrors from "@/lib/loginErrors";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,21 +20,10 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
-import { Button } from "../../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../../ui/form";
-import { Input } from "../../ui/input";
-import { Loader } from "../../ui/loader";
-import { useToast } from "../../ui/use-toast";
 import { ShowHide } from "./ShowHide";
+import { throttle } from "lodash";
 
 // Schema definition for form validation using Zod
 const formSchema = z.object({
@@ -39,7 +40,6 @@ interface Props {
 }
 
 export function Login({ callbackUrl, error }: Props) {
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
@@ -56,6 +56,7 @@ export function Login({ callbackUrl, error }: Props) {
 
   // Function to handle form submission
   async function onSubmit(values: InputType) {
+    let toastId = undefined;
     try {
       form.resetField("password");
       // Attempt to sign in using the 'credentials' provider
@@ -64,6 +65,7 @@ export function Login({ callbackUrl, error }: Props) {
         callbackUrl: callbackUrl ?? "/",
         password: values.password,
       });
+      toastId = toast.loading("Connexion en cours");
 
       if (response) {
         if (!response.ok) {
@@ -74,6 +76,10 @@ export function Login({ callbackUrl, error }: Props) {
                 type: "custom",
                 message: "Le mot de passe est incorrecte.",
               });
+              toast.error("Mot de passe incorrecte.", {
+                id: toastId,
+                duration: 3000,
+              });
               break;
 
             case LoginErrors.MISSING_PASSWORD:
@@ -81,29 +87,30 @@ export function Login({ callbackUrl, error }: Props) {
                 type: "custom",
                 message: "Veuillez entrez un mot de passe.",
               });
+              toast.error("Veuillez entrez un mot de passe.", {
+                id: toastId,
+                duration: 3000,
+              });
               break;
 
             default:
-              toast({
-                variant: "destructive",
-                title: "Une erreur s'est produite.",
-                description: "Veuillez réessayer.",
+              toast.error("une erreur s'est produite. Veuillez réessayer.", {
+                id: toastId,
+                duration: 3000,
               });
               break;
           }
         } else {
-          toast({
-            variant: "default",
-            title: "Connecté",
-            description: "Vous allez être redirigé.",
+          toast.success("Connecté, vous allez être redirigé.", {
+            id: toastId,
+            duration: 3000,
           });
           setTimeout(() => router.push(callbackUrl ?? "/"), 1000);
         }
       }
     } catch (error) {
-      toast({
-        title: "Un problème est survenue.",
-        description: "Veuillez réessayer.",
+      toast.error("Un problème est survenue. Veuillez réessayer.", {
+        id: toastId,
       });
     }
   }
@@ -118,7 +125,15 @@ export function Login({ callbackUrl, error }: Props) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={throttle(async (e: React.FormEvent) => {
+              e.preventDefault();
+              await onSubmit(form.getValues());
+              /* setTimeout(() => {
+                setIsSending(false);
+              }, 1500); */
+            }, 3000)}
+          >
             <div className="grid gap-4">
               <div className="relative grid gap-1">
                 <FormField
@@ -128,7 +143,7 @@ export function Login({ callbackUrl, error }: Props) {
                     <FormItem className={cn("group")}>
                       <FormLabel
                         className={cn(
-                          "absolute translate-x-3 translate-y-6 px-0.5 text-muted-foreground transition-transform group-has-[:focus-visible,_:valid]:translate-x-2 group-has-[:focus-visible,_:valid]:translate-y-3 group-has-[:focus-visible,_:valid]:text-xs",
+                          "pointer-events-none absolute translate-x-3 translate-y-6 px-0.5 text-muted-foreground transition-transform group-has-[:focus-visible,_:valid]:translate-x-2 group-has-[:focus-visible,_:valid]:translate-y-3 group-has-[:focus-visible,_:valid]:text-xs",
                         )}
                       >
                         Mot de passe

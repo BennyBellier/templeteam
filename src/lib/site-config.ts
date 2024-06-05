@@ -48,7 +48,7 @@ export const NavigationLinks = [
     content: [
       {
         id: "association_home",
-        name: "Acceuil",
+        name: "Accueil",
         href: "/association",
       },
       {

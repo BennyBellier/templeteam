@@ -8,6 +8,9 @@ import {
   LayoutTitle,
 } from "@/components/layout/layout";
 import { ImageLink } from "./link";
+import { env } from "@/env.mjs";
+
+export const revalidate = env.REVALIDATE_TIME ?? 3600;
 
 const Portfolio = () => {
   return (

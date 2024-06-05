@@ -81,15 +81,11 @@ model BlogPosts {
   title String
 
   /// Thumbnail of the blog ticket
-  thumbnail String
-
-  /// Type of the post
-  /// @default {Article}
-  type String? @default("Article")
+  thumbnail String?
 
   /// Date when the post has to be published or been published
   /// @default {time when the database entry is created}
-  published DateTime? @default(now())
+  published DateTime @default(now())
 
   // Date when the post has been updated
   // @default {time when database entry is updated}
@@ -105,7 +101,16 @@ model BlogPosts {
   /// If the content of the blog ticket is on another website
   extraLink String?
 
+  category BlogCategory
+
   @@unique([title, published], name: "unique_post")
+}
+
+enum BlogCategory {
+  ALL
+  ARTICLE
+  EVENT
+  INFORMATION
 }
 
 model ReferenceCategory {

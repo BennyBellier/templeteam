@@ -29,7 +29,7 @@ export default function RootLayout({
   preloadReferences();
 
   return (
-    <html lang="fr" className="group/html light h-screen w-screen" data-scroll="0">
+    <html lang="fr" className="group/html light h-screen w-screen ltr" data-scroll="0">
       <body
         className={cn(
           "h-full font-sans antialiased",
