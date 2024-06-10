@@ -10,32 +10,32 @@ import {
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { categoryToText, cn } from "@/lib/utils";
+import { trpc } from "@/trpc/TrpcProvider";
 import { BlogCategory } from "@prisma/client";
-import { Suspense, useState, useTransition } from "react";
-import BlogPostsList from "./BlogListContent";
+import { useState } from "react";
+import PostCard from "./PostCard";
 import PostSkeleton from "./PostSkeleton";
 
 export default function Blog() {
   const [category, setCategory] = useState<BlogCategory | undefined>("ALL");
-  const [page, setPage] = useState(0);
-  const [isPending, startTransition] = useTransition();
-  /* const { data, isLoading } = trpc.blogposts.get.useQuery({
-    category,
-    page,
-  }); */
+  const query = trpc.blogposts.get.useSuspenseInfiniteQuery(
+    {
+      category,
+    },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    },
+  );
 
   const handleCategory = (newCategory?: BlogCategory) => {
-    startTransition(() => {
-      setCategory(newCategory);
-      setPage(0);
-    });
+    setCategory(newCategory);
   };
 
-  const handlePagination = () => {
-    startTransition(() => {
-      setPage((prevPage) => prevPage + 1);
-    });
+  const handleFetchNextPage = async () => {
+    if (query[1].hasNextPage) await query[1].fetchNextPage();
   };
+
+  const posts = query[0].pages;
 
   return (
     <Layout>
@@ -104,32 +104,34 @@ export default function Blog() {
             {categoryToText(BlogCategory.INFORMATION)}
           </Button>
         </div>
-        {/* <ul className="flex h-fit w-full flex-wrap justify-around gap-4 pt-6">
-          {data?.map((post) => (
-            <li key={post.id}>
-              <PostCard
-                post={post}
-                displayCategory={category === BlogCategory.ALL}
-              />
-            </li>
-          ))}
-        </ul> */}
-        {/* {data?.length === 0 ? (
-          <Alert>
-            <AlertTriangle />
-            <AlertTitle>Aucun post n&apos;est disponible</AlertTitle>
-          </Alert>
-        ) : (
-          <Button variant="ghost" className="self-center justify-self-center">
-            Pagination
+        <ul className="relative grid h-fit w-full grid-cols-1 justify-around gap-4 pb-16 pt-6 md:grid-cols-2 lg:grid-cols-3">
+          {posts?.map((page) => {
+            return page.items.map((post) => (
+              <li key={post.id}>
+                <PostCard
+                  post={post}
+                  displayCategory={category === BlogCategory.ALL}
+                />
+              </li>
+            ));
+          })}
+          {query[1].isFetching &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <li key={i}>
+                <PostSkeleton />
+              </li>
+            ))}
+          <Button
+            variant="outline"
+            onClick={handleFetchNextPage}
+            disabled={!query[1].hasNextPage || query[1].isFetching}
+            className={cn(
+              "absolute -bottom-8 left-1/2 -translate-x-1/2",
+              !query[1].hasNextPage ? "hidden" : "",
+            )}
+          >
+            Afficher plus
           </Button>
-        )} */}
-        <ul className="relative flex h-fit w-full flex-wrap justify-around gap-4 pt-6 pb-16">
-        <Suspense fallback={Array.from({ length: 6 }).map((_, i) => (
-          <PostSkeleton key={i} />
-        ))}>
-          <BlogPostsList category={category ?? "ALL"} />
-        </Suspense>
         </ul>
       </LayoutSection>
     </Layout>

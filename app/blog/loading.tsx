@@ -5,9 +5,9 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Typography } from "@/components/ui/typography";
 import PostSkeleton from "./PostSkeleton";
-import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function LoadingPage() {
   return (
@@ -19,14 +19,16 @@ export default async function LoadingPage() {
           articles et bien plus encore.
         </LayoutDescription>
       </LayoutHeader>
-      <LayoutSection className="md:items-start">
+      <LayoutSection className="flex gap-6 md:items-start">
         <Typography as="h1" variant="h1" className="mb-4">
           Derniers articles
         </Typography>
-        <Skeleton className="rounded-full h-16 w-64" />
-        {Array.from({ length: 5 }).map((_, i) => (
-          <PostSkeleton key={i} />
-        ))}
+        <Skeleton className="h-14 w-92 rounded-xl" />
+        <ul className="relative grid h-fit w-full grid-cols-1 justify-around gap-4 pb-16 pt-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <PostSkeleton key={i} />
+          ))}
+        </ul>
       </LayoutSection>
     </Layout>
   );
