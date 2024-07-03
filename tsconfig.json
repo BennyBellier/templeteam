@@ -40,7 +40,7 @@
     "src/env.mjs",
     "middleware.ts",
     "src/components/references/ReferencesProvider.ts",
-    "prisma/*.ts",
+    "prisma/*.ts", "app/blog/loading.tsx",
   ],
   "exclude": ["node_modules"]
 }

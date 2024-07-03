@@ -15,7 +15,7 @@ export const ReferencesProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { data, error } = trpc.references.get.useQuery();
+  const { data, error } = trpc.references.getAll.useQuery();
 
   if (error) {
     console.error(error);

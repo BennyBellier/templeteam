@@ -5,6 +5,7 @@ import { LayoutSection } from "../layout/layout";
 import {
   Carousel,
   CarouselContent,
+  CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "../ui/carousel";
@@ -37,7 +38,12 @@ export const References = () => {
         <CarouselContent className="ml-0.5 flex h-[150px] items-center">
           {references === null ? <Skeleton /> : null}
           {references?.map((reference) => (
-            <ReferenceCard key={reference.id} reference={reference} />
+            <CarouselItem
+              key={reference.id}
+              className="w-fit md:basis-1/2 lg:basis-1/3"
+            >
+              <ReferenceCard reference={reference} />
+            </CarouselItem>
           ))}
         </CarouselContent>
         <CarouselPrevious className="ml-2" />

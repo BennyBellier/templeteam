@@ -1,10 +1,13 @@
-import { CarouselItem } from "../ui/carousel";
 import { Skeleton } from "../ui/skeleton";
 
 export const ReferenceCardSkeleton = () => {
   return (
-    <CarouselItem className="md:basis-1/2 lg:basis-1/3">
-      <Skeleton className="group/item ease ease flex h-[100px] w-[280px] cursor-pointer gap-5 rounded-2xl bg-neutral-50 px-4 py-2 shadow-lg transition-transform duration-300 hover:scale-90 dark:bg-neutral-800 dark:shadow-none" />
-    </CarouselItem>
+    <div className="group/item ease flex h-[100px] w-[280px] cursor-pointer items-center gap-5 rounded-xl px-4 py-2 shadow-lg dark:shadow-none dark:bg-card">
+      <Skeleton className="min-h-14 min-w-14" />
+      <div className="w-full flex flex-col gap-2 items-start justify-start translate-y-1">
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-1/3" />
+      </div>
+    </div>
   );
 };

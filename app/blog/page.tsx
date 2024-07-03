@@ -12,12 +12,52 @@ import { Typography } from "@/components/ui/typography";
 import { categoryToText, cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
 import { BlogCategory } from "@prisma/client";
-import { useState } from "react";
 import PostCard from "./PostCard";
 import PostSkeleton from "./PostSkeleton";
+import { useBlogCategory } from "./template";
+
+const BlogCategoryList = (): BlogCategory[] => {
+  return Object.values(BlogCategory);
+};
+
+function CategorySelector() {
+  const { category, setCategory } = useBlogCategory();
+
+  const handleCategory = (newCategory?: BlogCategory) => {
+    setCategory(newCategory);
+  };
+
+  return (
+    <div>
+      <Typography as="h1" variant="h1" className="mb-4">
+        Derniers articles
+      </Typography>
+      <div
+        className={cn(
+          "flex flex-col items-center gap-4 rounded-xl bg-muted/50 px-6 py-3 md:flex-row",
+        )}
+      >
+        {BlogCategoryList().map((data) => (
+          <Button
+            variant="ghost"
+            className={cn(
+              "text-md hover:bg-muted",
+              category === data
+                ? "font-medium hover:scale-100 hover:bg-transparent"
+                : "font-light",
+            )}
+            onClick={() => handleCategory(data)}
+          >
+            {categoryToText(data)}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Blog() {
-  const [category, setCategory] = useState<BlogCategory | undefined>("ALL");
+  const { category } = useBlogCategory();
   const query = trpc.blogposts.get.useSuspenseInfiniteQuery(
     {
       category,
@@ -26,10 +66,6 @@ export default function Blog() {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
-
-  const handleCategory = (newCategory?: BlogCategory) => {
-    setCategory(newCategory);
-  };
 
   const handleFetchNextPage = async () => {
     if (query[1].hasNextPage) await query[1].fetchNextPage();
@@ -47,63 +83,7 @@ export default function Blog() {
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="flex gap-6 md:items-start">
-        <Typography as="h1" variant="h1" className="mb-4">
-          Derniers articles
-        </Typography>
-        <div
-          className={cn(
-            "flex flex-col items-center gap-4 rounded-xl bg-muted/50 px-6 py-3 md:flex-row",
-          )}
-        >
-          <Button
-            variant="ghost"
-            className={cn(
-              "text-md hover:bg-muted",
-              category === BlogCategory.ALL
-                ? "font-medium hover:scale-100 hover:bg-transparent"
-                : "font-light",
-            )}
-            onClick={() => handleCategory(BlogCategory.ALL)}
-          >
-            Tous
-          </Button>
-          <Button
-            variant="ghost"
-            className={cn(
-              "text-md hover:bg-muted",
-              category === BlogCategory.ARTICLE
-                ? "font-medium hover:scale-100 hover:bg-transparent"
-                : "font-light",
-            )}
-            onClick={() => handleCategory(BlogCategory.ARTICLE)}
-          >
-            Articles
-          </Button>
-          <Button
-            variant="ghost"
-            className={cn(
-              "text-md hover:bg-muted",
-              category === BlogCategory.EVENT
-                ? "font-medium hover:scale-100 hover:bg-transparent"
-                : "font-light",
-            )}
-            onClick={() => handleCategory(BlogCategory.EVENT)}
-          >
-            {categoryToText(BlogCategory.EVENT)}
-          </Button>
-          <Button
-            variant="ghost"
-            className={cn(
-              "text-md hover:bg-muted",
-              category === BlogCategory.INFORMATION
-                ? "font-medium hover:scale-100 hover:bg-transparent"
-                : "font-light",
-            )}
-            onClick={() => handleCategory(BlogCategory.INFORMATION)}
-          >
-            {categoryToText(BlogCategory.INFORMATION)}
-          </Button>
-        </div>
+        <CategorySelector />
         <ul className="relative grid h-fit w-full grid-cols-1 justify-around gap-4 pb-16 pt-6 md:grid-cols-2 lg:grid-cols-3">
           {posts?.map((page) => {
             return page.items.map((post) => (
@@ -117,7 +97,7 @@ export default function Blog() {
           })}
           {query[1].isFetching &&
             Array.from({ length: 6 }).map((_, i) => (
-              <li key={i}>
+              <li key={i} className="focus-visible:ring-primary">
                 <PostSkeleton />
               </li>
             ))}

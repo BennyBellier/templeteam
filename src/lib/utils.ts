@@ -13,6 +13,8 @@ export function delay(ms: number) {
 
 export function categoryToText(category: BlogCategory) {
   switch (category) {
+    case BlogCategory.ALL:
+      return "Tous";
     case BlogCategory.ARTICLE:
       return "Article";
     case BlogCategory.EVENT:

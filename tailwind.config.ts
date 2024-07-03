@@ -91,6 +91,14 @@ const config = {
       transitionDuration: {
         5000: "5000ms",
       },
+      dropShadow: {
+        bold: [
+          "-1px -1px 0 var(--foreground)",
+          "1px -1px 0 var(--foreground)",
+          "-1px 1px 0 var(--foreground)",
+          "1px 1px 0 var(--foreground)",
+        ]
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

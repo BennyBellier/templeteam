@@ -6,13 +6,13 @@ import { Separator } from "@/components/ui/separator";
 
 export default function PostSkeleton() {
   return (
-    <Card className="hover:bg-card">
+    <Card className="bg-background drop-shadow-lg hover:bg-card">
       <CardHeader className="space-y-0 overflow-hidden px-0 pt-0 rounded-b-none">
         <Skeleton className="h-48 rounded-b-none" />
       </CardHeader>
       <CardContent className="flex flex-col gap-2 pb-6">
-        <Skeleton className="h-12 w-72" />
-        <Skeleton className="h-12 w-72" />
+        <Skeleton className="h-10 w-72" />
+        <Skeleton className="h-10 w-72" />
         <Skeleton className="h-6 w-72 mt-4" />
         <Skeleton className="h-6 w-72" />
         <Skeleton className="h-6 w-72" />
