@@ -10,8 +10,9 @@ export const preloadReferences = () => {
 
 export const getReferences = cache(async () => {
   try {
-    const references = await prisma.references.get();
+    // const references = await prisma.references.get();
 
+    const references = "Google IDX - prisma deactivated"
     logger.debug("getReferences: ", references);
 
     return references;

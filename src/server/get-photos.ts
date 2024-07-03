@@ -9,7 +9,9 @@ export const preloadAlbums = () => {
 
 export const getPhotos = cache(async () => {
   try {
-    const photos = await prisma.photos.get();
+    // const photos = await prisma.photos.get();
+
+    const photos = "Google IDX - prisma deactivated"
 
     logger.debug("getPhotos: ", photos);
     return photos;

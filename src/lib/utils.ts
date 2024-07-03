@@ -26,3 +26,19 @@ export function categoryToText(category: BlogCategory) {
       return "";
   }
 }
+
+export function associationPositionToText(position: string): string {
+  switch (position) {
+    case "President":
+      return "Président";
+    case "Vice President":
+      return "Vice-Président"
+    case "Secretary":
+      return "Secrétaire"
+    case "Treasure":
+      return "Trésorier";
+  
+    default:
+      return "";
+  }
+}

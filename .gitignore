@@ -54,3 +54,4 @@ yarn-error.log*
 /public/img/*.svg
 public/video/**
 /src/data/blog_posts/*
+.idx/dev.nix

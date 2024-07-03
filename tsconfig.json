@@ -38,7 +38,7 @@
     "**/*.js",
     ".next/types/**/*.ts",
     "src/env.mjs",
-    "middleware.ts",
+    "middleware.ts.deactivated",
     "src/components/references/ReferencesProvider.ts",
     "prisma/*.ts", "app/blog/loading.tsx",
   ],

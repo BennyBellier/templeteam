@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageNotFound } from "@/components/ui/imageNotFound";
+import { ImageNotFound  } from "@/components/ui/imageNotFound";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import Image, { type ImageProps } from "next/image";
