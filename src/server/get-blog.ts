@@ -12,7 +12,9 @@ export const preloadBlogPosts = () => {
 export const getBlogPosts = cache(
   async (category?: CategoryEnum, page?: number) => {
     try {
-      const posts = await prisma.blogposts.get({ category, page });
+      // const posts = await prisma.blogposts.get({ category, page });
+
+      const posts = "Google IDX - prisma deactivated"
 
       logger.debug("getBlogPosts: ", posts);
 

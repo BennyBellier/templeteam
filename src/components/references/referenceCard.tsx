@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { ImageWithLoader } from "../features/withLoader/ImageWithLoader";
 import { CarouselItem } from "../ui/carousel";
 import { Skeleton } from "../ui/skeleton";
+import { ImageNotFound } from "@/components/ui/imageNotFound";
 
 export type ReferenceCardProps = {
   reference: inferRouterOutputs<AppRouter>["references"]["get"][number];
@@ -20,6 +21,7 @@ export const ReferenceCard = (props: ReferenceCardProps) => {
         >
           <div className="relative grid h-14 w-14 grid-cols-1 grid-rows-1 justify-center self-center">
             <ImageWithLoader
+              fallback={<ImageNotFound />}
               src={
                 props.reference.img
                   ? "/img/references/" + props.reference.img

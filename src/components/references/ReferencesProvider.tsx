@@ -15,7 +15,20 @@ export const ReferencesProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { data, error } = trpc.references.get.useQuery();
+  // const { data, error } = trpc.references.get.useQuery();
+  const { data, error } = {
+    data: [
+      {
+        id: "a1",
+        name: "Pays Voironnais Basket Club",
+        img: "/img/references/pvbc.png",
+        href: "pvbc.fr",
+        alt: "PVBC",
+        categoryId: 0,
+      },
+    ],
+    error: false,
+  };
 
   if (error) {
     console.error(error);
