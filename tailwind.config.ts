@@ -97,7 +97,11 @@ const config = {
           "1px -1px 0 var(--foreground)",
           "-1px 1px 0 var(--foreground)",
           "1px 1px 0 var(--foreground)",
-        ]
+        ],
+      },
+      data: {
+        disabled: 'disabled="true"',
+        checked: 'state="checked"',
       },
       keyframes: {
         "accordion-down": {

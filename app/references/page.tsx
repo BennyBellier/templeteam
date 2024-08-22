@@ -14,6 +14,8 @@ import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
 import { useReferenceCategory } from "./template";
+import { useEffect, useRef } from "react";
+import { useInView } from "framer-motion";
 
 function CategorySelector() {
   const { category, setCategory } = useReferenceCategory();
@@ -55,6 +57,8 @@ function CategorySelector() {
 
 export default function References() {
   const { category } = useReferenceCategory();
+  const buttonRef = useRef(null);
+  const isInView = useInView(buttonRef, {});
 
   const query = trpc.references.get.useSuspenseInfiniteQuery(
     {
@@ -69,6 +73,13 @@ export default function References() {
   const handleFetchNextPage = async () => {
     if (query[1].hasNextPage) await query[1].fetchNextPage();
   };
+
+  useEffect(() => {
+
+    if (isInView) {
+      void handleFetchNextPage();
+    }
+  }, [isInView, handleFetchNextPage]);
 
   return (
     <Layout noReferences>
@@ -91,11 +102,12 @@ export default function References() {
           {query[1].isFetching &&
             references.length === 0 &&
             Array.from({ length: 6 }).map((_, i) => (
-              <li key={i} className="">
+              <li key={i}>
                 <ReferenceCardSkeleton />
               </li>
             ))}
           <Button
+            ref={buttonRef}
             variant="outline"
             onClick={handleFetchNextPage}
             disabled={!query[1].hasNextPage || query[1].isFetching}

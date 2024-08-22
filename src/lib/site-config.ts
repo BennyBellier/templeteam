@@ -57,9 +57,9 @@ export const NavigationLinks = [
         href: "/association/stage",
       },
       {
-        id: "association_sportsSaturday",
-        name: "Samedi sportif",
-        href: "/association/samedi_sportif",
+        id: "association_registration",
+        name: "Inscription",
+        href: "/association/inscription",
       },
     ],
   },

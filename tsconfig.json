@@ -38,9 +38,9 @@
     "**/*.js",
     ".next/types/**/*.ts",
     "src/env.mjs",
-    "middleware.ts.deactivated",
-    "src/components/references/ReferencesProvider.ts",
-    "prisma/*.ts", "app/blog/loading.tsx",
+    "prisma/*.ts",
+    "app/**/*.tsx",
+    "src/**/*.tsx",
   ],
   "exclude": ["node_modules"]
 }

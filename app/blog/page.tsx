@@ -39,6 +39,7 @@ function CategorySelector() {
       >
         {BlogCategoryList().map((data) => (
           <Button
+            key={data}
             variant="ghost"
             className={cn(
               "text-md hover:bg-muted",

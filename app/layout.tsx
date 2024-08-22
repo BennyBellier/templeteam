@@ -11,6 +11,7 @@ import { Manrope, Rubik } from "next/font/google";
 import type { PropsWithChildren } from "react";
 import Providers from "./Providers";
 import { preloadReferences } from "@/server/get-references";
+import { AlertDialogs } from "@/hooks/alertDialog";
 
 const fontCaption = Manrope({ subsets: ["latin"], variable: "--font-caption" });
 const fontSans = Rubik({ subsets: ["latin"], variable: "--font-sans" });
@@ -26,7 +27,7 @@ export default function RootLayout({
 }: PropsWithChildren<{
   modal?: React.ReactNode;
 }>) {
-  preloadReferences();
+  // preloadReferences();
 
   return (
     <html lang="fr" className="group/html light h-screen w-screen ltr" data-scroll="0">
@@ -51,6 +52,7 @@ export default function RootLayout({
             </div>
             <PlaygroundLink />
             <TailwindIndicator />
+            <AlertDialogs />
             {modal}
           </Providers>
         </TRPCReactProvider>
