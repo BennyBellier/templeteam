@@ -61,6 +61,11 @@ export const NavigationLinks = [
         name: "Samedi sportif",
         href: "/association/samedi_sportif",
       },
+      {
+        id: "association_register",
+        name: "Inscription",
+        href: "/association/inscription",
+      },
     ],
   },
 ];

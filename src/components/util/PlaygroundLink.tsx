@@ -8,7 +8,7 @@ export function PlaygroundLink() {
   return (
     <Button
       asChild
-      className="fixed z-50 bottom-5 left-4"
+      className="fixed z-50 bottom-5 left-12"
     >
       <Typography as={Link} href="/playground">
         Playground

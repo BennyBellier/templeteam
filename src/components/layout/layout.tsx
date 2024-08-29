@@ -41,7 +41,7 @@ export const LayoutTitle = (props: ComponentPropsWithoutRef<"h1">) => {
     <Typography
       {...props}
       variant="title"
-      className={cn(props.className, "")}
+      className={cn(props.className, "text-center")}
     />
   );
 };

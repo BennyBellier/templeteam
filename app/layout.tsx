@@ -43,11 +43,7 @@ export default function RootLayout({
               id="main-content"
               className="flex h-full flex-col overflow-y-auto overflow-x-hidden"
             >
-              <Header />
-              <main className="grid grow auto-rows-auto gap-6 pb-10 pt-5">
-                {children}
-              </main>
-              <Footer />
+              {children}
             </div>
             <PlaygroundLink />
             <TailwindIndicator />
