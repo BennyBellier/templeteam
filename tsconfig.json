@@ -40,7 +40,9 @@
     "src/env.mjs",
     "prisma/*.ts",
     "app/**/*.tsx",
+    "app/association/**/*.tsx",
     "src/**/*.tsx",
+    "src/**/*.ts",
   ],
   "exclude": ["node_modules"]
 }

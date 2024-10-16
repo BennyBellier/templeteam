@@ -17,7 +17,7 @@ import {
 import { type Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { z } from "zod";
-import { logger } from "./logger";
+import logger from "./logger";
 
 declare module "next-auth" {
   interface User {
@@ -118,7 +118,7 @@ export const authOptions: NextAuthOptions = {
           // Adding 1.5 s time to response to avoid bruteforce and DDOS
           await new Promise((resolve) => setTimeout(resolve, LoginDelay));
 
-          logger.warn("Loggin try with no password");
+          logger.auth.warn("Loggin try with no password");
 
           throw new Error("No password", {
             cause: loginErrors.MISSING_PASSWORD,
@@ -133,7 +133,7 @@ export const authOptions: NextAuthOptions = {
           // Adding 1.5 s time to response to avoid bruteforce and DDOS
           await new Promise((resolve) => setTimeout(resolve, LoginDelay));
 
-          logger.warn("Loggin try with a bad password type");
+          logger.auth.warn("Loggin try with a bad password type");
 
           throw new Error("Invalid password", {
             cause: loginErrors.INVALID_PASSWORD,
@@ -185,7 +185,7 @@ const login = z
       return user as User;
     } else {
       await new Promise((resolve) => setTimeout(resolve, LoginDelay));
-      logger.warn("User: ", user, " try to loggin with not matching password");
+      logger.auth.warn("User: ", user, " try to loggin with not matching password");
       throw new Error(loginErrors.USER_PASSWORD_MISSMATCH);
     }
   });

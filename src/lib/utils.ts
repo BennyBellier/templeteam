@@ -32,13 +32,27 @@ export function associationPositionToText(position: string): string {
     case "President":
       return "Président";
     case "Vice President":
-      return "Vice-Président"
+      return "Vice-Président";
     case "Secretary":
-      return "Secrétaire"
+      return "Secrétaire";
     case "Treasure":
       return "Trésorier";
-  
+
     default:
       return "";
   }
+}
+
+export function getCountriesNames(lang = "fr") {
+  var countries = require("i18n-iso-countries");
+
+  countries.registerLocale(require("i18n-iso-countries/langs/fr.json"));
+  const jsonObject = countries.getNames("fr", { select: "official" });
+
+  return Object.keys(jsonObject)
+    .map((key) => jsonObject[key])
+    .sort((a, b) => {
+      if (a && b) return a.localeCompare(b);
+      return 0;
+    });
 }

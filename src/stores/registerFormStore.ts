@@ -1,34 +1,74 @@
+import type { AuthorizationSchema } from "app/association/inscription/(StepForms)/Authorization";
+import type { EmergencyContactSchema } from "app/association/inscription/(StepForms)/EmergencyContact";
+import type { MedicSchema } from "app/association/inscription/(StepForms)/Medic";
+import type { MemberSchema } from "app/association/inscription/(StepForms)/Member";
+import type { MembershipSchema } from "app/association/inscription/(StepForms)/Membership";
+
+import type { z } from "zod";
 import { createStore } from "zustand/vanilla";
-import type {
-  FirstFormSchema,
-  FourthFormSchema,
-  SecondFormSchema,
-  ThirdFormSchema,
-} from "/app/association/inscription/StepForm";
 
 type State = {
-  firstFormPart: FirstFormSchema;
-  secondFormPart: SecondFormSchema;
-  thirdFormPart: ThirdFormSchema;
-  fourthFormPart: FourthFormSchema;
+  membership: {
+    templeRun?: boolean;
+    templeGym?: boolean;
+    templeBreak?: boolean;
+    templeGymJunior?: boolean;
+  } | null;
+  member: {
+    picture: string;
+    firstname: string;
+    lastname: string;
+    birthdate: string;
+    gender: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    mail?: string | undefined;
+    phoneNumber?: string | undefined;
+  } | null;
+  emergencyContact: {
+    emergencyContactName1: string;
+    emergencyContactPhone1: string;
+    emergencyContactName2?: string | undefined;
+    emergencyContactPhone2?: string | undefined;
+  } | null;
+  authorization: {
+    undersigned: string;
+    emergencyAuthorization: boolean;
+    travelAuthorization: boolean;
+    imageRights: boolean;
+    theftLossLiability: boolean;
+    refund: boolean;
+    internalRules: boolean;
+    signature: string;
+  } | null;
+  medic: {
+    medicalCertificate: boolean;
+    medicalComments?: string | undefined;
+  } | null;
   isAdult: boolean | null;
 };
 
 type Actions = {
-  setFirstFormPart: (firstFormData: State["firstFormPart"]) => void;
-  setSecondFormPart: (secondFormData: State["secondFormPart"]) => void;
-  setThirdFormPart: (thirdFormData: State["thirdFormPart"]) => void;
-  setFourthFormPart: (fourthFormData: State["fourthFormPart"]) => void;
+  setMembership: (membershipData: State["membership"]) => void;
+  setMember: (memberData: State["member"]) => void;
+  setEmergencyContact: (
+    emergencyContactData: State["emergencyContact"],
+  ) => void;
+  setAuthorization: (authorizationData: State["authorization"]) => void;
+  setMedic: (medicData: State["medic"]) => void;
   setAdult: (isAdult: boolean) => void;
 };
 
 export type RegisterFormStore = State & Actions;
 
 export const defaultInitState: State = {
-  firstFormPart: null,
-  secondFormPart: null,
-  thirdFormPart: null,
-  fourthFormPart: null,
+  membership: null,
+  member: null,
+  emergencyContact: null,
+  authorization: null,
+  medic: null,
   isAdult: null,
 };
 
@@ -37,14 +77,14 @@ export const createRegisterFormStore = (
 ) => {
   return createStore<RegisterFormStore>()((set) => ({
     ...initState,
-    setFirstFormPart: (firstFormData) =>
-      set(() => ({ firstFormPart: firstFormData })),
-    setSecondFormPart: (secondFormData) =>
-      set(() => ({ secondFormPart: secondFormData })),
-    setThirdFormPart: (thirdFormData) =>
-      set(() => ({ thirdFormPart: thirdFormData })),
-    setFourthFormPart: (fourthFormData) =>
-      set(() => ({ fourthFormPart: fourthFormData })),
+    setMembership: (membershipData) =>
+      set(() => ({ membership: membershipData })),
+    setMember: (memberData) => set(() => ({ member: memberData })),
+    setEmergencyContact: (emergencyContactData) =>
+      set(() => ({ emergencyContact: emergencyContactData })),
+    setAuthorization: (authorizationData) =>
+      set(() => ({ authorization: authorizationData })),
+    setMedic: (medicData) => set(() => ({ medic: medicData })),
     setAdult: (isAdult) => set(() => ({ isAdult: isAdult })),
   }));
 };

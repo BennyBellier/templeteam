@@ -33,11 +33,13 @@ export const env = createEnv({
     SMTP_USER: z.string(),
     SMTP_PASSWORD: z.string(),
     CONTACT_FROM_MAIL: z.string().email(),
+    REGISTER_MAIL: z.string().email(),
     NOREPLY_MAIL: z.string().email(),
 
     ADMIN_ID: z.string(),
 
     LOG_FOLDER: z.string().optional(),
+    LOG_LEVEL: z.string().optional(),
 
     BLOG_PAGINATION_SIZE: z.number().min(0).max(100).optional(),
     REFERENCE_PAGINATION_SIZE: z.number().min(0).max(100).optional(),
@@ -68,9 +70,11 @@ export const env = createEnv({
     SMTP_USER: process.env.SMTP_USER,
     SMTP_PASSWORD: process.env.SMTP_PASSWORD,
     CONTACT_FROM_MAIL: process.env.CONTACT_FROM_MAIL,
+    REGISTER_MAIL: process.env.REGISTER_MAIL,
     NOREPLY_MAIL: process.env.NOREPLY_MAIL,
     ADMIN_ID: process.env.ADMIN_ID,
     LOG_FOLDER: process.env.LOG_FOLDER,
+    LOG_LEVEL: process.env.LOG_LEVEL,
     BLOG_PAGINATION_SIZE: process.env.BLOG_PAGINATION,
     REFERENCE_PAGINATION_SIZE: process.env.REFERENCES_PAGINATION,
     REVALIDATE_TIME: process.env.REVALIDATE_TIME,

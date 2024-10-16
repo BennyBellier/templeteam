@@ -14,7 +14,7 @@ import { ZodError } from "zod";
 import { getServerAuthSession } from "@/server/auth";
 import { prisma } from "@/server/db";
 import { headers } from "next/headers";
-import { logger } from "../logger";
+import logger from "../logger";
 
 /**
  * 1. CONTEXT

@@ -185,6 +185,82 @@ model Photos {
   height Int
 
   // author
-  author String
+  author     String
   authorLink String?
+}
+
+model Member {
+  id                 String               @id @default(uuid())
+  firstname          String
+  lastname           String
+  birthdate          DateTime
+  gender             String
+  mail               String?
+  phoneNumber        String?
+  address            String
+  city               String
+  postalCode         String
+  country            String
+  picture            String
+  medicalComment     String?
+  medicalCertificate MedicalCertificate[]
+
+  undersigner String
+  signature   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  memberships            MemberMembership[]
+  MemberEmergencyContact MemberEmergencyContact[]
+
+  @@unique([firstname, lastname, birthdate])
+}
+
+model MedicalCertificate {
+  id        String   @id // use as filename
+  createdAt DateTime @default(now())
+
+  // Related to memberID
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId String
+
+  @@unique([id, createdAt])
+}
+
+model EmergencyContact {
+  id    String @id @default(uuid())
+  name  String
+  phone String @unique
+
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  MemberEmergencyContact MemberEmergencyContact[]
+}
+
+model MemberEmergencyContact {
+  id                 String           @id @default(uuid())
+  member             Member           @relation(fields: [memberId], references: [id])
+  contact            EmergencyContact @relation(fields: [emergencyContactId], references: [id])
+  level              Int
+  memberId           String
+  emergencyContactId String
+}
+
+model MemberMembership {
+  id         String     @id @default(uuid())
+  member     Member     @relation(fields: [memberId], references: [id])
+  membership Membership
+
+  memberId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Membership {
+  templeRun
+  templeGym
+  templeBreak
+  templeGymJunior
 }

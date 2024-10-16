@@ -7,28 +7,29 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import { Button } from "@/components/ui/button";
-import { Step, Stepper, useStepper } from "@/components/ui/stepper";
+import { Step, Stepper } from "@/components/ui/stepper";
 import { RegisterFormStoreProvider } from "@/providers/RegisterFormProvider";
-import {
-  FirstStepForm,
-  FourthStepForm,
-  SecondStepForm,
-  ThirdStepForm,
-} from "./StepForm";
+import Authorization from "./(StepForms)/Authorization";
+import EmergencyContact from "./(StepForms)/EmergencyContact";
+import MemberForm from "./(StepForms)/Member";
+import MembershipForm from "./(StepForms)/Membership";
+import Medic from "./(StepForms)/Medic";
+// import { FormResume } from "./StepperFormActions";
 
 const steps = [
-  { label: "Choix de l'adhésion" },
-  { label: "Informations personnels" },
-  { label: "informations complémentaires" },
-  { label: "Certificat médical" },
+  { label: "Adhésion" },
+  { label: "Informations" },
+  { label: "Contact d'urgence", optional: true, description: "optionel" },
+  { label: "Médical" },
+  { label: "Autorisations" },
+  // { label: "Récapitulatif" },
 ];
 
 export default function Register() {
   return (
     <Layout>
       <LayoutHeader>
-        <LayoutTitle>Inscription</LayoutTitle>
+        <LayoutTitle>Pré-Inscription</LayoutTitle>
         <LayoutDescription>
           Vous souhaitez participez à nos cours, inscrivez-vous dès maintenant !
         </LayoutDescription>
@@ -37,7 +38,7 @@ export default function Register() {
         <RegisterFormStoreProvider>
           <Stepper
             variant="line"
-            initialStep={3}
+            initialStep={0}
             steps={steps}
             className="h-full w-full"
           >
@@ -45,47 +46,38 @@ export default function Register() {
               if (index === 0) {
                 return (
                   <Step key={stepProps.label} {...stepProps} className="w-full">
-                    <FirstStepForm />
+                    <MembershipForm />
                   </Step>
                 );
               } else if (index === 1) {
                 return (
                   <Step key={stepProps.label} {...stepProps}>
-                    <SecondStepForm />
+                    <MemberForm />
                   </Step>
                 );
               } else if (index === 2) {
                 return (
                   <Step key={stepProps.label} {...stepProps}>
-                    <ThirdStepForm />
+                    <EmergencyContact />
+                  </Step>
+                );
+              } else if (index === 3) {
+                return (
+                  <Step key={stepProps.label} {...stepProps}>
+                    <Medic />
                   </Step>
                 );
               } else {
                 return (
                   <Step key={stepProps.label} {...stepProps}>
-                    <FourthStepForm />
+                    <Authorization />
                   </Step>
                 );
               }
             })}
-            {/* <MyStepperFooter /> */}
           </Stepper>
         </RegisterFormStoreProvider>
       </LayoutSection>
     </Layout>
-  );
-}
-
-function MyStepperFooter() {
-  const { activeStep, resetSteps, steps } = useStepper();
-
-  if (activeStep !== steps.length) {
-    return null;
-  }
-
-  return (
-    <div className="flex items-center justify-end gap-2">
-      <Button onClick={resetSteps}>Reset Stepper with Form</Button>
-    </div>
   );
 }

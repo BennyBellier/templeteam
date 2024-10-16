@@ -1,15 +1,12 @@
 "use client";
 
-import * as React from "react";
 import { cva } from "class-variance-authority";
 import { CheckIcon, Loader2, type LucideIcon, X } from "lucide-react";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
-import {
-  Collapsible,
-  CollapsibleContent,
-} from "./collapsible";
+import { Collapsible, CollapsibleContent } from "./collapsible";
 
 // <---------- CONTEXT ---------->
 
@@ -902,7 +899,7 @@ const StepIcon = React.forwardRef<HTMLDivElement, StepIconProps>(
     ]);
   },
 );
-StepIcon.displayName = "StepIcon"
+StepIcon.displayName = "StepIcon";
 
 // <---------- STEP LABEL ---------->
 
@@ -991,5 +988,5 @@ const StepLabel = ({
   ) : null;
 };
 
-export { Stepper, Step, useStepper };
-export type { StepProps, StepperProps, StepItem };
+export { Step, Stepper, useStepper };
+export type { StepItem, StepperProps, StepProps };

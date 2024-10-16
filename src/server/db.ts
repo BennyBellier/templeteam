@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
 import { env } from "@/env.mjs";
-import { logger } from "./logger";
 
 const createPrismaClient = () =>
   new PrismaClient({
@@ -33,8 +32,8 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-prisma.$on("query", (e) => {
-  logger.info({
+/* prisma.$on("query", (e) => {
+  logger.prisma.info({
     type: "prisma",
     query: e.query,
     params: e.params,
@@ -44,7 +43,7 @@ prisma.$on("query", (e) => {
 });
 
 prisma.$on("error", (e) => {
-  logger.error({
+  logger.prisma.error({
     type: "prisma",
     message: e.message,
     target: e.target,
@@ -52,7 +51,7 @@ prisma.$on("error", (e) => {
 });
 
 prisma.$on("info", (e) => {
-  logger.info({
+  logger.prisma.info({
     type: "prisma",
     message: e.message,
     target: e.target,
@@ -60,9 +59,9 @@ prisma.$on("info", (e) => {
 });
 
 prisma.$on("warn", (e) => {
-  logger.warn({
+  logger.prisma.warn({
     type: "prisma",
     message: e.message,
     target: e.target,
   });
-});
+}); */

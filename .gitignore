@@ -44,14 +44,9 @@ yarn-error.log*
 #vscode
 .vscode
 
+# react email
+.react-email
+
 # content
-/public/img/portfolio/*
-/public/img/team/*
-/public/img/references/*
-/public/img/blog/*
-/public/img/*.jpg
-/public/img/*.png
-/public/img/*.svg
-public/video/**
-/src/data/blog_posts/*
+public
 .idx/dev.nix
