@@ -15,33 +15,22 @@ import {
   Text,
 } from "@react-email/components";
 import { Facebook, Instagram, Youtube } from "lucide-react";
-import { baseUrl, type RegistrationProps } from "./utils";
+import { baseUrl, calculCotisation, type RegistrationProps } from "./utils";
 
-export default function RegistrationTemplate({
-  firstname,
-  lastname,
-  birthdate,
-  mail,
-  Phone,
-  Sexe,
-  Address,
-  City,
-  CodePostal,
-  Country,
-  PictureFile,
-  EmergencyContactName1,
-  EmergencyContactPhone1,
-  EmergencyContactName2,
-  EmergencyContactPhone2
+export default function EndOfTrialTemplate({
+  cours,
+  memberId,
 }: RegistrationProps) {
   const formatedDate = new Intl.DateTimeFormat('fr', {
     dateStyle: 'full',
     timeStyle: 'short',
   }).format(new Date());
 
-  const previewText = `Nouvelle inscription : ${firstname} ${lastname}`;
+  const previewText = `Fin de la période d'essaie !`;
   
   const baseUrl = 'https://templeteam.fr';
+
+  const cotisation = calculCotisation(cours);
 
   return (
     <Html lang="fr">
@@ -52,7 +41,7 @@ export default function RegistrationTemplate({
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mx-auto flex justify-center">
               <Img
-                src={`${baseUrl}static/img/logo/templeteam/logo-light.svg`}
+                src={`${baseUrl}/static/img/logo/templeteam/logo-light.svg`}
                 alt="Temple Team"
                 width={100}
                 className="mx-0 my-0 inline-block"
@@ -64,47 +53,28 @@ export default function RegistrationTemplate({
 
             <Hr />
 
-            {/* Informations du membre */}
-            <Section className="border border-solid border-gray-300 rounded-lg p-4 mb-4">
-              <Text className="font-bold mb-2">Informations du membre :</Text>
-              <Row className="mb-2">
-                <Text className="m-0">Nom : {firstname} {lastname}</Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Email : <Link href={`mailto:${mail}`} className="text-blue-500 underline">{mail}</Link></Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Téléphone : {Phone}</Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Sexe : {Sexe}</Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Date de naissance : {new Intl.DateTimeFormat('fr', { dateStyle: 'long' }).format(birthdate)}</Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Adresse : {Address}, {CodePostal} {City}, {Country}</Text>
-              </Row>
-            </Section>
+            <Text>Bonjour, </Text>
+            <Text>Nous vous rappelons que les séances d'essai sont officiellement terminées, et nous vous informons que pour participer aux prochaines séances, il est désormais nécessaire que votre cotisationd'un montant de <span className="underline font-semibold">{cotisation} euros</span> soit réglée.</Text>
+            <Text>Celle-ci doit être obligatoirement payé pour accéder aux prochains cours. Vous pouvez effectuer le paiement par chèque ou virement bancaire.</Text>
+            <Text>Si besoin, nous vous proposons la possibilité de payer en 3 fois, 3 chèques différents encaissés en début de mois. Attention, les 3 chèques doivent nous être remis ensemble pour être acceptés. Sinon la cotisation est compté comme impayé.</Text>
+            <Text>Des permanences vont être mises en place les samedis 12 et 19 octobre de 19 h à 19 h 30 pour l'encaissement des cotisations.</Text>
+            <Text>Nous vous prions aussi, dès que vous en avez la possibilité, de remplir le formulaire à l'adresse suivante, permettant de compléter les pièces manquantes du dossier (certificat médical et photo) : 
+              <Link href={`https://preinscription.templeteam.fr/finaliser-adhesion?id=${memberId}`} className="mt-0 inline-block">
+                Formulaire des pièces complémentaires
+              </Link>
+            </Text>
 
-            {/* Contacts d'urgence */}
-            <Section className="border border-solid border-gray-300 rounded-lg p-4 mb-4">
-              <Text className="font-bold mb-2">Contacts d'urgence :</Text>
-              <Row className="mb-2">
-                <Text className="m-0">Contact 1 : {EmergencyContactName1} - {EmergencyContactPhone1}</Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Contact 2 : {EmergencyContactName2} - {EmergencyContactPhone2}</Text>
-              </Row>
-            </Section>
+            <Text>Par ailleurs, nous regrettons de devoir annuler le cours Temple Break le vendredi de 17 h à 18 h en raison d'un manque d'inscrit.</Text>
+
+            <Text>Sportivement,</Text>
 
             {/* Pied de page */}
-            <Section className="mt-16 rounded bg-neutral-100 px-6 py-4 border border-solid border-gray-300">
+            <Section className="rounded bg-neutral-100 px-6 py-4 border border-solid border-gray-300">
               <Row className="h-12">
                 <Column>
                   <Link href="https://templeteam.fr" className="">
                     <Img
-                      src={`${baseUrl}/img/logo-light.png`}
+                      src={`${baseUrl}/static/img/logo/templeteam/logo-light.svg`}
                       width={50}
                       className="mr-0 inline-block"
                     />
@@ -176,22 +146,10 @@ export default function RegistrationTemplate({
   );
 }
 
-RegistrationTemplate.PreviewProps = {
-  firstname: "Alan",
-  lastname: "Turing",
-  birthdate: Date.now(),
-  mail: "alan@example.com",
-  Phone: "0600000000",
-  Sexe: "M",
-  Address: "Cette rue",
-  City: "Grenoble",
-  CodePostal: "38000",
-  Country: "France",
-  PictureFile: null,
-  EmergencyContactName1: "Emergency 1",
-  EmergencyContactPhone1: "0600000000",
-  EmergencyContactName2: "Emergency 2",
-  EmergencyContactPhone2: "0600000000",
-  MedicalComment:
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus voluptate eum nam dolor, libero sit dolores dolorem. Alias ullam dolorem perspiciatis placeat minus voluptates dicta pariatur enim qui, ducimus cumque.",
+EndOfTrialTemplate.PreviewProps = {
+  cours: {
+    templeRun: true,
+    templeGymJunior: true
+  },
+  memberId: "123456789"
 };
