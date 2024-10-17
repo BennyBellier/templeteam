@@ -89,6 +89,14 @@ const config = {
       padding: {
         1050: "calc((100% - 1050px) / 2)",
       },
+      data: {
+        open: 'state="open"',
+        closed: 'state="closed"',
+        selected: 'state="selected"',
+        checked: 'state="checked"',
+        active: 'state="active"',
+        inactive: 'state="inactive"',
+      },
       transitionProperty: {
         size: "width, height",
       },

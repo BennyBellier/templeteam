@@ -61,6 +61,11 @@ export const NavigationLinks = [
         name: "Inscription",
         href: "/association/inscription",
       },
+      {
+        id: "association_register",
+        name: "Inscription",
+        href: "/association/inscription",
+      },
     ],
   },
 ];

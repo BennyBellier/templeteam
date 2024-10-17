@@ -265,6 +265,15 @@ export function Footer() {
           >
             Gestion des cookies
           </Typography>
+          <Separator className="w-3 bg-footer-separator" />
+           <Typography
+            variant="base"
+            href="/admin"
+            as={Link}
+            className="text-xs"
+          >
+            Administration
+          </Typography>
         </div>
         <div className="flex items-center w-fit">
           <Typography variant="base" className="text-xs">
