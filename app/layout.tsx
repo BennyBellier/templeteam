@@ -10,7 +10,6 @@ import type { Metadata } from "next";
 import { Manrope, Rubik } from "next/font/google";
 import type { PropsWithChildren } from "react";
 import Providers from "./Providers";
-import { preloadReferences } from "@/server/get-references";
 import { AlertDialogs } from "@/hooks/alertDialog";
 
 const fontCaption = Manrope({ subsets: ["latin"], variable: "--font-caption" });
@@ -27,8 +26,6 @@ export default function RootLayout({
 }: PropsWithChildren<{
   modal?: React.ReactNode;
 }>) {
-  // preloadReferences();
-
   return (
     <html lang="fr" className="group/html light h-screen w-screen ltr" data-scroll="0">
       <body

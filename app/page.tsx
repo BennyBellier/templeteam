@@ -6,18 +6,16 @@ import { ContactBar as Contact } from "@/components/layout/Contact";
 import { LayoutSection } from "@/components/layout/layout";
 import { References } from "@/components/references/References";
 import { Typography } from "@/components/ui/typography";
-import { env } from "@/env.mjs";
+// import { env } from "@/env.mjs";
 // import { prisma } from "@/server/";
 import { cn } from "@/lib/utils";
-import { getServerAuthSession } from "@/server/auth";
+// import { getServerAuthSession } from "@/server/auth";
 import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
-export const revalidate = env.REVALIDATE_TIME ?? 3600;
-
 export default async function Home() {
   // const hello = await prisma.post.hello.query({ text: "Worldy !" });
-  const session = await getServerAuthSession();
+  // const session = await getServerAuthSession();
 
   return (
     <>
