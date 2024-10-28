@@ -96,6 +96,10 @@ const config = {
         checked: 'state="checked"',
         active: 'state="active"',
         inactive: 'state="inactive"',
+        disabled: 'disabled="true"',
+      },
+      aria: {
+        invalid: 'invalid="true"',
       },
       transitionProperty: {
         size: "width, height",
@@ -110,13 +114,6 @@ const config = {
           "-1px 1px 0 var(--foreground)",
           "1px 1px 0 var(--foreground)",
         ],
-      },
-      data: {
-        disabled: 'disabled="true"',
-        checked: 'state="checked"',
-      },
-      aria: {
-        invalid: 'invalid="true"',
       },
       keyframes: {
         "accordion-down": {
