@@ -1,30 +1,33 @@
-"use client";
+'use client'
 
-import { useReferencesStore } from "@/stores/referencesStore";
+import { createContext, useContext, type FC, type PropsWithChildren } from 'react';
+import type { References } from '@prisma/client';
 import { trpc } from "@/trpc/TrpcProvider";
-import React from "react";
-import { useShallow } from "zustand/react/shallow";
 
-export const ReferencesProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const { setReferences } = useReferencesStore();
+interface ReferencesContextType {
+  references: References[] | undefined,
+  isLoading: boolean,
+};
 
-  const isInitialized = useReferencesStore(
-    useShallow((state) => state.isInitialized),
-  );
+const ReferencesContext = createContext<ReferencesContextType | null>(null);
 
-  const { data, error } = trpc.references.getAll.useQuery(undefined, {
-    enabled: !isInitialized,
-  });
-
-  if (error) {
-    console.error("Failed to fetch references", error);
-  } else if (data && !isInitialized) {
-    setReferences(data);
+export function useReferences() {
+  const context = useContext(ReferencesContext);
+  if (!context) {
+    throw new Error('useReferences must be used within a ReferencesProvider.');
   }
+  return context;
+}
 
-  return <>{children}</>;
+export const ReferencesProvider: FC<PropsWithChildren> = ({ children }) => {
+  const { data: references, isLoading } = trpc.references.getAll.useQuery();
+ 
+  return (
+    <ReferencesContext.Provider value={{ 
+      references, 
+      isLoading 
+    }}>
+      {children}
+    </ReferencesContext.Provider>
+  );
 };

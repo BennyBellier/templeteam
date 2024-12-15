@@ -1,25 +1,24 @@
 "use client";
 
+import React, { type PropsWithChildren } from 'react';
 import { CarouselPhotosProvider } from "@/components/Photos/CarouselPhotosProvider";
 import { ReferencesProvider } from "@/providers/ReferencesProvider";
-import { SidebarProvider } from "@/components/sidebar/SidebarProvider";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
-import { type ReactNode } from "react";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
-export default function Providers({ children }: { children: ReactNode }) {
+
+export default function Providers({ children } : PropsWithChildren) {
   return (
-    <>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <SidebarProvider>
-          <ReferencesProvider>
-          <CarouselPhotosProvider>
-            <Toaster />
-            {children}
-          </CarouselPhotosProvider>
-          </ReferencesProvider>
-        </SidebarProvider>
-      </ThemeProvider>
-    </>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <SidebarProvider defaultOpen={false}>
+        <ReferencesProvider>
+        <CarouselPhotosProvider>
+          <Toaster />
+          {children}
+        </CarouselPhotosProvider>
+        </ReferencesProvider>
+      </SidebarProvider>
+    </ThemeProvider>
   );
 }

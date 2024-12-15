@@ -193,7 +193,7 @@ export const FileUploader = forwardRef<
 
         if (rejectedFiles.length > 0) {
           console.log(rejectedFiles);
-          for (let rejectedFile of rejectedFiles) {
+          rejectedFiles.map((rejectedFile) => {
             if (rejectedFile.errors[0]?.code === "file-too-large") {
               toast.error(
                 <DropzoneToast
@@ -227,7 +227,7 @@ export const FileUploader = forwardRef<
                 />,
               );
             }
-          }
+          })
         }
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -324,7 +324,7 @@ export const FileUploaderItem = forwardRef<
   HTMLDivElement,
   { index: number } & React.HTMLAttributes<HTMLDivElement>
 >(({ className, index, children, ...props }, ref) => {
-  const { removeFileFromSet, activeIndex, direction } = useFileUpload();
+  const { removeFileFromSet, activeIndex } = useFileUpload();
   const isSelected = index === activeIndex;
   return (
     <div

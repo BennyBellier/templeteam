@@ -11,9 +11,9 @@ import Position from "./Position"
 const data = [
   {
     status: "President",
-    firstName: "Julien",
-    lastName: "Daubord",
-    picture: "Julien.jpg"
+    firstName: "Hugo",
+    lastName: "Rival",
+    picture: "Hugo.jpg"
   },
   {
     status: "Vice President",
@@ -23,6 +23,12 @@ const data = [
   },
   {
     status: "Secretary",
+    firstName: "Allan",
+    lastName: "Escolano",
+    picture: ""
+  },
+  {
+    status: "Vice Secretary",
     firstName: "Romain",
     lastName: "Castillo",
     picture: "Romain.jpg"
@@ -47,17 +53,17 @@ export default function Association() {
       <LayoutSection>
         <Typography as="article" variant="base" className="text-center lg:w-4/6 ">
             La <strong>Temple Team</strong> est une nouvelle association dans le bassin isérois.
-Nous pratiquons l'Acrobatie Urbaine.
-Cet art du déplacement est une discipline sportive acrobatique consistant à se déplacer esthétiquement et efficacement d'un point A à un point B en effectuant des mouvements rapides et agiles avec le corps.
+Nous pratiquons l&apos;Acrobatie Urbaine.
+Cet art du déplacement est une discipline sportive acrobatique consistant à se déplacer esthétiquement et efficacement d&apos;un point A à un point B en effectuant des mouvements rapides et agiles avec le corps.
 Elle se pratique aussi bien en environnement urbain que dans la nature.
-L'essence de notre art, c'est l'adaptation.
+L&apos;essence de notre art, c&apos;est l&apos;adaptation.
 Nous proposons différents cours accessibles à tous les âges.</Typography>
       </LayoutSection>
       <LayoutSection className="flex flex-col bg-accent gap-12">
         <Typography as="h1" variant="h1" className="uppercase tracking-wide">Bureau</Typography>
         <div className="flex flex-col gap-6 w-3/5">
           {data.map((position, idx) => (
-            <Position id={idx} index={idx} position={position}/>
+            <Position key={position.status + idx} id={idx} index={idx} position={position}/>
           ))}
         </div>
       </LayoutSection>

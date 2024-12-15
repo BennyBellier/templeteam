@@ -3,7 +3,6 @@
 import type { AppRouter } from "@/server/api/root";
 import type { inferRouterOutputs } from "@trpc/server";
 import Link from "next/link";
-import { useState } from "react";
 import { ImageWithLoader } from "../features/withLoader/ImageWithLoader";
 
 export type ReferenceCardProps = {

@@ -42,7 +42,7 @@ export default function TextContactTemplate({
 
             {/* Mail informations */}
             <Section>
-              <Row>
+              <Row>J
                 <Text>Nom : {name}</Text>
               </Row>
               <Row>

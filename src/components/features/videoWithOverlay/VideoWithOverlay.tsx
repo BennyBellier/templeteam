@@ -24,7 +24,6 @@ export const VideoWithOverlay = (props: VideoWithOverlayProps) => {
   const [videoError, setVideoError] = useState(false);
   const [videoStarted, setVideoStarted] = useState(false);
   const [isVideoActive, setIsVideoActive] = useState(false);
-  const [isImageError, setImageError] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
   const isDesktop = useMediaQuery("(min-width: 1050px)");
@@ -35,7 +34,7 @@ export const VideoWithOverlay = (props: VideoWithOverlayProps) => {
 
   const startVideo = () => {
     if (videoReady) {
-      setTimeout(() => videoRef.current?.play(), 200);
+      setTimeout(() => void videoRef.current?.play(), 200);
       setVideoStarted(true);
     }
   };
@@ -58,10 +57,19 @@ export const VideoWithOverlay = (props: VideoWithOverlayProps) => {
   };
 
   useEffect(() => {
-    if (videoRef.current?.readyState! > 3) {
-      setVideoReady(true);
+    const video = videoRef.current;
+    if (video) {
+        const handleReadyStateChange = () => {
+            if (video.readyState > 3) {
+                setVideoReady(true);
+            }
+        };
+        video.addEventListener('readystatechange', handleReadyStateChange);
+        return () => {
+            video.removeEventListener('readystatechange', handleReadyStateChange);
+        }
     }
-  }, [videoRef.current?.readyState!]);
+}, [videoRef]);
 
   const VideoElement = () => {
     if (props.videoSrc.length > 0) {
@@ -103,7 +111,6 @@ export const VideoWithOverlay = (props: VideoWithOverlayProps) => {
       return (
         <ImageWithLoader
           onLoaded={() => setIsImageLoading(false)}
-          onError={() => setImageError(true)}
           className={cn(
             "col-start-1 col-end-1 row-start-1 row-end-1",
             "h-full w-full object-cover",

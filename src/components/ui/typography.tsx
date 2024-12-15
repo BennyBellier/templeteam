@@ -29,7 +29,7 @@ const typographyVariants = cva("", {
       description:
         "scroll-m-20 text-xl md:text-xl lg:text-xl font-light tracking-wide transition-colors text-center",
       h1: "scroll-m-20 text-3xl md:text-4xl font-extrabold tracking-tight lg:text-5xl font-caption",
-      h2: "scroll-m-20 text-xl md:text-2xl lg:text-3xl font-bold md:font-semibold tracking-tight transition-colors first:mt-0 font-caption",
+      h2: "scroll-m-20 text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight transition-colors first:mt-0 font-caption",
       h3: "scroll-m-20 text-xl font-semibold tracking-tight font-caption",
       p: "leading-7 [&:not(:first-child)]:mt-6",
       base: "",

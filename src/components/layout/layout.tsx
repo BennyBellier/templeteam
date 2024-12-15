@@ -4,6 +4,7 @@ import { References } from "../references/References";
 import { Typography } from "../ui/typography";
 import { ContactBar } from "./Contact";
 
+
 export const Layout = ({
   children,
   noContact,
@@ -41,7 +42,7 @@ export const LayoutTitle = (props: ComponentPropsWithoutRef<"h1">) => {
     <Typography
       {...props}
       variant="title"
-      className={cn(props.className, "text-center")}
+      className={cn(props.className, "")}
     />
   );
 };

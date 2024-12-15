@@ -9,13 +9,14 @@ import { Typography } from "@/components/ui/typography";
 // import { env } from "@/env.mjs";
 // import { prisma } from "@/server/";
 import { cn } from "@/lib/utils";
-// import { getServerAuthSession } from "@/server/auth";
+import { getServerAuthSession } from "@/server/auth";
 import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 
 export default async function Home() {
   // const hello = await prisma.post.hello.query({ text: "Worldy !" });
   // const session = await getServerAuthSession();
+  // console.info(session);
 
   return (
     <>

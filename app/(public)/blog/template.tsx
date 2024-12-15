@@ -1,6 +1,6 @@
 "use client";
 
-import { BlogCategory } from "@prisma/client";
+import type { BlogCategory } from "@prisma/client";
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 interface ReferenceCategoryContextValue {

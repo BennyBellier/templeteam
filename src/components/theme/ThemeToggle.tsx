@@ -22,23 +22,22 @@ export function ThemeToggle({ className }: { className?: string }) {
   );
 }
 
-export function ThemeToggleSidebar({ className }: { className?: string }) {
+export function ThemeToggleSidebar() {
   const { setTheme, theme } = useTheme();
 
   return (
     <Button
       variant="themeSidebar"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className={"h-16 md:h-24 " + className}
     >
-      <Typography className="font-caption hidden w-48 text-3xl font-bold dark:block md:text-4xl">
-        Thème clair
-      </Typography>
-      <Typography className="font-caption w-48 text-3xl font-bold dark:hidden md:text-4xl">
+      <Typography className="w-48 font-caption text-lg font-bold dark:hidden">
         Thème sombre
       </Typography>
-      <Sun className="h-[2.25rem] w-[1.95rem] dark:hidden" />
-      <Moon className="hidden h-9 w-9 dark:block" />
+      <Typography className="w-48 font-caption text-lg font-bold hidden dark:block">
+        Thème clair
+      </Typography>
+      <Sun className="h-6 w-6 dark:hidden" />
+      <Moon className="hidden h-6 w-6 dark:block" />
       <span className="sr-only">Toggle theme</span>
     </Button>
   );

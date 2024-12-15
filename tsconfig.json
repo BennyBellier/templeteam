@@ -26,8 +26,11 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+      "app/*": ["./app/*"],
+      "public/*": ["./public/*"]
+    },
+    "typeRoots": ["types"]
   },
   "include": [
     ".eslintrc.cjs",
@@ -42,7 +45,7 @@
     "app/**/*.tsx",
     "app/association/**/*.tsx",
     "src/**/*.tsx",
-    "src/**/*.ts",
+    "src/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

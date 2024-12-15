@@ -31,7 +31,7 @@ import { cva } from "class-variance-authority";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "../theme/ThemeToggle";
-import FooterLogo from "@/../public/img/footer.png"
+import FooterLogo from "public/img/footer.png"
 
 const socialLinksClass = cva(
   "group flex h-14 w-14 items-center justify-center rounded-full border border-const-white transition-colors duration-200 hover:bg-const-white focus:bg-const-white focus:outline-none",
@@ -56,7 +56,7 @@ function LinkList({
           {link.name}
         </Typography>
         <ul>
-          {link.content?.map((sublink, i) => (
+          {link.content?.map((sublink) => (
             <li key={uuidv4()}>
               <Typography
                 variant="footerLink"
@@ -170,7 +170,7 @@ export function Footer() {
             >
               <Typography
                 variant="h3"
-                className="font-semibold font-caption"
+                className="font-semibold font-caption hover:no-underline"
                 as={AccordionTrigger}
               >
                 {link.name}
@@ -266,10 +266,10 @@ export function Footer() {
             Gestion des cookies
           </Typography>
           <Separator className="w-3 bg-footer-separator" />
-           <Typography
+          <Typography
             variant="base"
-            href="/admin"
             as={Link}
+            href="/admin"
             className="text-xs"
           >
             Administration

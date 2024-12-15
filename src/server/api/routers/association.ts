@@ -3,7 +3,7 @@ import { Membership } from "@prisma/client";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
-const loggerMetadata = { type: "trpc", router: "association" };
+// const loggerMetadata = { type: "trpc", router: "association" };
 
 export const AssociationRouter = createTRPCRouter({
   createMember: publicProcedure
@@ -29,7 +29,7 @@ export const AssociationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const profiler = logger.startTimer();
+      // const profiler = logger.startTimer();
       const {
         firstname,
         lastname,
@@ -47,7 +47,7 @@ export const AssociationRouter = createTRPCRouter({
         signature,
         membership,
       } = input;
-      let membershipSuccess = true;
+      // let membershipSuccess = true;
 
       const member = await ctx.prisma.member.create({
         data: {
@@ -70,37 +70,37 @@ export const AssociationRouter = createTRPCRouter({
 
       for (const element of membership) {
         if (element in Membership) {
-          const status = await ctx.prisma.memberMembership.create({
+          await ctx.prisma.memberMembership.create({
             data: {
               memberId: member.id,
               membership: element as keyof typeof Membership,
             },
           });
 
-          membershipSuccess = true ? status !== null : false;
+          // membershipSuccess = true ? status !== null : false;
         }
       }
 
-      if (member && membershipSuccess) {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "createMember",
-            message: `Succesfully added member id: ${member.id} -> ${member.lastname} ${member.firstname}`,
-          },
-        );
-      } else {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "createMember",
-            level: "error",
-            message: `${
-              !member
-                ? `Failed to add member ${firstname} ${lastname}.${!membershipSuccess ? "/" : ""}`
-                : ""
-            } ${!membershipSuccess ? `Failed to add ${membership} to member.` : ""} `,
-          },
-        );
-      }
+      // if (member && membershipSuccess) {
+      //   profiler.done(
+      //     loggerMetadata && {
+      //       endpoint: "createMember",
+      //       message: `Succesfully added member id: ${member.id} -> ${member.lastname} ${member.firstname}`,
+      //     },
+      //   );
+      // } else {
+      //   profiler.done(
+      //     loggerMetadata && {
+      //       endpoint: "createMember",
+      //       level: "error",
+      //       message: `${
+      //         !member
+      //           ? `Failed to add member ${firstname} ${lastname}.${!membershipSuccess ? "/" : ""}`
+      //           : ""
+      //       } ${!membershipSuccess ? `Failed to add ${membership} to member.` : ""} `,
+      //     },
+      //   );
+      // }
 
       return member.id;
     }),
@@ -114,7 +114,7 @@ export const AssociationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const profiler = logger.startTimer();
+      // const profiler = logger.startTimer();
       const { memberId, level } = input;
       let emergencyContact;
 
@@ -144,18 +144,18 @@ export const AssociationRouter = createTRPCRouter({
       const linkId = linkMemberToEmergency.id;
 
       if (contactId && linkId) {
-        profiler.done({
+        /* profiler.done({
           router: "association",
           endpoint: "createEmergencyContact",
           message: `Successfully create emergency contact ${contactId} for member ${linkId}`,
-        });
+        }); */
       } else {
-        profiler.done({
+        /* profiler.done({
           router: "association",
           endpoint: "createEmergencyContact",
           level: "error",
           message: `Failed to create ${input.phone} for ${memberId}`,
-        });
+        }); */
       }
 
       return {
@@ -265,7 +265,7 @@ export const AssociationRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // const profiler = logger.startTimer();
 
-      const updated = await ctx.prisma.member.update({
+      await ctx.prisma.member.update({
         where: {
           id: input.memberId,
         },
@@ -274,32 +274,32 @@ export const AssociationRouter = createTRPCRouter({
         },
       });
 
-      const certificate = await ctx.prisma.medicalCertificate.create({
+      await ctx.prisma.medicalCertificate.create({
         data: {
           id: input.certificateFilename,
           memberId: input.memberId,
         },
       });
 
-      /* if (updated && certificate) {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "addMemberPictureAndCertificate",
-            message: `Succesfully updated member id: ${input.memberId} with picture named ${input.pictureFilename} and added certificate named ${input.certificateFilename}`,
-          },
-        );
-      } else {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "addMemberPictureAndCertificate",
-            level: "error",
-            message: `${
-              !updated
-                ? `Failed to updated member ${input.memberId} with ${input.pictureFilename}.${!certificate ? "/" : ""}`
-                : ""
-            } ${!certificate ? `Failed to create ${input.certificateFilename} to member ${input.memberId}.` : ""} `,
-          },
-        );
-      } */
+      // if (updated && certificate) {
+      //   profiler.done(
+      //     loggerMetadata && {
+      //       endpoint: "addMemberPictureAndCertificate",
+      //       message: `Succesfully updated member id: ${input.memberId} with picture named ${input.pictureFilename} and added certificate named ${input.certificateFilename}`,
+      //     },
+      //   );
+      // } else {
+      //   profiler.done(
+      //     loggerMetadata && {
+      //       endpoint: "addMemberPictureAndCertificate",
+      //       level: "error",
+      //       message: `${
+      //         !updated
+      //           ? `Failed to updated member ${input.memberId} with ${input.pictureFilename}.${!certificate ? "/" : ""}`
+      //           : ""
+      //       } ${!certificate ? `Failed to create ${input.certificateFilename} to member ${input.memberId}.` : ""} `,
+      //     },
+      //   );
+      // }
     }),
 });

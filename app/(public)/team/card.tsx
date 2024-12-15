@@ -44,12 +44,12 @@ function AnimatePercent({
 
   useEffect(() => {
     if (active) {
-      const animation = animate(count, value, {
+      void animate(count, value, {
         duration: 1,
         delay: delay / 1000,
       });
     }
-  }, [active]);
+  }, [active, count, delay, value]);
 
   return <motion.span ref={ref}>{rounded}</motion.span>;
 }
@@ -73,7 +73,7 @@ function Skill({
 
   useEffect(() => {
     if (isInView) setTimeout(() => setProgressValue(percent), delay);
-  }, [isInView]);
+  }, [isInView, percent, delay]);
 
   return (
     <li ref={ref}>

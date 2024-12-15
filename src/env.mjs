@@ -28,23 +28,24 @@ export const env = createEnv({
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
       process.env.VERCEL ? z.string() : z.string().url(),
     ),
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+
     SMTP_HOST: z.string(),
-    SMTP_PORT: z.string(),
+    SMTP_PORT: z.coerce.number(),
     SMTP_USER: z.string(),
     SMTP_PASSWORD: z.string(),
     CONTACT_FROM_MAIL: z.string().email(),
     REGISTER_MAIL: z.string().email(),
     NOREPLY_MAIL: z.string().email(),
 
-    ADMIN_ID: z.string(),
-
     LOG_FOLDER: z.string().optional(),
     LOG_LEVEL: z.string().optional(),
 
-    BLOG_PAGINATION_SIZE: z.number().min(0).max(100).optional(),
-    REFERENCE_PAGINATION_SIZE: z.number().min(0).max(100).optional(),
+    BLOG_PAGINATION_SIZE: z.coerce.number().min(0).max(100).optional(),
+    REFERENCE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).optional(),
 
-    REVALIDATE_TIME: z.number().min(0).optional(),
+    REVALIDATE_TIME: z.coerce.number().min(0).optional(),
   },
 
   /**
@@ -65,6 +66,8 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_USER: process.env.SMTP_USER,
@@ -72,7 +75,6 @@ export const env = createEnv({
     CONTACT_FROM_MAIL: process.env.CONTACT_FROM_MAIL,
     REGISTER_MAIL: process.env.REGISTER_MAIL,
     NOREPLY_MAIL: process.env.NOREPLY_MAIL,
-    ADMIN_ID: process.env.ADMIN_ID,
     LOG_FOLDER: process.env.LOG_FOLDER,
     LOG_LEVEL: process.env.LOG_LEVEL,
     BLOG_PAGINATION_SIZE: process.env.BLOG_PAGINATION,

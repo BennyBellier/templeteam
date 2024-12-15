@@ -1,10 +1,9 @@
 "use server";
 
 import { env } from "@/env.mjs";
-import { logger } from "@/server/logger";
 import smtpOptions from "@/server/mail";
 import { render } from "@react-email/components";
-import type { InputType } from "app/(public)/contact/contactForm";
+import { type InputType } from "./contactForm";
 import ContactTemplate from "emails/ContactTemplate";
 import TextContactTemplate from "emails/TextContactTemplate";
 import nodemailer from "nodemailer";
@@ -21,7 +20,7 @@ export const send = async (data: InputType) => {
     html: render(ContactTemplate(data)),
   });
 
-  logger.info({ type: "mail", page: "contact", message: sended });
+  console.info({ type: "mail", page: "contact", message: sended });
 
   return sended;
 };

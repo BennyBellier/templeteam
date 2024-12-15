@@ -15,45 +15,54 @@ const logLevels = {
   trace: 5,
 };
 
-let winstonLogger: winston.Logger;
+const winstonLogger = winston.createLogger({
+  levels: logLevels,
+  level: env.NODE_ENV === "production" ? (env.LOG_LEVEL ?? "info") : "debug",
+  format: combine(
+    colorize({ all: true }),
+    timestamp({
+      format: "YYYY-MM-DD hh:mm:ss.SSS A",
+    }),
+    align(),
+    json(),
+    //printf((info) => `[${info.level}] ${info.message}`),
+    errors({ stack: true }),
+  ),
+  transports: [
+    env.NODE_ENV === "production"
+      ? new DailyRotationFile({
+          filename: "app-%DATE%.log",
+          dirname: env.LOG_FOLDER ?? ".next/logs/",
+          datePattern: "DD-MM-YYYY",
+          maxSize: "20m",
+          maxFiles: "7d",
+        })
+      : new winston.transports.File({
+          filename: "app.log",
+          dirname: env.LOG_FOLDER ?? "logs/",
+          maxsize: 20 * 1024 * 1024,
+          maxFiles: 3,
+        }),
+  ],
+  exceptionHandlers: [
+    new winston.transports.File({ filename: "logs/exception.log" }),
+  ],
+  rejectionHandlers: [
+    new winston.transports.File({ filename: "logs/rejections.log" }),
+  ],
+  exitOnError: false,
+});
+
+let logger = winstonLogger;
 
 if (env.NODE_ENV !== "production") {
-  winstonLogger = winston.createLogger({
-    levels: logLevels,
-    level: "debug",
-    format: combine(
-      colorize({ all: true }),
-      timestamp({
-        format: "YYYY-MM-DD hh:mm:ss.SSS A",
-      }),
-      align(),
-      printf((info) => `[${info.timestamp}] ${info.level}: ${info.message}`),
-      errors({ stack: true }),
-    ),
-    transports: [
-      winstonDevConsole.transport({
-        showTimestamps: false,
-        addLineSeparation: true,
-      }),
-    ],
-  });
-} else {
-  winstonLogger = winston.createLogger({
-    levels: logLevels,
-    level: env.NODE_ENV === "production" ? env.LOG_LEVEL ?? "info" : "debug",
-    format: combine(timestamp(), json()),
-    transports: [
-      new DailyRotationFile({
-        filename: "app-%DATE%.log",
-        dirname: env.LOG_FOLDER ?? ".next/logs/",
-        datePattern: "DD-MM-YYYY",
-        maxSize: "20m",
-        maxFiles: "7d",
-      }),
-    ],
-  });
+  logger = winstonDevConsole.init(winstonLogger);
+  logger.add(
+    winstonDevConsole.transport({
+      showTimestamps: false,
+      addLineSeparation: true,
+    }),
+  );
 }
-
-const logger = winstonLogger;
 
 export default logger;

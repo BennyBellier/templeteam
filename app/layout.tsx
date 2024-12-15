@@ -1,7 +1,5 @@
 import "@/styles/globals.css";
 
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
 import { PlaygroundLink } from "@/components/util/PlaygroundLink";
 import { TailwindIndicator } from "@/components/util/TailwindIndicator";
 import { cn } from "@/lib/utils";
@@ -10,7 +8,7 @@ import type { Metadata } from "next";
 import { Manrope, Rubik } from "next/font/google";
 import type { PropsWithChildren } from "react";
 import Providers from "./Providers";
-import { AlertDialogs } from "@/hooks/alertDialog";
+import { AppSidebar } from "@/components/layout/app-sidebar";
 
 const fontCaption = Manrope({ subsets: ["latin"], variable: "--font-caption" });
 const fontSans = Rubik({ subsets: ["latin"], variable: "--font-sans" });
@@ -27,7 +25,7 @@ export default function RootLayout({
   modal?: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="group/html light h-screen w-screen ltr" data-scroll="0">
+    <html lang="fr" className="group/html h-screen w-screen ltr" data-scroll="0" suppressHydrationWarning>
       <body
         className={cn(
           "h-full font-sans antialiased",
@@ -39,13 +37,13 @@ export default function RootLayout({
           <Providers>
             <div
               id="main-content"
-              className="flex h-full flex-col overflow-y-auto overflow-x-hidden"
+              className="flex h-full flex-col w-full min-h-svh"
             >
-              {children}
+             {children}
             </div>
+            <AppSidebar />
             <PlaygroundLink />
             <TailwindIndicator />
-            <AlertDialogs />
             {modal}
           </Providers>
         </TRPCReactProvider>

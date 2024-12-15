@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable */
 import { BlogCategory } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -35,6 +35,8 @@ export function associationPositionToText(position: string): string {
       return "Vice-Président";
     case "Secretary":
       return "Secrétaire";
+    case "Vice Secretary":
+      return "Vice Secrétaire";
     case "Treasure":
       return "Trésorier";
 
@@ -44,10 +46,10 @@ export function associationPositionToText(position: string): string {
 }
 
 export function getCountriesNames(lang = "fr") {
-  var countries = require("i18n-iso-countries");
+  const countries = require("i18n-iso-countries");
 
-  countries.registerLocale(require("i18n-iso-countries/langs/fr.json"));
-  const jsonObject = countries.getNames("fr", { select: "official" });
+  countries.registerLocale(require("i18n-iso-countries/langs/" + lang + ".json"));
+  const jsonObject = countries.getNames(lang, { select: "official" });
 
   return Object.keys(jsonObject)
     .map((key) => jsonObject[key])

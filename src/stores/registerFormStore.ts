@@ -1,10 +1,10 @@
-import type { AuthorizationSchema } from "app/association/inscription/(StepForms)/Authorization";
-import type { EmergencyContactSchema } from "app/association/inscription/(StepForms)/EmergencyContact";
-import type { MedicSchema } from "app/association/inscription/(StepForms)/Medic";
-import type { MemberSchema } from "app/association/inscription/(StepForms)/Member";
-import type { MembershipSchema } from "app/association/inscription/(StepForms)/Membership";
+// import type { AuthorizationSchema } from "app/association/inscription/(StepForms)/Authorization";
+// import type { EmergencyContactSchema } from "app/association/inscription/(StepForms)/EmergencyContact";
+// import type { MedicSchema } from "app/association/inscription/(StepForms)/Medic";
+// import type { MemberSchema } from "app/association/inscription/(StepForms)/Member";
+// import type { MembershipSchema } from "app/association/inscription/(StepForms)/Membership";
 
-import type { z } from "zod";
+// import type { z } from "zod";
 import { createStore } from "zustand/vanilla";
 
 type State = {

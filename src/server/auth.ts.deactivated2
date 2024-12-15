@@ -1,0 +1,31 @@
+import { env } from "@/env.mjs";
+import { prisma } from "@/server/db";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { getServerSession, type NextAuthOptions } from "next-auth";
+import { type Adapter } from "next-auth/adapters";
+import GoogleProvider from "next-auth/providers/google";
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma) as Adapter, // this cast is required to prevent type errors, see https://github.com/nextauthjs/next-auth/issues/6106
+  providers: [
+    GoogleProvider({
+      clientId: env.GOOGLE_CLIENT_ID,
+      clientSecret: env.GOOGLE_CLIENT_SECRET
+    })
+  ],
+  // callbacks: {
+  //   async signIn({ account, profile }) {
+  //     if (account.provider === "google") {
+  //       return profile.email_verified && profile.email.endsWith("@example.com")
+  //     }
+  //     return true // Do different verification for other providers that don't have `email_verified`
+  //   },
+  // },
+};
+
+/**
+ * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
+ *
+ * @see https://next-auth.js.org/configuration/nextjs
+ */
+export const getServerAuthSession = () => getServerSession(authOptions);

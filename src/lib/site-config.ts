@@ -12,7 +12,6 @@ export const NavigationLinks = [
   {
     id: "portfolio",
     name: "Portfolio",
-    href: "/portfolio",
     content: [
       {
         id: "portfolio_photos",
@@ -44,7 +43,6 @@ export const NavigationLinks = [
   {
     id: "association",
     name: "Association",
-    href: "/association",
     content: [
       {
         id: "association_home",
@@ -58,11 +56,6 @@ export const NavigationLinks = [
       },
       {
         id: "association_registration",
-        name: "Inscription",
-        href: "/association/inscription",
-      },
-      {
-        id: "association_register",
         name: "Inscription",
         href: "/association/inscription",
       },
