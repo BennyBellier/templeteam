@@ -18,21 +18,12 @@ const logLevels = {
 const winstonLogger = winston.createLogger({
   levels: logLevels,
   level: env.NODE_ENV === "production" ? (env.LOG_LEVEL ?? "info") : "debug",
-  format: combine(
-    colorize({ all: true }),
-    timestamp({
-      format: "YYYY-MM-DD hh:mm:ss.SSS A",
-    }),
-    align(),
-    json(),
-    //printf((info) => `[${info.level}] ${info.message}`),
-    errors({ stack: true }),
-  ),
   transports: [
     env.NODE_ENV === "production"
       ? new DailyRotationFile({
           filename: "app-%DATE%.log",
           dirname: env.LOG_FOLDER ?? ".next/logs/",
+          level: env.LOG_LEVEL ?? "info",
           datePattern: "DD-MM-YYYY",
           maxSize: "20m",
           maxFiles: "7d",
