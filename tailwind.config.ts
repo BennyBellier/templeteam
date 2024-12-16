@@ -23,8 +23,14 @@ const config = {
   			lg: '1050px'
   		},
   		fontFamily: {
-  			sans: ["var(--font-sans)", ...fontFamily.sans],
-  			caption: ["var(--font-caption)", ...fontFamily.mono]
+  			sans: [
+  				'var(--font-sans)',
+                    ...fontFamily.sans
+                ],
+  			caption: [
+  				'var(--font-caption)',
+                    ...fontFamily.mono
+                ]
   		},
   		colors: {
   			border: 'hsl(var(--border))',
@@ -107,11 +113,11 @@ const config = {
   		},
   		dropShadow: {
   			bold: [
-				"-1px -1px 0 var(--foreground)",
-				"1px -1px 0 var(--foreground)",
-				"-1px 1px 0 var(--foreground)",
-				"1px 1px 0 var(--foreground)",
-			]
+  				'-1px -1px 0 var(--foreground)',
+  				'1px -1px 0 var(--foreground)',
+  				'-1px 1px 0 var(--foreground)',
+  				'1px 1px 0 var(--foreground)'
+  			]
   		},
   		data: {
   			disabled: 'disabled="true"',

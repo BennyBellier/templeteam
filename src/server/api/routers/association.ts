@@ -1,7 +1,7 @@
 import logger from "@/server/logger";
 import { Membership } from "@prisma/client";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 
 const loggerMetadata = { type: "trpc", router: "association" };
 
@@ -29,7 +29,7 @@ export const AssociationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // const profiler = logger.startTimer();
+      const profiler = logger.startTimer();
       const {
         firstname,
         lastname,
@@ -48,7 +48,6 @@ export const AssociationRouter = createTRPCRouter({
         membership,
       } = input;
       let membershipSuccess = true;
-      const profiler = logger.startTimer();
 
       const member = await ctx.prisma.member.create({
         data: {
@@ -98,7 +97,11 @@ export const AssociationRouter = createTRPCRouter({
               !member
                 ? `Failed to add member ${firstname} ${lastname}.${!membershipSuccess ? "/" : ""}`
                 : ""
-            } ${!membershipSuccess ? `Failed to add ${membership} to member.` : ""} `,
+            } ${
+              !membershipSuccess
+                ? `Failed to add ${JSON.stringify(membership)} to member.`
+                : ""
+            } `,
           },
         );
       }
@@ -265,7 +268,7 @@ export const AssociationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // const profiler = logger.startTimer();
+      const profiler = logger.startTimer();
 
       const updated = await ctx.prisma.member.update({
         where: {
@@ -303,5 +306,15 @@ export const AssociationRouter = createTRPCRouter({
           },
         );
       }
+    }),
+  getMembersList: protectedProcedure
+    .input(
+      z.object({
+        page: z.number().min(0).default(0),
+        cursor: z.string().nullish().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      ctx
     }),
 });

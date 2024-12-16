@@ -11,7 +11,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
   return (
     <>
       <Header />
-      <main className="grid grow auto-rows-auto gap-6 pb-10 pt-5">
+      <main className="grid grow auto-rows-auto gap-6 pb-10 pt-5 overflow-y-auto">
         <ErrorBoundary FallbackComponent={FallbackError}>{children}</ErrorBoundary>
       </main>
       <Footer />

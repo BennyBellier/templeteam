@@ -1,20 +1,19 @@
+import { ThemeToggleSidebar } from "@/components/theme/ThemeToggle";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
-} from "@/components/ui/sidebar";
-import { NavigationLinks } from "@/lib/site-config";
+} from "@/components/ui/sidebarCustom";
 import { Typography } from "@/components/ui/typography";
+import { NavigationLinks } from "@/lib/site-config";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
-import { ThemeToggleSidebar } from "@/components/theme/ThemeToggle";
-
 
 export function AppSidebar() {
   return (
@@ -29,7 +28,9 @@ export function AppSidebar() {
                   {link.content.map((item) => (
                     <SidebarMenuItem key={uuidv4()}>
                       <SidebarMenuButton asChild>
-                        <Typography as={Link} href={item.href}>{item.name}</Typography>
+                        <Typography as={Link} href={item.href}>
+                          {item.name}
+                        </Typography>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
@@ -39,7 +40,9 @@ export function AppSidebar() {
           ) : (
             <SidebarMenuItem className="list-none" key={uuidv4()}>
               <SidebarMenuButton asChild>
-                <Typography as={Link} href={link.href}>{link.name}</Typography>
+                <Typography as={Link} href={link.href}>
+                  {link.name}
+                </Typography>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ),

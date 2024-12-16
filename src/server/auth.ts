@@ -1,11 +1,10 @@
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { compare } from "bcrypt";
-import { prisma } from "@/server/db";
-import { type NextAuthOptions, getServerSession } from "next-auth";
-import { z } from "zod";
-import logger from "@/server/logger"
 import LoginErrors from "@/lib/loginErrors";
+import { prisma } from "@/server/db";
+import logger from "@/server/logger";
+import { compare, hash } from "bcrypt";
+import { type NextAuthOptions, getServerSession } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { z } from "zod";
 
 export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma),
@@ -21,12 +20,12 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         const parsedCredentials = z
-            .object({ identifier: z.string(), password: z.string() })
-            .safeParse(credentials);
+          .object({ identifier: z.string(), password: z.string() })
+          .safeParse(credentials);
 
         if (!parsedCredentials.success) {
-            logger.error("Invalid credentials:", parsedCredentials.error);
-            throw new Error(LoginErrors.INVALID_INFORMATIONS);
+          logger.error("Invalid credentials:", parsedCredentials.error);
+          throw new Error(LoginErrors.INVALID_INFORMATIONS as string);
         }
 
         const { identifier, password } = parsedCredentials.data;
@@ -39,7 +38,7 @@ export const authOptions: NextAuthOptions = {
           },
         });
 
-        if (!user || !user?.password) {
+        if (!user) {
           logger.error(`${identifier} doesn't exist as user`);
           throw new Error(LoginErrors.USER_NOT_FOUND);
         }
@@ -47,7 +46,7 @@ export const authOptions: NextAuthOptions = {
         const passwordMatch = await compare(password, user.password);
         if (!passwordMatch) {
           logger.error(`${identifier} password incorrect !`);
-          throw new Error(LoginErrors.USER_PASSWORD_MISSMATCH)
+          throw new Error(LoginErrors.USER_PASSWORD_MISSMATCH);
         }
         return user;
       },
@@ -55,23 +54,23 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-        if (user) {
-            token.id = user.id;
-            token.role = user.role;
-        }
-        return token;
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
     },
     async session({ session, token }) {
-        if (session?.user) {
-            session.user.id = token.id as string;
-            session.user.role = token.role as string;
-        }
-        return session;
+      if (session?.user) {
+        session.user.id = token.id;
+        session.user.role = token.role as string;
+      }
+      return session;
     },
   },
   pages: {
     signIn: "/login",
-    error: "/login"
+    error: "/login",
   },
   logger: {
     error(code, metadata) {
@@ -82,8 +81,8 @@ export const authOptions: NextAuthOptions = {
     },
     debug(code, metadata) {
       logger.debug(code, metadata);
-    }
-  }
+    },
+  },
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);

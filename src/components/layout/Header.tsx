@@ -1,15 +1,15 @@
 "use client";
 
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
+import { ThemedLogo } from "@/components/ui/logo";
 import { NavigationBar } from "@/components/ui/navigation";
+import { SidebarTrigger } from "@/components/ui/sidebarCustom";
+import { Typography } from "@/components/ui/typography";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
-import { ThemedLogo } from "@/components/ui/logo";
-import { Typography } from "@/components/ui/typography";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Header() {
   const isMobile = useIsMobile();

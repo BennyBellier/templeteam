@@ -1,20 +1,36 @@
 import {
-    Layout,
-    LayoutHeader,
-    LayoutTitle,
-    LayoutDescription,
-  } from "@/components/layout/layout";
-import { getServerAuthSession } from "@/server/auth";
-  
-export default async function AdminDashboard() {
-    const session = await getServerAuthSession();
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { prisma } from "@/server/db";
 
-    return (
-      <Layout noContact noReferences>
-        <LayoutHeader>
-          <LayoutTitle>Administration</LayoutTitle>
-          <LayoutDescription>&apos;{session?.user.email}&apos; &apos;{session?.user.id}&apos; &apos;{session?.user.name}&apos; &apos;{session?.user.image ? session?.user.image : "null" }&apos; &apos;{session?.user.role}&apos;</LayoutDescription>
-        </LayoutHeader>
-      </Layout>
-    );
-  }
+export default async function AdminDashboard() {
+  const members = await prisma.member.findMany();
+
+  return (
+    <Table>
+      <TableCaption>Liste des adhérents</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Photo</TableHead>
+          <TableHead>Nom</TableHead>
+          <TableHead>Prénom</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody className="overflow-y-scroll">
+        {members.map((member) => (
+          <TableRow key={member.id}>
+            <TableCell>{member.picture}</TableCell>
+            <TableCell>{member.firstname}</TableCell>
+            <TableCell>{member.lastname}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}

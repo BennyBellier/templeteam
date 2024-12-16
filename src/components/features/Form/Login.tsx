@@ -10,7 +10,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/loader";
 import LoginErrors from "@/lib/loginErrors";
@@ -82,7 +81,10 @@ export function Login({ callbackUrl, errorProps }: Props) {
               break;
 
             case LoginErrors.USER_NOT_FOUND:
-               
+              form.setError("identifier", {
+                type: "custom",
+                message: "Utilisateur introuvable.",
+              });
               toast.error("Utilisateur introuvable.", {
                 id: toastId,
                 duration: 3000,
@@ -101,7 +103,7 @@ export function Login({ callbackUrl, errorProps }: Props) {
             id: toastId,
             duration: 3000,
           });
-          () => router.push(callbackUrl ?? "/admin");
+          router.push(callbackUrl ?? "/admin");
         }
       }
     } catch (error) {
@@ -139,7 +141,7 @@ export function Login({ callbackUrl, errorProps }: Props) {
                           "pointer-events-none absolute translate-x-3 translate-y-6 px-0.5 text-muted-foreground transition-transform group-has-[:focus-visible,_:valid]:translate-x-2 group-has-[:focus-visible,_:valid]:translate-y-3 group-has-[:focus-visible,_:valid]:text-xs",
                         )}
                       >
-                        Email ou nom d'utilisateur
+                        Email ou nom d&apos;utilisateur
                       </FormLabel>
                       <FormControl>
                         <div className="grid items-center gap-2">
@@ -153,7 +155,9 @@ export function Login({ callbackUrl, errorProps }: Props) {
                           />
                         </div>
                       </FormControl>
-                      <FormMessage>{field.error}</FormMessage>
+                      <FormMessage>
+                        {form.formState.errors.identifier?.message}
+                      </FormMessage>
                     </FormItem>
                   )}
                 />
@@ -185,7 +189,9 @@ export function Login({ callbackUrl, errorProps }: Props) {
                           />
                         </div>
                       </FormControl>
-                      <FormMessage>{field.error}</FormMessage>
+                      <FormMessage>
+                        {form.formState.errors.password?.message}
+                      </FormMessage>
                     </FormItem>
                   )}
                 />

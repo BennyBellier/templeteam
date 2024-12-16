@@ -1,6 +1,8 @@
+import { Role } from '@prisma/client';
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { faker } from "@faker-js/faker";
 import { BlogCategory, PrismaClient } from "@prisma/client";
+import { hash } from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -92,6 +94,38 @@ const main = async () => {
   await prisma.teamMembers.deleteMany();
   await prisma.teamMembersVideo.deleteMany();
   await prisma.teamMembersSkill.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.member.deleteMany();
+
+
+  prisma.user.create({
+    data: {
+      name: "admin",
+      email: "contact@templeteam.fr",
+      password: await hash("admin", 10),
+      role: Role.Developer,
+    }
+  });
+
+  for (let i = 0; i < 300; i++) {
+    await prisma.member.create({
+      data: {
+        firstname: faker.person.firstName(),
+        lastname: faker.person.lastName(),
+        birthdate: faker.date.birthdate(),
+        gender: faker.helpers.arrayElement(["Homme", "Femme"]),
+        mail: faker.internet.email(),
+        phoneNumber: faker.phone.number(),
+        address: faker.location.streetAddress(),
+        city: faker.location.city(),
+        postalCode: faker.location.zipCode(),
+        country: faker.location.country(),
+        picture: "photo",
+        undersigner: "undersigner",
+        signature: "signature",
+      }
+    });
+  }
 
   for (let i = 0; i < 20; i++) {
     await prisma.blogPosts.create({
@@ -107,9 +141,9 @@ const main = async () => {
         ]),
         description: faker.lorem.paragraph(),
         readTime: faker.helpers.rangeToNumber({ min: 1, max: 8 }),
-        extraLink: faker.helpers.maybe(faker.internet.url, {
+        /* extraLink: faker.helpers.maybe(faker.internet.url, {
           probability: 0.5,
-        }),
+        }), */
       },
     });
   }
