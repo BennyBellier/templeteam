@@ -1,223 +1,60 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import Link from "next/link";
-import { Input } from "@/components/ui/input";
-import { Loader } from "@/components/ui/loader";
-import LoginErrors from "@/lib/loginErrors";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Ban } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { useState } from 'react';
 import { useRouter } from "next/navigation";
-import { useState, useActionState } from "react";
-import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { z } from "zod";
-import { ShowHide } from "./ShowHide";
-import { throttle } from "lodash";
-import { authenticate } from "@/server/actions";
+import { useForm } from 'react-hook-form';
+import { signIn } from 'next-auth/react';
 
-// Schema definition for form validation using Zod
-const formSchema = z.object({
-  password: z.string({ required_error: "Veuillez saisir le mot de passe" }),
-});
 
-// Type inference for form inputs based on the Zod schema
-type InputType = z.infer<typeof formSchema>;
+export default function LoginForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm();
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
-// Props definition, optionally including a callback URL
-interface Props {
-  callbackUrl?: string;
-  error?: string;
-}
+  const onSubmit = async (data) => {
+    setError(null);
+    const res = await signIn('credentials', {
+      redirect: false,
+      identifier: data.identifier,
+      password: data.password,
+    });
 
-export function Login({ callbackUrl, error }: Props) {
-  const [showPassword, setShowPassword] = useState(false);
-  const [ errorMessage, formAction, isPending ] = useActionState(
-    authenticate,
-    undefined,
-  );
-
-  const form = useForm<InputType>({
-    resolver: zodResolver(formSchema), // Set up Zod as the form validation resolver
-    defaultValues: {
-      password: "",
-    },
-    resetOptions: {
-      keepDirtyValues: false,
-    },
-    shouldFocusError: true,
-  });
-
-  // Function to handle form submission
-  async function onSubmit(values: InputType) {
-    let toastId = undefined;
-    try {
-      form.resetField("password");
-      toastId = toast.loading("Connexion en cours");
-
-      // Attempt to sign in using the 'credentials' provider
-      const data = new FormData()
-      data.append("email", "contact@templeteam.fr")
-      data.append("password", values.password)
-      formAction(data);
-      // const response = await signIn("credentials", {email: "contact@templeteam.fr", password: values.password, redirect: true, callbackUrl: "\/admin"});
-
-      console.log("error :", errorMessage);
-
-      // if (response) {
-      //   if (!response.ok) {
-      //     form.resetField("password");
-      //     switch (response.error) {
-      //       case LoginErrors.USER_PASSWORD_MISSMATCH:
-      //         form.setError("password", {
-      //           type: "custom",
-      //           message: "Le mot de passe est incorrecte.",
-      //         });
-      //         toast.error("Mot de passe incorrecte.", {
-      //           id: toastId,
-      //           duration: 3000,
-      //         });
-      //         break;
-
-      //       case LoginErrors.MISSING_PASSWORD:
-      //         form.setError("password", {
-      //           type: "custom",
-      //           message: "Veuillez entrez un mot de passe.",
-      //         });
-      //         toast.error("Veuillez entrez un mot de passe.", {
-      //           id: toastId,
-      //           duration: 3000,
-      //         });
-      //         break;
-
-      //       default:
-      //         toast.error("une erreur s'est produite. Veuillez réessayer.", {
-      //           id: toastId,
-      //           duration: 3000,
-      //         });
-      //         break;
-      //     }
-      //   } else {
-      //     toast.success("Connecté, vous allez être redirigé.", {
-      //       id: toastId,
-      //       duration: 3000,
-      //     });
-      //     setTimeout(() => router.push(callbackUrl ?? "/admin"), 1000);
-      //   }
-      // }
-    } catch (error) {
-      toast.error("Un problème est survenue. Veuillez réessayer.", {
-        id: toastId,
-      });
+    if (res?.error) {
+      setError(res.error);
+    } else if (res?.ok) {
+        // Redirect or handle successful login
+        window.location.href = "/admin"
+        router.push("/admin")
     }
-  }
+
+  };
+
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex w-full items-end gap-4 text-xl">
-          <Ban strokeWidth="3" size={28} className="text-primary" /> Accès
-          restreint
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form
-            onSubmit={throttle(async (e: React.FormEvent) => {
-              e.preventDefault();
-              await onSubmit(form.getValues());
-              /* setTimeout(() => {
-                setIsSending(false);
-              }, 1500); */
-            }, 3000)}
-          >
-            <div className="grid gap-4">
-              <div className="relative grid gap-1">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem className={cn("group")}>
-                      <FormLabel
-                        className={cn(
-                          "pointer-events-none absolute translate-x-3 translate-y-6 px-0.5 text-muted-foreground transition-transform group-has-[:focus-visible,_:valid]:translate-x-2 group-has-[:focus-visible,_:valid]:translate-y-3 group-has-[:focus-visible,_:valid]:text-xs",
-                        )}
-                      >
-                        Mot de passe
-                      </FormLabel>
-                      <FormControl>
-                        <div className="grid items-center gap-2">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            autoComplete="peer current-password webauthn"
-                            className="h-12 bg-background object-bottom pr-12 pt-5 text-base group-has-[:focus-visible,_:valid]:bg-indigo-50/30 dark:group-has-[:focus-visible,_:valid]:bg-indigo-50/5"
-                            required
-                            {...field}
-                          />
-                          <ShowHide
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute justify-self-end hover:bg-transparent"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage>{error}</FormMessage>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <Button
-                type="submit"
-                aria-disabled={isPending}
-                className={cn("w-fill relative text-lg")}
-                disabled={isPending}
-              >
-                <span
-                  className={cn(
-                    "absolute",
-                    isPending ? "opacity-0" : "",
-                  )}
-                >
-                  Se connecter
-                </span>
-                <Loader
-                  className={cn(
-                    "absolute",
-                    isPending ? "" : "opacity-0",
-                  )}
-                />
-              </Button>
-            </div>
-          </form>
-        </Form>
-        <div className="flex flex-col items-center gap-2 my-6">
-        <div>
-          New to application?{' '}
-          <Link href="/register" className="font-semibold">
-            Register.
-          </Link>
-        </div>
-        <div className="h-[1px] bg-black/20 w-36 my-2" />
-        <button
-          onClick={() => {
-            signIn('google')
-          }}
-          className="text-lg hover:shadow-lg transition-shadow flex items-center justify-center w-8 h-8 border border-[#ea4335] rounded-full"
-        >
-          G
-        </button>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div>
+        <label htmlFor="identifier">Email ou Username</label>
+        <input
+          type="text"
+          id="identifier"
+          {...register('identifier', { required: 'Identifiant requis' })}
+        />
+        {errors.identifier && <span role="alert">{errors.identifier.message}</span>}
       </div>
-      </CardContent>
-    </Card>
+
+      <div>
+        <label htmlFor="password">Mot de passe</label>
+        <input
+          type="password"
+          id="password"
+          {...register('password', { required: 'Mot de passe requis' })}
+        />
+        {errors.password && <span role="alert">{errors.password.message}</span>}
+      </div>
+
+        {error && <div role="alert" style={{color: "red"}}>{error}</div>}
+
+      <button type="submit">Se connecter</button>
+    </form>
   );
 }

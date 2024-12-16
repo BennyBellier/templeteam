@@ -1,71 +1,89 @@
-// import CredentialsProvider from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-// import bcrypt from "bcrypt";
-import { prisma } from "@/server/db"; // Chemin vers votre instance Prisma
+import { compare } from "bcrypt";
+import { prisma } from "@/server/db";
 import { type NextAuthOptions, getServerSession } from "next-auth";
-// import { z } from "zod";
+import { z } from "zod";
+import logger from "@/server/logger"
+import LoginErrors from "@/lib/loginErrors";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
-  // session: {
-  //   strategy: "jwt",
-  // },
-  // providers: [
-  //   CredentialsProvider({
-  //     name: "Credentials",
-  //     credentials: {
-  //       identifier: { label: "Username or Email", type: "text", placeholder: "jsmith" },
-  //       password: { label: "Password", type: "password" },
-  //     },
-  //     async authorize(credentials) {
-  //       const parsedCredentials = z
-  //           .object({ identifier: z.string(), password: z.string() })
-  //           .safeParse(credentials);
+  // adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        identifier: { label: "Username or Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const parsedCredentials = z
+            .object({ identifier: z.string(), password: z.string() })
+            .safeParse(credentials);
 
-  //       if (!parsedCredentials.success) {
-  //           console.error("Invalid credentials:", parsedCredentials.error);
-  //           return null;
-  //       }
+        if (!parsedCredentials.success) {
+            logger.error("Invalid credentials:", parsedCredentials.error);
+            throw new Error(LoginErrors.INVALID_INFORMATIONS);
+        }
 
+        const { identifier, password } = parsedCredentials.data;
 
-  //       const { identifier, password } = parsedCredentials.data;
-  //       const user = await prisma.user.findFirst({
-  //         where: {
-  //           OR: [{ email: identifier }, { name: identifier }],
-  //         },
-  //       });
+        logger.info(`${identifier} try to connect`);
 
-  //       if (!user || !user?.password) {
-  //         return null;
-  //       }
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [{ email: identifier }, { name: identifier }],
+          },
+        });
 
-  //       const passwordMatch = await bcrypt.compare(password, user.password);
-  //       if (!passwordMatch) {
-  //         return null;
-  //       }
-  //       return user;
-  //     },
-  //   }),
-  // ],
-  // callbacks: {
-  //   async jwt({ token, user }) {
-  //       if (user) {
-  //           token.id = user.id;
-  //           token.role = user.role;
-  //       }
-  //       return token;
-  //   },
-  //   async session({ session, token }) {
-  //       if (session?.user) {
-  //           session.user.id = token.id as string;
-  //           session.user.role = token.role as string;
-  //       }
-  //       return session;
-  //   },
-  // },
-  // pages: {
-  //   signIn: "/login",
-  // },
+        if (!user || !user?.password) {
+          logger.error(`${identifier} doesn't exist as user`);
+          throw new Error(LoginErrors.USER_NOT_FOUND);
+        }
+
+        const passwordMatch = await compare(password, user.password);
+        if (!passwordMatch) {
+          logger.error(`${identifier} password incorrect !`);
+          throw new Error(LoginErrors.USER_PASSWORD_MISSMATCH)
+        }
+        return user;
+      },
+    }),
+  ],
+  callbacks: {
+    async jwt({ token, user }) {
+        if (user) {
+            token.id = user.id;
+            token.role = user.role;
+        }
+        return token;
+    },
+    async session({ session, token }) {
+        if (session?.user) {
+            session.user.id = token.id as string;
+            session.user.role = token.role as string;
+        }
+        return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+    error: "/login"
+  },
+  logger: {
+    error(code, metadata) {
+      logger.error(code, metadata);
+    },
+    warn(code) {
+      logger.warn(code);
+    },
+    debug(code, metadata) {
+      logger.debug(code, metadata);
+    }
+  }
 };
 
 export const getServerAuthSession = () => getServerSession(authOptions);

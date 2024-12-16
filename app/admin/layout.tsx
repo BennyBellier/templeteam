@@ -1,5 +1,3 @@
-"use client";
-
 import type { PropsWithChildren } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import FallbackError from "../error";
@@ -19,13 +17,13 @@ export default async function PublicLayout({ children }: PropsWithChildren) {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <main className="grid grow auto-rows-auto gap-6 pb-10 pt-5">
         <ErrorBoundary FallbackComponent={FallbackError}>
           {children}
         </ErrorBoundary>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

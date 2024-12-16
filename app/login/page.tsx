@@ -1,29 +1,27 @@
-// import { use } from "react";
-// import LoginForm from "@/components/features/Form/Login";
-// import { Layout, LayoutSection } from "@/components/layout/layout";
+import { use } from "react";
+import { Login } from "@/components/features/Form/Login";
+import { Layout, LayoutSection } from "@/components/layout/layout";
 
-// type Params = Promise<{ error: string, callbackUrl: string }>;
-// type SearchParams = Promise<Record<string, string> | undefined>;
+type Params = Promise<{ error: string, callbackUrl: string }>;
+type SearchParams = Promise<Record<string, string> | undefined>;
 
-// // export type SignInProps = Promise<{
-// //   searchParams?: Record<"callbackUrl" | "error", string>;
-// // }>;
+export type SignInProps = Promise<{
+  searchParams?: Record<"error", string>;
+}>;
 
-// export default function SignIn(props: {params: Params, searchParams: SearchParams}) {
-//   const searchParams = use(props.searchParams)
+export default function SignIn(props: {params: Params, searchParams: SearchParams}) {
+  const searchParams = use(props.searchParams)
 
-//   return (
-//     <Layout noContact noReferences>
-//       <LayoutSection className="self-center">
-//         {/* <Login
-//           error={searchParams?.error}
-//           callbackUrl={searchParams?.callbackUrl}
-//         /> */}
-//         <LoginForm />
-//       </LayoutSection>
-//     </Layout>
-//   );
-// }
+  return (
+    <Layout noContact noReferences>
+      <LayoutSection className="self-center">
+        <Login
+          errorProps={searchParams?.error}
+        />
+      </LayoutSection>
+    </Layout>
+  );
+}
 
 
 // "use client";
@@ -35,13 +33,13 @@
 //     const { register, handleSubmit, formState: { errors } } = useForm();
 //     const [error, setError] = useState(null);
 
-//     const onSubmit = async (data: SubmitHandler<FieldValues>) => {
+//     const onSubmit = async (data: FieldValues) => {
 //         setError(null);
 
 //         const res = await signIn("credentials", {
 //             redirect: false,
-//             identifier: data("identifier"),
-//             password: data.("password"),
+//             identifier: data.identifier,
+//             password: data.password,
 //         });
 
 //         if (res?.error) {
