@@ -98,14 +98,16 @@ const main = async () => {
   await prisma.member.deleteMany();
 
 
-  prisma.user.create({
-    data: {
-      name: "admin",
-      email: "contact@templeteam.fr",
-      password: await hash("admin", 10),
-      role: Role.Developer,
-    }
-  });
+  if (NODE_ENV === "developement") {
+    prisma.user.create({
+      data: {
+        name: "admin",
+        email: "contact@templeteam.fr",
+        password: await hash("admin", 10),
+        role: Role.Developer,
+      }
+    });
+  }
 
   for (let i = 0; i < 300; i++) {
     await prisma.member.create({

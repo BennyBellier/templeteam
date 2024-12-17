@@ -12,6 +12,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { PropsWithChildren } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import FallbackError from "../error";
@@ -39,11 +40,13 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
             </Breadcrumb>
           </div>
         </header>
-        <div className="flex flex-col gap-4 p-4 overflow-y-scroll">
+        <ScrollArea className="w-full height-full max-h-[calc(100svh_-_4rem)]">
+        <div className="flex flex-col gap-4 p-4">
           <ErrorBoundary FallbackComponent={FallbackError}>
             {children}
           </ErrorBoundary>
         </div>
+        </ScrollArea>
       </SidebarInset>
     </SidebarProvider>
   );

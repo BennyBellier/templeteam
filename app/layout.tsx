@@ -28,7 +28,7 @@ export default function RootLayout({
     <html lang="fr" className="group/html h-screen w-screen ltr" data-scroll="0" suppressHydrationWarning>
       <body
         className={cn(
-          "h-full font-sans antialiased overflow-clip",
+          "h-full font-sans antialiased ",
           fontSans.variable,
           fontCaption.variable,
         )}
