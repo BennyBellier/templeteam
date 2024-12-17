@@ -1,8 +1,10 @@
-import { Role } from '@prisma/client';
+import { Membership, Role } from '@prisma/client';
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { faker } from "@faker-js/faker";
 import { BlogCategory, PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
+import { env } from "@/env.mjs";
+
 
 const prisma = new PrismaClient();
 
@@ -98,7 +100,7 @@ const main = async () => {
   await prisma.member.deleteMany();
 
 
-  if (NODE_ENV === "developement") {
+  if (env.NODE_ENV === "development") {
     prisma.user.create({
       data: {
         name: "admin",
@@ -110,7 +112,7 @@ const main = async () => {
   }
 
   for (let i = 0; i < 300; i++) {
-    await prisma.member.create({
+    const { id: memberId } = await prisma.member.create({
       data: {
         firstname: faker.person.firstName(),
         lastname: faker.person.lastName(),
@@ -125,8 +127,34 @@ const main = async () => {
         picture: "photo",
         undersigner: "undersigner",
         signature: "signature",
-      }
+        memberships: {
+          create: {
+            membership: faker.helpers.arrayElement([
+              Membership.templeGym,
+              Membership.templeGymJunior,
+              Membership.templeRun
+            ]),
+          },
+        },
+      },
     });
+
+    for (let j = 0; j < faker.helpers.rangeToNumber({ min: 1, max: 2 }); j++) {
+      const { id: emergencyContactId } = await prisma.emergencyContact.create({
+        data: {
+          name: faker.person.fullName(),
+          phone: faker.phone.number(),
+        },
+      });
+
+      await prisma.memberEmergencyContact.create({
+        data: {
+          memberId,
+          level: j,
+          emergencyContactId,
+        },
+      });
+    }
   }
 
   for (let i = 0; i < 20; i++) {

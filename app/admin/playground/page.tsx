@@ -6,473 +6,410 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  FileInput,
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "@/components/ui/dropzone";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Typography } from "@/components/ui/typography";
-import { cn } from "@/lib/utils";
-import { trpc } from "@/trpc/TrpcProvider";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { FormCard } from "app/association/inscription/formCard";
-import { CloudUpload, TriangleAlert } from "lucide-react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
-import type { DropzoneOptions } from "react-dropzone";
-import { useForm } from "react-hook-form";
-import toast from "react-hot-toast";
-import { v4 as uuidv4 } from "uuid";
-import { z } from "zod";
-import MemberCard from "./MemberCard";
+import Link from "next/link";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  CreditCard,
+  HardDriveDownload,
+  Home,
+  LineChart,
+  ListFilter,
+  MoreVertical,
+  Package,
+  Package2,
+  PanelLeft,
+  Phone,
+  Search,
+  Settings,
+  ShoppingCart,
+  Truck,
+  Users2,
+} from "lucide-react";
 
-const PICTURE_MAX_UPLOAD_SIZE = 1024 * 1024 * 10; // 10MB
+import { Badge } from "@/components/ui/badge";
 
-const PICTURE_ACCEPTED_FILE_TYPES = [
-  "image/jpeg", // JPEG
-  "image/png", // PNG
-  "image/tiff", // TIFF
-];
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const MEDICAL_CERTIFICATE_MAX_UPLOAD_SIZE = 1024 * 1024 * 3; // 3MB
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
+import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
-const MEDICAL_CERTIFICATE_ACCEPTED_FILE_TYPES = [
-  "image/jpeg", // JPEG
-  "image/png", // PNG
-  "application/pdf", // PDF
-];
-
-const pictureDropZoneConfig = {
-  accept: {
-    "image/*": [".jpg", ".jpeg", ".png", ".tiff"],
-  },
-  maxFiles: 1,
-  maxSize: PICTURE_MAX_UPLOAD_SIZE,
-  multiple: false,
-} satisfies DropzoneOptions;
-
-const medicalCertificateDropZoneConfig = {
-  accept: {
-    "image/*": [".jpg", ".jpeg", ".png", ".pdf"],
-  },
-  maxFiles: 1,
-  maxSize: MEDICAL_CERTIFICATE_MAX_UPLOAD_SIZE,
-  multiple: false,
-} satisfies DropzoneOptions;
-
-const formSchema = z.object({
-  picture: z
-    .array(z.instanceof(File), { message: "La photo est obligatoire." })
-    .refine((files) => {
-      return files?.every((file) => file.size <= PICTURE_MAX_UPLOAD_SIZE);
-    }, `La taille du fichier doit faire moins de ${PICTURE_MAX_UPLOAD_SIZE}MB.`)
-    .refine((files) => {
-      return files?.every((file) =>
-        PICTURE_ACCEPTED_FILE_TYPES.includes(file.type),
-      );
-    }, "Le fichier doit être de type PNG, JPEG ou TIFF.")
-    .nullable(),
-  medicalCertificate: z
-    .array(z.instanceof(File), { message: "Le certificat est obligatoire." })
-    .refine((files) => {
-      return files?.every(
-        (file) => file.size <= MEDICAL_CERTIFICATE_MAX_UPLOAD_SIZE,
-      );
-    }, `La taille du fichier doit faire moins de ${MEDICAL_CERTIFICATE_MAX_UPLOAD_SIZE}MB.`)
-    .refine((files) => {
-      return files?.every((file) =>
-        MEDICAL_CERTIFICATE_ACCEPTED_FILE_TYPES.includes(file.type),
-      );
-    }, "Le fichier doit être de type PNG, JPEG ou PDF.")
-    .nullable(),
-});
-
-// type MemberInformation = {
-//   isError: boolean;
-//   isFetched: boolean;
-//   isAlreadyUpdated: boolean;
-// } & MemberInformationProps;
-
-type UploadFileResponse = {
-  status: string;
-  message: string;
-  filePaths: {
-    photo: string;
-    document: string;
-  };
-};
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Typography } from "@/components/ui/typography";
 
 export default function Playground() {
-  const id = useSearchParams().get("id") ?? "";
-  const [isMutating, setIsMutating] = useState(false);
-
-  const { data, isLoading, error, refetch } =
-    trpc.association.getMemberAllinformations.useQuery({
-      memberId: id,
-    });
-
-  // Form
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    shouldFocusError: true,
-  });
-
-  //* UPDATE Table
-  const memberMutationPictureAndCertificate =
-    trpc.association.addMemberPictureAndCertificate.useMutation({
-      onSuccess: async () => {
-        setIsMutating(false);
-        await refetch();
-        form.reset();
-      },
-      onMutate: () => {
-        setIsMutating(true);
-      },
-    });
-
-  if (isLoading) {
-    return (
-      <Layout noReferences>
-        <LayoutHeader>
-          <LayoutTitle>Playground</LayoutTitle>
-        </LayoutHeader>
-        <LayoutSection className="gap-6 md:flex-row">
-          <Card
-            className={cn(
-              "ease flex h-full w-full flex-col overflow-hidden transition-transform duration-500",
-            )}
-          >
-            <Skeleton className="h-[500px] w-full" />
-          </Card>
-          <Card
-            className={cn(
-              "ease flex h-full w-full flex-col overflow-hidden transition-transform duration-500",
-            )}
-          >
-            <Skeleton className="h-[28rem] w-full" />
-          </Card>
-        </LayoutSection>
-      </Layout>
-    );
-  }
-
-  if (error ?? !data) {
-    return (
-      <Layout noReferences>
-        <LayoutHeader>
-          <LayoutTitle>Playground</LayoutTitle>
-        </LayoutHeader>
-        <LayoutSection className="gap-6 md:flex-row">
-          <Alert variant="destructive" className="max-w-lg">
-            <TriangleAlert className="h-6 w-6" />
-            <AlertTitle>L&apos;adhérent n&apos;existe pas !</AlertTitle>
-            <AlertDescription>
-              Veuillez réessayer ou contactez un administrateur.
-            </AlertDescription>
-          </Alert>
-        </LayoutSection>
-      </Layout>
-    );
-  }
-
-  if (
-    data.medicalCertificate &&
-    data.medicalCertificate.length > 0 &&
-    data.picture
-  ) {
-    return (
-      <Layout noReferences>
-        <LayoutHeader>
-          <LayoutTitle>Playground</LayoutTitle>
-        </LayoutHeader>
-        <LayoutSection className="gap-6 md:flex-row">
-          <MemberCard info={data} />
-        </LayoutSection>
-      </Layout>
-    );
-  }
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    let toastId = undefined;
-    console.log(
-      form.getFieldState("picture"),
-      form.getFieldState("medicalCertificate"),
-    );
-    try {
-      toastId = toast.loading("Envoie du message en cours...");
-      if (values.picture?.[0] && values.medicalCertificate?.[0] && data) {
-        // Extract file from form submit
-        const picture = values.picture[0];
-        const document = values.medicalCertificate[0];
-
-        // File name generation for cloud storage
-        const fileID = `${uuidv4()}_${Date.now()}`;
-
-        // Generate FormData
-        const formData = new FormData();
-
-        // Picture
-        formData.append("photo", picture);
-        formData.append(
-          "photoFilename",
-          `${fileID}${picture.name.slice(picture.name.lastIndexOf("."))}`,
-        );
-
-        // Medical Certificate (alias Document)
-        formData.append("document", document);
-        formData.append(
-          "documentFilename",
-          `${fileID}${document.name.slice(picture.name.lastIndexOf("."))}`,
-        );
-
-        // Call API endpoint to store files
-        const response = await fetch("/api/association.uploadFiles", {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await response.json() as UploadFileResponse;
-
-        if (!response.ok) {
-          toast.error("Erreur lors de la mise à jour des informations.", {
-            id: toastId,
-            duration: 3000,
-          });
-        }
-
-        memberMutationPictureAndCertificate.mutate({
-          memberId: id,
-          pictureFilename: result.filePaths.photo,
-          certificateFilename: result.filePaths.document,
-        });
-
-        toast.success("Certificat et photo correctement sauvegardé.", {
-          id: toastId,
-          duration: 3000,
-        });
-
-        if (memberMutationPictureAndCertificate.error) {
-          toast.success(
-            "Impossible de lier le certificat et/ou la photo à l'adhérent ! Veuillez nous contacter via l'adresse support@templeteam.fr",
-            {
-              id: toastId,
-              duration: 5000,
-            },
-          );
-        }
-      }
-      console.log(values);
-    } catch (err) {
-      console.log(err);
-
-      toast.error("une erreur s'est produite. Veuillez réessayer.", {
-        id: toastId,
-        duration: 3000,
-      });
-    }
-  }
-
   return (
     <Layout noReferences>
       <LayoutHeader>
         <LayoutTitle>Playground</LayoutTitle>
       </LayoutHeader>
       <LayoutSection className="gap-6 md:flex-row">
-        <MemberCard info={data} />
-        <Form {...form}>
-          <form id="registerForm" onSubmit={form.handleSubmit(onSubmit)}>
-            <FormCard
-              title="Documents"
-              description="Documents complémentaires pour confirmé l'inscription !"
-              classNames={{ Card: "max-w-md" }}
-              button={
-                <Button
-                  type="submit"
-                  disabled={isMutating}
-                  className="h-full w-full rounded-b-lg rounded-l-none rounded-t-none hover:scale-100 focus-visible:scale-100 disabled:opacity-100"
-                >
-                  Envoyer
-                </Button>
-              }
-            >
-              <FormField
-                control={form.control}
-                name="picture"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Photo (selfies acceptés)</FormLabel>
-                    <FormControl>
-                      <FileUploader
-                        value={field.value}
-                        aria-required
-                        onValueChange={field.onChange}
-                        dropzoneOptions={pictureDropZoneConfig}
-                        reSelect
-                        className="relative col-span-2 rounded-lg bg-background p-0.5"
-                      >
-                        <FileInput
-                          className={cn(
-                            "group h-24 w-full outline-dashed outline-1 outline-foreground data-disabled:opacity-50",
-                            form.control.getFieldState("picture").error &&
-                              "outline-destructive",
-                          )}
+        <Tabs defaultValue="adherents">
+          <div className="flex items-center">
+            <TabsList>
+              <TabsTrigger value="adherents">Adhérents</TabsTrigger>
+              <TabsTrigger value="dossiers">Dossiers</TabsTrigger>
+            </TabsList>
+            <div className="ml-auto flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1 text-sm"
+                  >
+                    <ListFilter className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only">Filter</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Filter by</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem checked>
+                    Fulfilled
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem>Declined</DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem>Refunded</DropdownMenuCheckboxItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button size="sm" variant="outline" className="h-7 gap-1 text-sm">
+                <HardDriveDownload className="h-3.5 w-3.5" />
+                <span className="sr-only sm:not-sr-only">Export</span>
+              </Button>
+            </div>
+          </div>
+          <TabsContent value="adherents">
+            <Card x-chunk="dashboard-05-chunk-3" className="max-h-96">
+              <CardHeader className="px-7">
+                <CardTitle>Adhérents</CardTitle>
+                <CardDescription>Listes des adhérents</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nom</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        Téléphone
+                      </TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <Collapsible asChild className="w-full">
+                      <>
+                        <CollapsibleTrigger
+                          asChild
+                          className="group hover:cursor-pointer"
                         >
-                          <div className="flex h-full w-full flex-col items-center justify-center">
-                            <CloudUpload className="transition-colors group-hover:text-primary group-data-disabled:text-foreground" />
-                            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                              <span className="font-semibold">
-                                Ajouter un fichier
-                              </span>
-                              &nbsp; ou glisser déposer
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              JPG, PNG ou TIFF
-                            </p>
-                          </div>
-                        </FileInput>
-                        <FileUploaderContent>
-                          {field.value &&
-                            field.value.length > 0 &&
-                            field.value.map((file, i) => (
-                              <FileUploaderItem
-                                key={i}
-                                index={i}
-                                className="flex h-fit justify-center bg-card"
+                          <TableRow className="data-open:border-0">
+                            <TableCell>
+                              <div className="font-medium">Pierre Dupont</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">
+                                pierre.dupont@gmail.com
+                              </div>
+                            </TableCell>
+                            <TableCell className="flex justify-center">
+                              <Badge
+                                className="w-24 text-center text-xs"
+                                variant="secondary"
                               >
-                                <div className="flex gap-2">
-                                  <div className="size-16">
-                                    <AspectRatio className="size-full">
-                                      <Image
-                                        src={URL.createObjectURL(file)}
-                                        alt={file.name}
-                                        className="rounded-md object-cover"
-                                        fill
-                                      />
-                                    </AspectRatio>
-                                  </div>
-                                  <div className="flex flex-col justify-around">
-                                    <Typography
-                                      as="span"
-                                      className="col-start-2"
-                                    >
-                                      {file.name}
-                                    </Typography>
-                                    <Typography
-                                      as="span"
-                                      variant="quote"
-                                      className="col-start-2 m-0 border-none p-0"
-                                    >
-                                      {Math.round(file.size / 1024)}Kb
-                                    </Typography>
-                                  </div>
-                                </div>
-                              </FileUploaderItem>
-                            ))}
-                        </FileUploaderContent>
-                      </FileUploader>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="medicalCertificate"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Certificat Médical</FormLabel>
-                    <FormControl>
-                      <FileUploader
-                        value={field.value}
-                        aria-required
-                        onValueChange={field.onChange}
-                        dropzoneOptions={medicalCertificateDropZoneConfig}
-                        reSelect
-                        className="relative col-span-2 rounded-lg bg-background p-0.5"
-                      >
-                        <FileInput
-                          className={cn(
-                            "group h-24 w-full outline-dashed outline-1 outline-foreground data-disabled:opacity-50",
-                            form.control.getFieldState("medicalCertificate")
-                              .error && "outline-destructive",
-                          )}
+                                Attente de paiement
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                              <div className="flex items-center justify-start gap-2">
+                                06 00 00 00 00{" "}
+                                <a href="tel:0600000000">
+                                  <Phone className="h-4 w-4" />
+                                </a>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <ChevronDown className="group-data-open:rotate-180 h-5 w-5 transition-transform" />
+                            </TableCell>
+                          </TableRow>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent asChild>
+                          <TableRow>
+                            <TableCell colSpan={5} className="pl-4">
+                              <div>Info supp</div>
+                            </TableCell>
+                          </TableRow>
+                        </CollapsibleContent>
+                      </>
+                    </Collapsible>
+                    <Collapsible asChild className="group/collapsible w-full">
+                      <>
+                        <CollapsibleTrigger
+                          asChild
+                          className="group/trigger hover:cursor-pointer"
                         >
-                          <div className="flex h-full w-full flex-col items-center justify-center">
-                            <CloudUpload className="transition-colors group-hover:text-primary group-data-disabled:text-foreground" />
-                            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
-                              <span className="font-semibold">
-                                Ajouter un fichier
-                              </span>
-                              &nbsp; ou glisser déposer
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              JPG, PNG ou PDF
-                            </p>
-                          </div>
-                        </FileInput>
-                        <FileUploaderContent>
-                          {field.value &&
-                            field.value.length > 0 &&
-                            field.value.map((file, i) => (
-                              <FileUploaderItem
-                                key={i}
-                                index={i}
-                                className="flex h-fit justify-center bg-card"
-                              >
-                                <div className="flex gap-2">
-                                  <div className="size-16">
-                                    <AspectRatio className="size-full">
-                                      <Image
-                                        src={URL.createObjectURL(file)}
-                                        alt={file.name}
-                                        className="rounded-md object-cover"
-                                        fill
-                                      />
-                                    </AspectRatio>
-                                  </div>
-                                  <div className="flex flex-col justify-around">
-                                    <Typography
-                                      as="span"
-                                      className="col-start-2"
-                                    >
-                                      {file.name}
-                                    </Typography>
-                                    <Typography
-                                      as="span"
-                                      variant="quote"
-                                      className="col-start-2 m-0 border-none p-0"
-                                    >
-                                      {Math.round(file.size / 1024)}Kb
-                                    </Typography>
-                                  </div>
-                                </div>
-                              </FileUploaderItem>
-                            ))}
-                        </FileUploaderContent>
-                      </FileUploader>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </FormCard>
-          </form>
-        </Form>
+                          <TableRow className="group-data-open/trigger:bg-accent">
+                            <TableCell>
+                              <div className="font-medium">Pierre Dupont</div>
+                              <div className="hidden text-sm text-muted-foreground md:inline">
+                                pierre.dupont@gmail.com
+                              </div>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                              <Badge className="text-xs" variant="secondary">
+                                Freestyle
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="hidden sm:table-cell">
+                              06 00 00 00 00
+                            </TableCell>
+                            <TableCell>
+                              <ChevronDown className="group-data-open/trigger:rotate-180 h-5 w-5 transition-transform" />
+                            </TableCell>
+                          </TableRow>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent asChild>
+                          <TableRow>
+                            <TableCell colSpan={5} className="pl-4">
+                              <div>Info supp</div>
+                            </TableCell>
+                          </TableRow>
+                        </CollapsibleContent>
+                      </>
+                    </Collapsible>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="dossiers">
+            <Card x-chunk="dashboard-05-chunk-3">
+              <CardHeader className="px-7">
+                <CardTitle>Orders</CardTitle>
+                <CardDescription>
+                  Recent orders from your store.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Customer</TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        Type
+                      </TableHead>
+                      <TableHead className="hidden sm:table-cell">
+                        Status
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Date
+                      </TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow className="bg-accent">
+                      <TableCell>
+                        <div className="font-medium">Liam Johnson</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          liam@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Sale
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="secondary">
+                          Fulfilled
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-23
+                      </TableCell>
+                      <TableCell className="text-right">$250.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Olivia Smith</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          olivia@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Refund
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="outline">
+                          Declined
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-24
+                      </TableCell>
+                      <TableCell className="text-right">$150.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Noah Williams</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          noah@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Subscription
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="secondary">
+                          Fulfilled
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-25
+                      </TableCell>
+                      <TableCell className="text-right">$350.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Emma Brown</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          emma@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Sale
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="secondary">
+                          Fulfilled
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-26
+                      </TableCell>
+                      <TableCell className="text-right">$450.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Liam Johnson</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          liam@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Sale
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="secondary">
+                          Fulfilled
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-23
+                      </TableCell>
+                      <TableCell className="text-right">$250.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Liam Johnson</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          liam@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Sale
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="secondary">
+                          Fulfilled
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-23
+                      </TableCell>
+                      <TableCell className="text-right">$250.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Olivia Smith</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          olivia@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Refund
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="outline">
+                          Declined
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-24
+                      </TableCell>
+                      <TableCell className="text-right">$150.00</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>
+                        <div className="font-medium">Emma Brown</div>
+                        <div className="hidden text-sm text-muted-foreground md:inline">
+                          emma@example.com
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        Sale
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge className="text-xs" variant="secondary">
+                          Fulfilled
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        2023-06-26
+                      </TableCell>
+                      <TableCell className="text-right">$450.00</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </LayoutSection>
     </Layout>
   );

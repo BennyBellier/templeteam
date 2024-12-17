@@ -120,6 +120,8 @@ const config = {
   			]
   		},
   		data: {
+				open: 'state="open"',
+  			close: 'state="close"',
   			disabled: 'disabled="true"',
   			checked: 'state="checked"'
   		},

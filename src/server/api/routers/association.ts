@@ -307,14 +307,17 @@ export const AssociationRouter = createTRPCRouter({
         );
       }
     }),
-  getMembersList: protectedProcedure
-    .input(
-      z.object({
-        page: z.number().min(0).default(0),
-        cursor: z.string().nullish().optional(),
-      }),
-    )
-    .query(async ({ ctx, input }) => {
-      ctx
-    }),
+  getMembersList: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.member.findMany({
+      include: {
+        memberships: true,
+        MemberEmergencyContact: {
+          include: { contact: true },
+          orderBy: { level: "asc" },
+        },
+        medicalCertificate: true,
+      },
+      orderBy: { lastname: "asc" },
+    });
+  }),
 });

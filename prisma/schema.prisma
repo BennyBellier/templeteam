@@ -205,7 +205,7 @@ model Member {
   lastname           String
   birthdate          DateTime
   gender             String
-  mail               String?
+  mail               String? @unique
   phoneNumber        String?
   address            String
   city               String

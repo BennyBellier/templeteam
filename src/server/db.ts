@@ -34,7 +34,7 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-prisma.$on("query", (e) => {
+/* prisma.$on("query", (e) => {
   logger.debug({
     type: "prisma",
     query: e.query,
@@ -42,7 +42,7 @@ prisma.$on("query", (e) => {
     duration: e.duration,
     function: this,
   });
-});
+}); */
 
 prisma.$on("error", (e) => {
   logger.error({
