@@ -318,6 +318,7 @@ export const AssociationRouter = createTRPCRouter({
         medicalCertificate: true,
       },
       orderBy: { lastname: "asc" },
+      take: 20,
     });
   }),
 });

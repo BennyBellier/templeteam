@@ -33,6 +33,7 @@ const winstonLogger = winston.createLogger({
           dirname: env.LOG_FOLDER ?? "logs/",
           maxsize: 20 * 1024 * 1024,
           maxFiles: 3,
+          level: "info"
         }),
   ],
   exceptionHandlers: [

@@ -12,8 +12,10 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarFooter,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { ThemeToggleSidebar } from "@/components/theme/ThemeToggle";
 
 // This is sample data.
 const data = {
@@ -76,6 +78,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <ThemeToggleSidebar />
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

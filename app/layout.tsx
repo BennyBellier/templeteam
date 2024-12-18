@@ -1,6 +1,5 @@
 import "@/styles/globals.css";
 
-import { PlaygroundLink } from "@/components/util/PlaygroundLink";
 import { TailwindIndicator } from "@/components/util/TailwindIndicator";
 import { cn } from "@/lib/utils";
 import { TRPCReactProvider } from "@/trpc/TrpcProvider";
@@ -25,7 +24,7 @@ export default function RootLayout({
   modal?: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="group/html  ltr" data-scroll="0" suppressHydrationWarning>
+    <html lang="fr" className="group/html ltr" data-scroll="0" suppressHydrationWarning>
       <body
         className={cn(
           " font-sans antialiased ",
@@ -42,7 +41,6 @@ export default function RootLayout({
              {children}
             </div>
             <AppSidebar />
-            <PlaygroundLink />
             <TailwindIndicator />
             {modal}
           </Providers>
