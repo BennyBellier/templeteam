@@ -1,5 +1,5 @@
 "use client";
-
+import { Dialog, DialogTrigger, DialogContent } from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ import { ChevronDown, Phone, Stethoscope } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmergencyContact, MemberEmergencyContact } from "@prisma/client";
 import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 
 function Status({
   picture,
@@ -65,7 +66,7 @@ function MemberEmergencyContactAlert({
               {emergencyContacts[0].contact.phone}
             </a>
           </div>
-          {emergencyContacts.length > 1 && (
+          {emergencyContacts.length > 1 && emergencyContacts[1] && (
             <>
               <Separator />
               <div
@@ -119,10 +120,23 @@ export default function AdminDashboard() {
                 <TableRow className="data-open:border-0">
                   <TableCell>
                     <Avatar>
-                      <AvatarImage
-                        src={`/static/association/members/photo/${member.picture}`}
-                        alt={`${member.lastname} ${member.firstname}`}
-                      />
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <AvatarImage
+                            src={`/static/association/members/photo/${member.picture}.jpg`}
+                            alt={`${member.lastname} ${member.firstname}`}
+                          />
+                        </DialogTrigger>
+                        <DialogContent className="h-1/3 aspect-square w-fit overflow-hidden">
+                          <Image
+                            src={`/static/association/members/photo/${member.picture}.jpg`}
+                            alt={`${member.lastname} ${member.firstname}`}
+                            className="aspect-auto w-full h-full object-contain"
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          />
+                        </DialogContent>
+                      </Dialog>
                       <AvatarFallback className="capitalize">{`${member.lastname.charAt(0)}${member.firstname.charAt(0)}`}</AvatarFallback>
                     </Avatar>
                   </TableCell>
