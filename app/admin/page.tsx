@@ -20,6 +20,7 @@ import {
 import { ChevronDown, Phone, Stethoscope } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { EmergencyContact, MemberEmergencyContact } from "@prisma/client";
+import { Separator } from "@/components/ui/separator";
 
 function Status({
   picture,
@@ -46,25 +47,46 @@ function MemberEmergencyContactAlert({
 }: {
   emergencyContacts: ({ contact: EmergencyContact } & MemberEmergencyContact)[];
 }) {
-  return (
-    <Alert className="h-fit w-fit">
-      <Phone className="h-4 w-4" />
-      <AlertTitle>Contact d&apos;urgence</AlertTitle>
-      <AlertDescription className="flex flex-col gap-1">
-        {emergencyContacts.map((emergencyContact) => (
-          <div key={emergencyContact.id} className="flex justify-between gap-2">
-            <span>{emergencyContact.contact.name}</span>
+  if (emergencyContacts.length > 0 && emergencyContacts[0]) {
+    return (
+      <Alert className="h-fit w-fit">
+        <Phone className="h-4 w-4" />
+        <AlertTitle>Contact d&apos;urgence</AlertTitle>
+        <AlertDescription className="flex flex-col gap-1">
+          <div
+            key={emergencyContacts[0].id}
+            className="flex justify-between gap-2"
+          >
+            <span>{emergencyContacts[0].contact.name}</span>
             <a
-              href={`tel:${emergencyContact.contact.phone}`}
+              href={`tel:${emergencyContacts[0].contact.phone}`}
               className="underline"
             >
-              {emergencyContact.contact.phone}
+              {emergencyContacts[0].contact.phone}
             </a>
           </div>
-        ))}
-      </AlertDescription>
-    </Alert>
-  );
+          {emergencyContacts.length > 1 && (
+            <>
+              <Separator />
+              <div
+                key={emergencyContacts[1].id}
+                className="flex justify-between gap-2"
+              >
+                <span>{emergencyContacts[1].contact.name}</span>
+                <a
+                  href={`tel:${emergencyContacts[1].contact.phone}`}
+                  className="underline"
+                >
+                  {emergencyContacts[1].contact.phone}
+                </a>
+              </div>
+            </>
+          )}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  return null;
 }
 
 export default function AdminDashboard() {
@@ -78,13 +100,12 @@ export default function AdminDashboard() {
       <TableCaption>Liste des adhérents</TableCaption>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-16" />
+          <TableHead className="w-16">Photo</TableHead>
           <TableHead className="w-fit">Nom</TableHead>
           <TableHead>Prénom</TableHead>
-          <TableHead>Cours</TableHead>
-          <TableHead>Statut</TableHead>
-          <TableHead>Sexe</TableHead>
-          <TableHead className="w-16" />
+          <TableHead className="hidden md:table-cell">Cours</TableHead>
+          <TableHead className="hidden sm:table-cell">Statut</TableHead>
+          <TableHead className="w-4 pl-0" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -107,7 +128,7 @@ export default function AdminDashboard() {
                   </TableCell>
                   <TableCell>{member.lastname}</TableCell>
                   <TableCell>{member.firstname}</TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {member.memberships.map((membership) => (
                       <Badge
                         variant="secondary"
@@ -117,23 +138,22 @@ export default function AdminDashboard() {
                       </Badge>
                     ))}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <Status
                       picture={member.picture}
                       medicalCertificate={member.medicalCertificate.length}
                       payment={false}
                     />
                   </TableCell>
-                  <TableCell>{member.gender}</TableCell>
                   <TableCell>
-                    <ChevronDown className="group-data-open/trigger:rotate-180 h-5 w-5 transition-transform duration-300" />
+                    <ChevronDown className="h-4 w-4 transition-transform duration-300 group-data-open/trigger:rotate-180" />
                   </TableCell>
                 </TableRow>
               </CollapsibleTrigger>
               <CollapsibleContent asChild>
                 <TableRow>
-                  <TableCell colSpan={7} className="pl-4">
-                    <div className="grid auto-rows-auto gap-4 pl-4 md:grid-cols-3 items-center">
+                  <TableCell colSpan={6} className="pl-4">
+                    <div className="grid auto-rows-auto items-center gap-4 pl-4 sm:grid-cols-2 md:grid-cols-3">
                       <div className="text-sm text-gray-600">
                         <p>
                           Informations supplémentaires pour{" "}
@@ -147,11 +167,9 @@ export default function AdminDashboard() {
                             "N/A"}
                         </p>
                       </div>
-                      {member.MemberEmergencyContact.length > 0 && (
-                        <MemberEmergencyContactAlert
-                          emergencyContacts={member.MemberEmergencyContact}
-                        />
-                      )}
+                      <MemberEmergencyContactAlert
+                        emergencyContacts={member.MemberEmergencyContact}
+                      />
                       {member.medicalComment && (
                         <Alert className="h-fit w-fit">
                           <Stethoscope className="h-4 w-4" />

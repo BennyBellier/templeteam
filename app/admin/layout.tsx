@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { PropsWithChildren } from "react";
@@ -20,10 +21,11 @@ import FallbackError from "../error";
 export default async function AdminLayout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider defaultOpen={true}>
-      <AppSidebar />
-      <SidebarInset>
+      <AppSidebar className="h-full" />
+      <SidebarInset className="w-full">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b">
           <div className="flex items-center gap-2 px-3">
+            <SidebarTrigger className="lg:hidden"/>
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>
               <BreadcrumbList>
@@ -40,7 +42,7 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
             </Breadcrumb>
           </div>
         </header>
-        <ScrollArea className="w-full height-full max-h-[calc(100svh_-_4rem)]">
+        <ScrollArea className="max-w-full">
         <div className="flex flex-col gap-4 p-4">
           <ErrorBoundary FallbackComponent={FallbackError}>
             {children}

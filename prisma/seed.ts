@@ -97,7 +97,11 @@ const main = async () => {
   await prisma.teamMembersVideo.deleteMany();
   await prisma.teamMembersSkill.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.memberMembership.deleteMany();
+  await prisma.memberEmergencyContact.deleteMany();
+  await prisma.medicalCertificate.deleteMany();
   await prisma.member.deleteMany();
+  await prisma.emergencyContact.deleteMany();
 
 
   if (env.NODE_ENV === "development") {
@@ -119,7 +123,7 @@ const main = async () => {
         birthdate: faker.date.birthdate(),
         gender: faker.helpers.arrayElement(["Homme", "Femme"]),
         mail: faker.internet.email(),
-        phoneNumber: faker.phone.number(),
+        phoneNumber: faker.helpers.fromRegExp('+33[6-7][0-9]{8}'),
         address: faker.location.streetAddress(),
         city: faker.location.city(),
         postalCode: faker.location.zipCode(),
@@ -143,7 +147,7 @@ const main = async () => {
       const { id: emergencyContactId } = await prisma.emergencyContact.create({
         data: {
           name: faker.person.fullName(),
-          phone: faker.phone.number(),
+          phone: faker.helpers.fromRegExp('+33[6-7][0-9]{8}'),
         },
       });
 
