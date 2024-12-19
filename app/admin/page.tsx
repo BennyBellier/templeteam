@@ -3,11 +3,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -33,9 +28,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableRowExpandableIndicator,
+  TableRowExpandableTrigger,
+  TableRowExpandable,
+  TableRowExpandableContent,
 } from "@/components/ui/table";
 import { Typography } from "@/components/ui/typography";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
 import type {
   EmergencyContact,
@@ -43,7 +42,6 @@ import type {
   MemberMembership,
 } from "@prisma/client";
 import {
-  ChevronDown,
   Phone,
   Stethoscope,
   TicketCheck,
@@ -53,6 +51,7 @@ import {
 import Image from "next/image";
 import type { ReactElement } from "react";
 import { useMediaQuery } from "usehooks-ts";
+import { Card, CardContent } from "@/components/ui/card";
 
 function StatusCellItem({
   picture,
@@ -63,7 +62,7 @@ function StatusCellItem({
   medicalCertificate: number;
   payment: boolean;
 }) {
-  const isMobile = useMediaQuery("(min-width: 768px)");
+  const isMobile = useMediaQuery("(max-width: 768px)");
   let icon: ReactElement;
   let content: ReactElement;
 
@@ -125,7 +124,7 @@ function StatusCollapsibleContent({
 
   if (!payment && !picture && medicalCertificate === 0) {
     border = "border-red-500";
-    icon = <TicketX className="stroke-red-500 h-5 w-5" />;
+    icon = <TicketX className="h-5 w-5 stroke-red-500" />;
     content = (
       <>
         <Typography as="span">Paiement en attente</Typography>
@@ -151,7 +150,12 @@ function StatusCollapsibleContent({
   }
 
   return (
-    <div className="flex items-center gap-2 p-2 border shadow-md rounded-md">
+    <div
+      className={cn(
+        "flex items-center gap-2 rounded-md border border-solid p-2 shadow-md",
+        border,
+      )}
+    >
       {icon}
       <div className="flex flex-col gap-2">{content}</div>
     </div>
@@ -173,7 +177,7 @@ function MemberEmergencyContactAlert({
 }) {
   if (emergencyContacts.length > 0 && emergencyContacts[0]) {
     return (
-      <Alert className="h-fit w-fit">
+      <Alert className="h-fit w-fit shadow-md">
         <Phone className="h-4 w-4" />
         <AlertTitle>Contact d&apos;urgence</AlertTitle>
         <AlertDescription className="flex flex-col gap-1">
@@ -220,27 +224,27 @@ export default function AdminDashboard() {
   const { isLoading, error } = membersQuery;
 
   return (
-    <Table>
-      <TableCaption>Liste des adhérents</TableCaption>
-      <TableHeader>
-        <TableRow>
-          <TableHead className="w-16 lg:w-24">Photo</TableHead>
-          <TableHead className="w-fit">Nom</TableHead>
-          <TableHead>Prénom</TableHead>
-          <TableHead className="hidden md:table-cell">Cours</TableHead>
-          <TableHead className="hidden sm:table-cell">Statut</TableHead>
-          <TableHead className="w-4 pl-0" />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {members.map((member) => (
-          <Collapsible asChild key={member.id} className="w-full">
-            <>
-              <CollapsibleTrigger
-                asChild
-                className="group/trigger hover:cursor-pointer"
+    <Card>
+      <CardContent>
+        <Table>
+          <TableCaption>Liste des adhérents</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-16 lg:w-24">Photo</TableHead>
+              <TableHead className="w-fit">Nom</TableHead>
+              <TableHead>Prénom</TableHead>
+              <TableHead className="hidden md:table-cell">Cours</TableHead>
+              <TableHead className="hidden sm:table-cell">Statut</TableHead>
+              <TableHead className="w-4 pl-0" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {members.map((member) => (
+              <TableRowExpandable
+                key={member.id}
+                className="group/collapse w-full"
               >
-                <TableRow className="*:bg-background data-open:border-0">
+                <TableRowExpandableTrigger className="*:bg-background data-open:border-0">
                   <TableCell>
                     <Avatar>
                       <Dialog>
@@ -273,55 +277,49 @@ export default function AdminDashboard() {
                   <TableCell className="hidden md:table-cell">
                     <MembershipsList memberships={member.memberships} />
                   </TableCell>
-                  <TableCell className="hidden sm:table-cell ">
+                  <TableCell className="hidden sm:table-cell">
                     <StatusCellItem
                       picture={member.picture}
                       medicalCertificate={member.medicalCertificate.length}
                       payment={false}
                     />
                   </TableCell>
-                  <TableCell>
-                    <ChevronDown className="h-4 w-4 transition-transform duration-300 group-data-open/trigger:rotate-180" />
-                  </TableCell>
-                </TableRow>
-              </CollapsibleTrigger>
-              <CollapsibleContent
-                asChild
-                className="data-closed:animate-collapsible-up data-open:animate-collapsible-down border-b outline-none transition-all"
-              >
-                <TableRow>
-                  <TableCell colSpan={6} className="pl-4">
-                    <div className="grid auto-rows-auto items-center justify-center gap-4 pl-4 sm:grid-cols-2 lg:grid-cols-3">
-                      <MemberEmergencyContactAlert
-                        emergencyContacts={member.MemberEmergencyContact}
-                      />
-                      {member.medicalComment && (
-                        <Alert className="h-fit w-fit self-center justify-self-center">
-                          <Stethoscope className="h-4 w-4" />
-                          <AlertTitle>Contact d&apos;urgence</AlertTitle>
-                          <AlertDescription className="flex flex-col gap-1">
-                            {member.medicalComment}
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                      <div className="flex gap-2 sm:flex-col md:hidden">
-                        <MembershipsList memberships={member.memberships} />
-                      </div>
-                      {
-                        <StatusCollapsibleContent
-                          picture={member.picture}
-                          medicalCertificate={member.medicalCertificate.length}
-                          payment={false}
-                        />
-                      }
+                  <TableRowExpandableIndicator className="h-4 w-4 " />
+                </TableRowExpandableTrigger>
+                <TableRowExpandableContent
+                  colSpan={6}
+                  className="*:bg-background data-open:border-0"
+                >
+                  <div className="grid auto-rows-auto items-center justify-center gap-4 pl-4 sm:grid-cols-2 lg:grid-cols-3">
+                    <MemberEmergencyContactAlert
+                      emergencyContacts={member.MemberEmergencyContact}
+                    />
+                    {member.medicalComment && (
+                      <Alert className="h-fit w-fit self-center justify-self-center">
+                        <Stethoscope className="h-4 w-4" />
+                        <AlertTitle>Contact d&apos;urgence</AlertTitle>
+                        <AlertDescription className="flex flex-col gap-1">
+                          {member.medicalComment}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    <div className="flex gap-2 justify-self-center sm:flex-col md:hidden">
+                      <MembershipsList memberships={member.memberships} />
                     </div>
-                  </TableCell>
-                </TableRow>
-              </CollapsibleContent>
-            </>
-          </Collapsible>
-        ))}
-      </TableBody>
-    </Table>
+                    <div className="sm:hidden">
+                      <StatusCollapsibleContent
+                        picture={member.picture}
+                        medicalCertificate={member.medicalCertificate.length}
+                        payment={false}
+                      />
+                    </div>
+                  </div>
+                </TableRowExpandableContent>
+              </TableRowExpandable>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

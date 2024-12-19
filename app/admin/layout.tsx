@@ -20,7 +20,7 @@ import FallbackError from "../error";
 
 export default async function AdminLayout({ children }: PropsWithChildren) {
   return (
-    <SidebarProvider defaultOpen={true}>
+    <SidebarProvider>
       <AppSidebar className="h-full" />
       <SidebarInset className="w-full">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b">
