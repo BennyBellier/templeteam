@@ -1,7 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -56,6 +55,7 @@ enum Role {
   President
   Secretary
   Member
+  Guest
 }
 
 model VerificationToken {
@@ -200,77 +200,145 @@ model Photos {
 }
 
 model Member {
-  id                 String               @id @default(uuid())
-  firstname          String
-  lastname           String
-  birthdate          DateTime
-  gender             String
-  mail               String? @unique
-  phoneNumber        String?
-  address            String
-  city               String
-  postalCode         String
-  country            String
-  picture            String
-  medicalComment     String?
-  medicalCertificate MedicalCertificate[]
+  id             String   @id @default(uuid())
+  lastname       String
+  firstname      String
+  birthdate      DateTime
+  gender         String
+  mail           String?  @unique
+  phoneNumber    String?  @unique
+  address        String
+  city           String
+  postalCode     String
+  country        String
+  photo          String
+  medicalComment String?
 
-  undersigner String
-  signature   String
+  legalGuardians LegalGuardian[]
+  files          File[]
+
+  history History[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  memberships            MemberMembership[]
-  MemberEmergencyContact MemberEmergencyContact[]
 
   @@unique([firstname, lastname, birthdate])
 }
 
-model MedicalCertificate {
-  id        String   @id // use as filename
-  createdAt DateTime @default(now())
+model LegalGuardian {
+  id        String @id @default(uuid())
+  lastname  String
+  firstname String
+  phone     String
+  mail      String
 
-  // Related to memberID
-  member   Member @relation(fields: [memberId], references: [id])
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
   memberId String
 
-  @@unique([id, createdAt])
-}
-
-model EmergencyContact {
-  id    String @id @default(uuid())
-  name  String
-  phone String @unique
-
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
-  MemberEmergencyContact MemberEmergencyContact[]
-}
-
-model MemberEmergencyContact {
-  id                 String           @id @default(uuid())
-  member             Member           @relation(fields: [memberId], references: [id])
-  contact            EmergencyContact @relation(fields: [emergencyContactId], references: [id])
-  level              Int
-  memberId           String
-  emergencyContactId String
-}
-
-model MemberMembership {
-  id         String     @id @default(uuid())
-  member     Member     @relation(fields: [memberId], references: [id])
-  membership Membership
-
-  memberId String
+  history History[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-enum Membership {
-  templeRun
-  templeGym
-  templeBreak
-  templeGymJunior
+model File {
+  id                 String        @id @default(uuid())
+  year               DateTime // Ex: 01 Sept. 2024 for 2024/2025
+  MedicalCertificate String
+  paymentMethod      PaymentMethod
+  paymentDetails     String
+  paymentAmout       Float
+  undersigner        String
+  signature          String
+  member             Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId           String
+  courses            FileCourses[]
+
+  history History[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id          String        @id @default(uuid())
+  name        String
+  description String
+  FileCourses FileCourses[]
+  schedule    Schedule[]
+
+  history History[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FileCourses {
+  id String @id @default(uuid())
+
+  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String
+
+  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Schedule {
+  id        String    @id @default(uuid())
+  dayofWeek DayOfWeek
+  startHour DateTime
+  endHour   DateTime
+
+  Course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model History {
+  id          String     @id @default(uuid())
+  action      ActionType
+  description String
+  dateAction  DateTime   @default(now())
+
+  member   Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId String?
+
+  legalGuardian   LegalGuardian? @relation(fields: [legalGuardianId], references: [id], onDelete: Cascade)
+  legalGuardianId String?
+
+  file   File?   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId String?
+
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ActionType {
+  CREATE
+  MODIFY
+  DELETE
+}
+
+enum DayOfWeek {
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+  Sunday
+}
+
+enum PaymentMethod {
+  Transfer
+  Cheque
+  Card
 }
