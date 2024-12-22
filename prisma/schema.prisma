@@ -214,7 +214,7 @@ model Member {
   photo          String
   medicalComment String?
 
-  legalGuardians LegalGuardian[]
+  legalGuardians LegalGuardian[] @relation("MemberToLegalGuardian")
   files          File[]
 
   history History[]
@@ -226,15 +226,13 @@ model Member {
 }
 
 model LegalGuardian {
-  id        String @id @default(uuid())
+  id        String  @id @default(uuid())
   lastname  String
   firstname String
-  phone     String
-  mail      String
+  phone     String  @unique
+  mail      String? @unique
 
-  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  memberId String
-
+  members Member[]  @relation("MemberToLegalGuardian")
   history History[]
 
   createdAt DateTime @default(now())
@@ -242,53 +240,40 @@ model LegalGuardian {
 }
 
 model File {
-  id                 String        @id @default(uuid())
+  id                 String         @id @default(uuid())
   year               DateTime // Ex: 01 Sept. 2024 for 2024/2025
-  MedicalCertificate String
-  paymentMethod      PaymentMethod
-  paymentDetails     String
-  paymentAmout       Float
+  medicalCertificate String
+  paymentMethod      PaymentMethod?
+  paymentDetails     String?
+  paymentAmout       Float?
   undersigner        String
   signature          String
-  member             Member        @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member             Member         @relation(fields: [memberId], references: [id], onDelete: Cascade)
   memberId           String
-  courses            FileCourses[]
+  courses            Course[]       @relation("FileCourses")
 
   history History[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 model Course {
-  id          String        @id @default(uuid())
-  name        String
+  id          String     @id @default(uuid())
+  name        String     @unique
   description String
-  FileCourses FileCourses[]
+  Files       File[]     @relation("FileCourses")
   schedule    Schedule[]
 
   history History[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model FileCourses {
-  id String @id @default(uuid())
-
-  file   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  fileId String
-
-  course   Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  courseId String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 }
 
 model Schedule {
   id        String    @id @default(uuid())
-  dayofWeek DayOfWeek
+  dayOfWeek DayOfWeek
   startHour DateTime
   endHour   DateTime
 

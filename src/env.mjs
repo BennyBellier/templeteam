@@ -14,6 +14,7 @@ export const env = createEnv({
         (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
         "You forgot to change the default URL",
       ),
+    DATABASE_SAVE_URL: z.string().url().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -28,8 +29,6 @@ export const env = createEnv({
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
       process.env.VERCEL ? z.string() : z.string().url(),
     ),
-    GOOGLE_CLIENT_ID: z.string(),
-    GOOGLE_CLIENT_SECRET: z.string(),
 
     SMTP_HOST: z.string(),
     SMTP_PORT: z.coerce.number(),
@@ -44,8 +43,6 @@ export const env = createEnv({
 
     BLOG_PAGINATION_SIZE: z.coerce.number().min(0).max(100).optional(),
     REFERENCE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).optional(),
-
-    REVALIDATE_TIME: z.coerce.number().min(0).optional(),
   },
 
   /**
@@ -63,11 +60,10 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_SAVE_URL: process.env.DATABASE_SAVE_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     SMTP_HOST: process.env.SMTP_HOST,
     SMTP_PORT: process.env.SMTP_PORT,
     SMTP_USER: process.env.SMTP_USER,
@@ -79,7 +75,6 @@ export const env = createEnv({
     LOG_LEVEL: process.env.LOG_LEVEL,
     BLOG_PAGINATION_SIZE: process.env.BLOG_PAGINATION,
     REFERENCE_PAGINATION_SIZE: process.env.REFERENCES_PAGINATION,
-    REVALIDATE_TIME: process.env.REVALIDATE_TIME,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
