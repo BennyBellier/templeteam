@@ -1,10 +1,9 @@
-import { Membership, Role } from '@prisma/client';
+import { Membership, Role } from "@prisma/client";
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { faker } from "@faker-js/faker";
 import { BlogCategory, PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
 import { env } from "@/env.mjs";
-
 
 const prisma = new PrismaClient();
 
@@ -103,7 +102,6 @@ const main = async () => {
   await prisma.member.deleteMany();
   await prisma.emergencyContact.deleteMany();
 
-
   if (env.NODE_ENV === "development") {
     prisma.user.create({
       data: {
@@ -111,7 +109,7 @@ const main = async () => {
         email: "contact@templeteam.fr",
         password: await hash("admin", 10),
         role: Role.Developer,
-      }
+      },
     });
   }
 
@@ -123,7 +121,7 @@ const main = async () => {
         birthdate: faker.date.birthdate(),
         gender: faker.helpers.arrayElement(["Homme", "Femme"]),
         mail: faker.internet.email(),
-        phoneNumber: faker.helpers.fromRegExp('+33[6-7][0-9]{8}'),
+        phoneNumber: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
         address: faker.location.streetAddress(),
         city: faker.location.city(),
         postalCode: faker.location.zipCode(),
@@ -136,7 +134,7 @@ const main = async () => {
             membership: faker.helpers.arrayElement([
               Membership.templeGym,
               Membership.templeGymJunior,
-              Membership.templeRun
+              Membership.templeRun,
             ]),
           },
         },
@@ -147,7 +145,7 @@ const main = async () => {
       const { id: emergencyContactId } = await prisma.emergencyContact.create({
         data: {
           name: faker.person.fullName(),
-          phone: faker.helpers.fromRegExp('+33[6-7][0-9]{8}'),
+          phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
         },
       });
 
@@ -226,11 +224,13 @@ const main = async () => {
   }
 };
 
-main()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+if (env.NODE_ENV === "development") {
+  main()
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
