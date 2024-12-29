@@ -53,7 +53,6 @@ const main = async () => {
   await prisma.course.deleteMany();
   await prisma.legalGuardian.deleteMany();
 
-
   const oldMembers: oldMembersType[] =
     await oldPrisma.$queryRaw`SELECT * FROM public."Member";`;
 

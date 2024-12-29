@@ -58,3 +58,5 @@ export function getCountriesNames(lang = "fr") {
       return 0;
     });
 }
+
+export const phoneRegex = new RegExp(/^\+33 [67](?: [0-9]{2}){4}$/);

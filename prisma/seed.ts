@@ -1,9 +1,9 @@
 import { Membership, Role } from "@prisma/client";
 /* eslint-disable @typescript-eslint/no-floating-promises */
+import { env } from "@/env.mjs";
 import { faker } from "@faker-js/faker";
 import { BlogCategory, PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
-import { env } from "@/env.mjs";
 
 const prisma = new PrismaClient();
 
@@ -96,24 +96,74 @@ const main = async () => {
   await prisma.teamMembersVideo.deleteMany();
   await prisma.teamMembersSkill.deleteMany();
   await prisma.user.deleteMany();
-  await prisma.memberMembership.deleteMany();
-  await prisma.memberEmergencyContact.deleteMany();
-  await prisma.medicalCertificate.deleteMany();
   await prisma.member.deleteMany();
-  await prisma.emergencyContact.deleteMany();
+  await prisma.legalGuardian.deleteMany();
+  await prisma.file.deleteMany();
+  await prisma.course.deleteMany();
+  await prisma.schedule.deleteMany();
 
-  if (env.NODE_ENV === "development") {
-    prisma.user.create({
-      data: {
-        name: "admin",
-        email: "contact@templeteam.fr",
-        password: await hash("admin", 10),
-        role: Role.Developer,
+  process.stdout.write("Delete old data OK.\n");
+
+  prisma.user.create({
+    data: {
+      name: "admin",
+      email: "contact@templeteam.fr",
+      password: await hash("admin", 10),
+      role: Role.Developer,
+    },
+  });
+
+  await prisma.course.create({
+    data: {
+      name: "Temple Run",
+      description: "",
+      schedule: {
+        create: {
+          dayOfWeek: "Saturday",
+          startHour: new Date("1970-01-01T17:00:00Z"),
+          endHour: new Date("1970-01-01T18:30:00Z"),
+        },
       },
-    });
-  }
+    },
+  });
 
-  for (let i = 0; i < 300; i++) {
+  await prisma.course.create({
+    data: {
+      name: "Temple Gym Junior",
+      description: "",
+      schedule: {
+        create: {
+          dayOfWeek: "Saturday",
+          startHour: new Date("1970-01-01T19:00:00Z"),
+          endHour: new Date("1970-01-01T20:15:00Z"),
+        },
+      },
+    },
+  });
+
+  await prisma.course.create({
+    data: {
+      name: "Temple Gym",
+      description: "",
+      schedule: {
+        create: {
+          dayOfWeek: "Saturday",
+          startHour: new Date("1970-01-01T20:15:00Z"),
+          endHour: new Date("1970-01-01T21:45:00Z"),
+        },
+      },
+    },
+  });
+
+  process.stdout.write("Courses generation OK.\n");
+
+  let progress = 0;
+  for (let i = 0; i < 50; i++) {
+    const course: string = faker.helpers.arrayElement([
+      "Temple Gym",
+      "Temple Gym Junior",
+      "Temple Run",
+    ]);
     const { id: memberId } = await prisma.member.create({
       data: {
         firstname: faker.person.firstName(),
@@ -121,43 +171,67 @@ const main = async () => {
         birthdate: faker.date.birthdate(),
         gender: faker.helpers.arrayElement(["Homme", "Femme"]),
         mail: faker.internet.email(),
-        phoneNumber: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
+        phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
         address: faker.location.streetAddress(),
         city: faker.location.city(),
         postalCode: faker.location.zipCode(),
         country: faker.location.country(),
-        picture: "photo",
-        undersigner: "undersigner",
-        signature: "signature",
-        memberships: {
+        photo: faker.system.commonFileName("jpg"),
+        medicalComment: faker.lorem.paragraph(),
+        legalGuardians: {
           create: {
-            membership: faker.helpers.arrayElement([
-              Membership.templeGym,
-              Membership.templeGymJunior,
-              Membership.templeRun,
-            ]),
+            firstname: faker.person.firstName(),
+            lastname: faker.person.lastName(),
+            phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
+            mail: faker.internet.email(),
+          },
+        },
+        files: {
+          create: {
+            year: new Date("2024-09-01"),
+            medicalCertificate: faker.system.commonFileName("jpg"),
+            undersigner: faker.person.fullName(),
+            signature: "signature.png",
+            courses: {
+              connect: {
+                name: course,
+              },
+            },
           },
         },
       },
     });
 
-    for (let j = 0; j < faker.helpers.rangeToNumber({ min: 1, max: 2 }); j++) {
-      const { id: emergencyContactId } = await prisma.emergencyContact.create({
+    for (let j = 0; j < faker.helpers.rangeToNumber({ min: 0, max: 1 }); j++) {
+      const { id: legalGuardians } = await prisma.legalGuardian.create({
         data: {
-          name: faker.person.fullName(),
+          lastname: faker.person.lastName(),
+          firstname: faker.person.firstName(),
           phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
+          mail: faker.internet.email(),
         },
       });
 
-      await prisma.memberEmergencyContact.create({
+      await prisma.member.update({
+        where: {
+          id: memberId,
+        },
         data: {
-          memberId,
-          level: j,
-          emergencyContactId,
+          legalGuardians: {
+            connect: {
+              id: legalGuardians,
+            },
+          },
         },
       });
     }
+    progress = Math.round((i / 50) * 100);
+    process.stdout.write(
+      `\rProgress member generation: [${"#".repeat(progress / 10)}${" ".repeat(10 - progress / 10)}] ${progress}%`,
+    );
   }
+
+  process.stdout.write("\n");
 
   for (let i = 0; i < 20; i++) {
     await prisma.blogPosts.create({
@@ -220,7 +294,7 @@ const main = async () => {
         });
       }
     }
-    console.info("Database seed with member: " + member.name);
+    process.stdout.write("Database seed with member: " + member.name + "\n");
   }
 };
 

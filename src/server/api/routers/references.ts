@@ -13,7 +13,7 @@ export const referencesRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { category, page, cursor } = input;
-      const take = env.REFERENCE_PAGINATION_SIZE ?? 10;
+      const take = env.REFERENCE_PAGINATION_SIZE;
       const skip = page * take;
 
       const items =

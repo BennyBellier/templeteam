@@ -1,7 +1,8 @@
+import { env } from "@/env.mjs";
 import logger from "@/server/logger";
-import { Membership } from "@prisma/client";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
+import { phoneRegex } from "@/lib/utils";
 
 const loggerMetadata = { type: "trpc", router: "association" };
 
@@ -9,27 +10,29 @@ export const AssociationRouter = createTRPCRouter({
   createMember: publicProcedure
     .input(
       z.object({
-        firstname: z.string().trim(),
-        lastname: z.string().trim(),
+        firstname: z
+          .string()
+          .trim()
+          .transform((value) => value.charAt(0).toUpperCase()),
+        lastname: z.string().trim().toUpperCase(),
         birthdate: z.date().min(new Date(1900, 0, 1)),
         gender: z.string().trim(),
         mail: z.string().trim().optional(),
         phoneNumber: z.string().trim().optional(),
         address: z.string().trim(),
-        city: z.string().trim(),
+        city: z.string().trim().toUpperCase(),
         postalCode: z.string().trim(),
-        country: z.string().trim(),
-        picture: z.string().trim(),
+        country: z.string().trim().toUpperCase(),
+        photo: z.string().trim(),
         medicalComment: z.string().trim().optional(),
 
         undersigner: z.string().trim(),
         signature: z.string(),
 
-        membership: z.array(z.string().trim()),
+        courses: z.array(z.string().trim()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const profiler = logger.startTimer();
       const {
         firstname,
         lastname,
@@ -41,136 +44,117 @@ export const AssociationRouter = createTRPCRouter({
         city,
         postalCode,
         country,
-        picture,
+        photo,
         medicalComment,
         undersigner,
         signature,
-        membership,
+        courses,
       } = input;
-      let membershipSuccess = true;
+      let member = await ctx.prisma.member.findFirst({
+        where: {
+          OR: [
+            {
+              firstname,
+              lastname,
+              birthdate,
+            },
+            {
+              mail,
+            },
+            {
+              phoneNumber,
+            },
+          ],
+        },
+      });
+      if (!member) {
+        member = await ctx.prisma.member.create({
+          data: {
+            firstname,
+            lastname,
+            birthdate,
+            gender,
+            mail,
+            phoneNumber,
+            address,
+            city,
+            postalCode,
+            country,
+            photo,
+            medicalComment,
+          },
+        });
+      }
 
-      const member = await ctx.prisma.member.create({
+      await ctx.prisma.file.create({
         data: {
-          firstname,
-          lastname,
-          birthdate,
-          gender,
-          mail,
-          phoneNumber,
-          address,
-          city,
-          postalCode,
-          country,
-          picture,
-          medicalComment,
+          year: env.FILE_YEAR,
           undersigner,
           signature,
+          memberId: member.id,
+          courses: {
+            connect: [...courses.map((course) => ({ name: course }))],
+          },
         },
       });
 
-      for (const element of membership) {
-        if (element in Membership) {
-          await ctx.prisma.memberMembership.create({
-            data: {
-              memberId: member.id,
-              membership: element as keyof typeof Membership,
-            },
-          });
-
-          membershipSuccess = true ? status !== null : false;
-        }
-      }
-
-      if (member && membershipSuccess) {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "createMember",
-            message: `Succesfully added member id: ${member.id} -> ${member.lastname} ${member.firstname}`,
-          },
-        );
-      } else {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "createMember",
-            level: "error",
-            message: `${
-              !member
-                ? `Failed to add member ${firstname} ${lastname}.${!membershipSuccess ? "/" : ""}`
-                : ""
-            } ${
-              !membershipSuccess
-                ? `Failed to add ${JSON.stringify(membership)} to member.`
-                : ""
-            } `,
-          },
-        );
-      }
-
       return member.id;
     }),
-  createEmergencyContact: publicProcedure
+  createLegalGuardian: publicProcedure
     .input(
       z.object({
-        name: z.string().trim(),
-        phone: z.string().trim(),
+        firstname: z
+          .string()
+          .trim()
+          .transform((value) => value.charAt(0).toUpperCase()),
+        lastname: z.string().trim().toUpperCase(),
+        phone: z.string().trim().regex(phoneRegex),
+        mail: z.string().email(),
         memberId: z.string().uuid(),
-        level: z.number(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const profiler = logger.startTimer();
-      const { memberId, level } = input;
-      let emergencyContact;
-
-      emergencyContact = await ctx.prisma.emergencyContact.findUnique({
-        where: { phone: input.phone },
+      const { memberId } = input;
+      let legalGuardian = await ctx.prisma.legalGuardian.findFirst({
+        where: {
+          OR: [
+            {
+              firstname: input.firstname,
+              lastname: input.lastname,
+            },
+            {
+              phone: input.phone,
+            },
+            {
+              mail: input.mail,
+            },
+          ],
+        },
       });
 
-      if (emergencyContact === null) {
-        emergencyContact = await ctx.prisma.emergencyContact.create({
+      if (legalGuardian) {
+        legalGuardian = await ctx.prisma.legalGuardian.create({
           data: {
-            name: input.name,
+            firstname: input.firstname,
+            lastname: input.lastname,
             phone: input.phone,
+            mail: input.mail,
+            members: {
+              connect: {
+                id: memberId,
+              },
+            },
           },
-        });
-      }
-
-      const linkMemberToEmergency =
-        await ctx.prisma.memberEmergencyContact.create({
-          data: {
-            memberId: memberId,
-            emergencyContactId: emergencyContact.id,
-            level: level,
-          },
-        });
-
-      const contactId = emergencyContact.id;
-      const linkId = linkMemberToEmergency.id;
-
-      if (contactId && linkId) {
-        profiler.done({
-          router: "association",
-          endpoint: "createEmergencyContact",
-          message: `Successfully create emergency contact ${contactId} for member ${linkId}`,
-        });
-      } else {
-        profiler.done({
-          router: "association",
-          endpoint: "createEmergencyContact",
-          level: "error",
-          message: `Failed to create ${input.phone} for ${memberId}`,
         });
       }
 
       return {
-        contactId,
-        linkId,
+        legalGuardian,
       };
     }),
   getMemberAllinformations: publicProcedure
-    .input(z.object({ memberId: z.string().uuid() }))
+    .input(z.object({ memberId: z.string().uuid(), year: z.string().trim() }))
     .query(async ({ ctx, input }) => {
-      const profiler = logger.startTimer();
       const member = await ctx.prisma.member.findFirst({
         select: {
           firstname: true,
@@ -183,31 +167,28 @@ export const AssociationRouter = createTRPCRouter({
           city: true,
           postalCode: true,
           medicalComment: true,
-          memberships: {
-            select: {
-              membership: true,
+          photo: true,
+          files: {
+            where: {
+              year: input.year,
             },
-          },
-          MemberEmergencyContact: {
             select: {
-              contact: {
+              medicalCertificate: true,
+              courses: {
                 select: {
                   name: true,
-                  phone: true,
                 },
               },
             },
           },
-          medicalCertificate: {
+          legalGuardians: {
             select: {
-              id: true,
+              firstname: true,
+              lastname: true,
+              phone: true,
+              mail: true,
             },
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: 1,
           },
-          picture: true,
         },
         where: { id: input.memberId },
       });
@@ -225,25 +206,32 @@ export const AssociationRouter = createTRPCRouter({
         city: member.city,
         postalCode: member.postalCode,
         medicalComment: member.medicalComment ?? null,
-        picture: member.picture ?? null,
-        medicalCertificate: member.medicalCertificate[0]?.id ?? null,
-        memberships: member.memberships.map((m) => m.membership),
-        MemberEmergencyContact: member.MemberEmergencyContact.map(
-          (emergencyContact) => ({
-            name: emergencyContact.contact.name,
-            phone: emergencyContact.contact.phone,
-          }),
-        ),
+        photo: member.photo ?? null,
+        medicalCertificate: member.files[0]?.medicalCertificate,
+        memberships: member.files[0]?.courses.map((course) => course.name),
+        legalGuardians: member.legalGuardians.map((legalGuardian) => ({
+          firstname: legalGuardian.firstname,
+          lastname: legalGuardian.lastname,
+          phone: legalGuardian.phone,
+          mail: legalGuardian.mail,
+        })),
       };
     }),
-  getEndofTrialsInfos: publicProcedure.query(async ({ ctx }) => {
+  getEndOfTrialsInfos: publicProcedure.query(async ({ ctx }) => {
     const member = await ctx.prisma.member.findMany({
       select: {
         id: true,
         mail: true,
-        memberships: {
+        files: {
+          where: {
+            year: env.FILE_YEAR,
+          },
           select: {
-            membership: true,
+            courses: {
+              select: {
+                name: true,
+              },
+            },
           },
         },
       },
@@ -255,7 +243,7 @@ export const AssociationRouter = createTRPCRouter({
       return {
         id: m.id,
         mail: m.mail,
-        membership: m.memberships.map((mm) => mm.membership as string),
+        membership: m.files[0]?.courses.map((course) => course.name),
       };
     });
   }),
@@ -263,62 +251,65 @@ export const AssociationRouter = createTRPCRouter({
     .input(
       z.object({
         memberId: z.string().uuid(),
-        pictureFilename: z.string(),
+        photoFilename: z.string(),
         certificateFilename: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const profiler = logger.startTimer();
-
-      const updated = await ctx.prisma.member.update({
+      await ctx.prisma.member.update({
         where: {
           id: input.memberId,
         },
         data: {
-          picture: input.pictureFilename,
+          photo: input.photoFilename,
         },
       });
 
-      const certificate = await ctx.prisma.medicalCertificate.create({
-        data: {
-          id: input.certificateFilename,
+      await ctx.prisma.file.update({
+        where: {
+          year: env.FILE_YEAR,
           memberId: input.memberId,
         },
+        data: {
+          medicalCertificate: input.certificateFilename,
+        },
       });
-
-      if (updated && certificate) {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "addMemberPictureAndCertificate",
-            message: `Succesfully updated member id: ${input.memberId} with picture named ${input.pictureFilename} and added certificate named ${input.certificateFilename}`,
-          },
-        );
-      } else {
-        profiler.done(
-          loggerMetadata && {
-            endpoint: "addMemberPictureAndCertificate",
-            level: "error",
-            message: `${
-              !updated
-                ? `Failed to updated member ${input.memberId} with ${input.pictureFilename}.${!certificate ? "/" : ""}`
-                : ""
-            } ${!certificate ? `Failed to create ${input.certificateFilename} to member ${input.memberId}.` : ""} `,
-          },
-        );
-      }
     }),
   getMembersList: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.prisma.member.findMany({
+    const members = await ctx.prisma.member.findMany({
       include: {
-        memberships: true,
-        MemberEmergencyContact: {
-          include: { contact: true },
-          orderBy: { level: "asc" },
-        },
-        medicalCertificate: true,
+        legalGuardians: true,
       },
-      orderBy: { lastname: "asc" },
-      take: 20,
     });
+
+    return members;
   }),
+  getFileList: publicProcedure
+    .input(
+      z.object({
+        page: z.number().min(0).default(0),
+        cursor: z.string().nullish(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, cursor } = input;
+      const take = env.FILE_PAGINATION_SIZE;
+      const skip = page * take;
+      const files = await ctx.prisma.file.findMany({
+        include: {
+          member: true,
+          courses: true,
+        },
+        take: take + 1,
+        skip,
+        cursor: cursor ? { id: cursor } : undefined,
+      });
+
+      let nextCursor: typeof cursor | undefined = undefined;
+      if (files.length > take) {
+        const nextItem = files.pop(); // return the last item from the array
+        nextCursor = nextItem?.id;
+      }
+      return { files, nextCursor };
+    }),
 });

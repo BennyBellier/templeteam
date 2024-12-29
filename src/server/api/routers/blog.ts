@@ -17,7 +17,7 @@ export const blogPostsRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const { category, page, cursor } = input;
-      const take = env.BLOG_PAGINATION_SIZE ?? 6;
+      const take = env.BLOG_PAGINATION_SIZE;
       const skip = page * take;
 
       const items =

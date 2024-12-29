@@ -36,11 +36,7 @@ import {
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
-import type {
-  EmergencyContact,
-  MemberEmergencyContact,
-  MemberMembership,
-} from "@prisma/client";
+import type { Course, LegalGuardian, Member } from "@prisma/client";
 import {
   Phone,
   Stethoscope,
@@ -49,9 +45,13 @@ import {
   TicketX,
 } from "lucide-react";
 import Image from "next/image";
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { getTeamMembers } from "@/server/get-team";
+import { columns } from "./components/columns";
+import { DataTable } from "./components/data-table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function StatusCellItem({
   picture,
@@ -162,10 +162,16 @@ function StatusCollapsibleContent({
   );
 }
 
-function MembershipsList({ memberships }: { memberships: MemberMembership[] }) {
-  return memberships.map((membership) => (
-    <Badge variant="secondary" key={`${membership.memberId}-${membership.id}`}>
-      {membership.membership}
+function MembershipsList({
+  fileId,
+  courses,
+}: {
+  fileId: string;
+  courses: Course[];
+}) {
+  return courses.map((course) => (
+    <Badge variant="secondary" key={`${fileId}-${course.id}`}>
+      {course.name}
     </Badge>
   ));
 }
@@ -173,14 +179,14 @@ function MembershipsList({ memberships }: { memberships: MemberMembership[] }) {
 function MemberEmergencyContactAlert({
   emergencyContacts,
 }: {
-  emergencyContacts: ({ contact: EmergencyContact } & MemberEmergencyContact)[];
+  emergencyContacts: LegalGuardian[];
 }) {
   if (emergencyContacts.length > 0 && emergencyContacts[0]) {
     return (
       <Alert className="h-fit w-fit shadow-md">
         <Phone className="h-4 w-4" />
         <AlertTitle>Contact d&apos;urgence</AlertTitle>
-        <AlertDescription className="flex flex-col gap-1">
+        {/* <AlertDescription className="flex flex-col gap-1">
           <div
             key={emergencyContacts[0].id}
             className="flex justify-between gap-2 whitespace-nowrap"
@@ -210,7 +216,7 @@ function MemberEmergencyContactAlert({
               </div>
             </>
           )}
-        </AlertDescription>
+        </AlertDescription> */}
       </Alert>
     );
   }
@@ -218,108 +224,115 @@ function MemberEmergencyContactAlert({
 }
 
 export default function AdminDashboard() {
-  const [members, membersQuery] =
-    trpc.association.getMembersList.useSuspenseQuery();
+  const [members] = trpc.association.getMembersList.useSuspenseQuery();
 
-  const { isLoading, error } = membersQuery;
 
   return (
     <Card>
-      <CardContent>
-        <Table>
-          <TableCaption>Liste des adhérents</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-16 lg:w-24">Photo</TableHead>
-              <TableHead className="w-fit">Nom</TableHead>
-              <TableHead>Prénom</TableHead>
-              <TableHead className="hidden md:table-cell">Cours</TableHead>
-              <TableHead className="hidden sm:table-cell">Statut</TableHead>
-              <TableHead className="w-4 pl-0" />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {members.map((member) => (
-              <TableRowExpandable
-                key={member.id}
-                className="group/collapse w-full"
-              >
-                <TableRowExpandableTrigger className="*:bg-background data-open:border-0">
-                  <TableCell>
-                    <Avatar>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <AvatarImage
-                            src={`/static/association/members/photo/${member.picture}.jpg`}
-                            alt={`${member.lastname} ${member.firstname}`}
-                          />
-                        </DialogTrigger>
-                        <DialogContent className="aspect-square h-1/3 w-fit overflow-hidden">
-                          <DialogHeader className="sr-only">
-                            <DialogTitle>
-                              {`${member.lastname} ${member.firstname}`}
-                            </DialogTitle>
-                          </DialogHeader>
-                          <Image
-                            src={`/static/association/members/photo/${member.picture}.jpg`}
-                            alt={`${member.lastname} ${member.firstname}`}
-                            className="aspect-auto h-full w-full object-contain"
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        </DialogContent>
-                      </Dialog>
-                      <AvatarFallback className="capitalize">{`${member.lastname.charAt(0)}${member.firstname.charAt(0)}`}</AvatarFallback>
-                    </Avatar>
-                  </TableCell>
-                  <TableCell>{member.lastname}</TableCell>
-                  <TableCell>{member.firstname}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <MembershipsList memberships={member.memberships} />
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <StatusCellItem
-                      picture={member.picture}
-                      medicalCertificate={member.medicalCertificate.length}
-                      payment={false}
-                    />
-                  </TableCell>
-                  <TableRowExpandableIndicator className="h-4 w-4 " />
-                </TableRowExpandableTrigger>
-                <TableRowExpandableContent
-                  colSpan={6}
-                  className="*:bg-background data-open:border-0"
-                >
-                  <div className="grid auto-rows-auto items-center justify-center gap-4 pl-4 sm:grid-cols-2 lg:grid-cols-3">
-                    <MemberEmergencyContactAlert
-                      emergencyContacts={member.MemberEmergencyContact}
-                    />
-                    {member.medicalComment && (
-                      <Alert className="h-fit w-fit self-center justify-self-center">
-                        <Stethoscope className="h-4 w-4" />
-                        <AlertTitle>Contact d&apos;urgence</AlertTitle>
-                        <AlertDescription className="flex flex-col gap-1">
-                          {member.medicalComment}
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    <div className="flex gap-2 justify-self-center sm:flex-col md:hidden">
-                      <MembershipsList memberships={member.memberships} />
-                    </div>
-                    <div className="sm:hidden">
-                      <StatusCollapsibleContent
-                        picture={member.picture}
-                        medicalCertificate={member.medicalCertificate.length}
-                        payment={false}
-                      />
-                    </div>
-                  </div>
-                </TableRowExpandableContent>
-              </TableRowExpandable>
-            ))}
-          </TableBody>
-        </Table>
+      <CardContent className="px-0 py-6">
+        <ScrollArea className="h-96">
+        <DataTable
+          columns={columns}
+          data={members}
+        />
+        </ScrollArea>
       </CardContent>
     </Card>
   );
 }
+
+
+
+
+
+
+// {/* <Table>
+//   <TableCaption>Liste des adhérents</TableCaption>
+//   <TableHeader>
+//     <TableRow>
+//       <TableHead className="w-16 lg:w-24">Photo</TableHead>
+//       <TableHead className="w-fit">Nom</TableHead>
+//       <TableHead>Prénom</TableHead>
+//       <TableHead className="hidden md:table-cell">Cours</TableHead>
+//       <TableHead className="hidden sm:table-cell">Statut</TableHead>
+//       <TableHead className="w-4 pl-0" />
+//     </TableRow>
+//   </TableHeader>
+//   <TableBody>
+//     {members.map((member) => (
+//       <TableRowExpandable key={member.id} className="group/collapse w-full">
+//         <TableRowExpandableTrigger className="*:bg-background data-open:border-0">
+//           <TableCell>
+//             <Avatar>
+//               <Dialog>
+//                 <DialogTrigger asChild>
+//                   <AvatarImage
+//                     src={`/static/association/members/photo/${member.photo}.jpg`}
+//                     alt={`${member.lastname} ${member.firstname}`}
+//                   />
+//                 </DialogTrigger>
+//                 <DialogContent className="aspect-square h-1/3 w-fit overflow-hidden">
+//                   <DialogHeader className="sr-only">
+//                     <DialogTitle>
+//                       {`${member.lastname} ${member.firstname}`}
+//                     </DialogTitle>
+//                   </DialogHeader>
+//                   <Image
+//                     src={`/static/association/members/photo/${member.photo}.jpg`}
+//                     alt={`${member.lastname} ${member.firstname}`}
+//                     className="aspect-auto h-full w-full object-contain"
+//                     fill
+//                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+//                   />
+//                 </DialogContent>
+//               </Dialog>
+//               <AvatarFallback className="capitalize">{`${member.lastname.charAt(0)}${member.firstname.charAt(0)}`}</AvatarFallback>
+//             </Avatar>
+//           </TableCell>
+//           <TableCell>{member.lastname}</TableCell>
+//           <TableCell>{member.firstname}</TableCell>
+//           <TableCell className="hidden md:table-cell">
+//             {/* <MembershipsList memberships={member.memberships} /> */}
+//           </TableCell>
+//           <TableCell className="hidden sm:table-cell">
+//             {/* <StatusCellItem
+//                       picture={member.photo}
+//                       medicalCertificate={member.medicalCertificate.length}
+//                       payment={false}
+//                     /> */}
+//           </TableCell>
+//           <TableRowExpandableIndicator className="h-4 w-4 " />
+//         </TableRowExpandableTrigger>
+//         <TableRowExpandableContent
+//           colSpan={6}
+//           className="*:bg-background data-open:border-0"
+//         >
+//           <div className="grid auto-rows-auto items-center justify-center gap-4 pl-4 sm:grid-cols-2 lg:grid-cols-3">
+//             {/* <MemberEmergencyContactAlert
+//                       emergencyContacts={member.}
+//                     /> */}
+//             {member.medicalComment && (
+//               <Alert className="h-fit w-fit self-center justify-self-center">
+//                 <Stethoscope className="h-4 w-4" />
+//                 <AlertTitle>Contact d&apos;urgence</AlertTitle>
+//                 <AlertDescription className="flex flex-col gap-1">
+//                   {member.medicalComment}
+//                 </AlertDescription>
+//               </Alert>
+//             )}
+//             <div className="flex gap-2 justify-self-center sm:flex-col md:hidden">
+//               {/* <{}MembershipsList memberships={member.memberships} /> */}
+//             </div>
+//             <div className="sm:hidden">
+//               {/* <StatusCollapsibleContent
+//                         picture={member.picture}
+//                         medicalCertificate={member.medicalCertificate.length}
+//                         payment={false}
+//                       /> */}
+//             </div>
+//           </div>
+//         </TableRowExpandableContent>
+//       </TableRowExpandable>
+//     ))}
+//   </TableBody>
+// </Table>; */}

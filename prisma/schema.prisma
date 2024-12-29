@@ -206,15 +206,15 @@ model Member {
   birthdate      DateTime
   gender         String
   mail           String?  @unique
-  phoneNumber    String?  @unique
+  phone          String?  @unique
   address        String
   city           String
   postalCode     String
   country        String
-  photo          String
+  photo          String?
   medicalComment String?
 
-  legalGuardians LegalGuardian[] @relation("MemberToLegalGuardian")
+  legalGuardians LegalGuardian[] @relation("MemberLegalGuardian")
   files          File[]
 
   history History[]
@@ -222,7 +222,10 @@ model Member {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([firstname, lastname, birthdate])
+  @@unique([lastname(sort: Asc), firstname(sort: Asc), birthdate])
+  @@index([lastname, firstname, birthdate])
+  @@index([gender])
+  @@index([address, city, postalCode, country])
 }
 
 model LegalGuardian {
@@ -232,17 +235,21 @@ model LegalGuardian {
   phone     String  @unique
   mail      String? @unique
 
-  members Member[]  @relation("MemberToLegalGuardian")
+  members Member[]  @relation("MemberLegalGuardian")
   history History[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([lastname, firstname])
+  @@index([mail])
+  @@index([phone])
 }
 
 model File {
   id                 String         @id @default(uuid())
   year               DateTime // Ex: 01 Sept. 2024 for 2024/2025
-  medicalCertificate String
+  medicalCertificate String?
   paymentMethod      PaymentMethod?
   paymentDetails     String?
   paymentAmout       Float?
@@ -254,21 +261,31 @@ model File {
 
   history History[]
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year(sort: Desc), memberId])
+  @@index([memberId])
+  @@index([year, memberId])
+  @@index([paymentMethod])
+  @@index([createdAt])
 }
 
 model Course {
   id          String     @id @default(uuid())
   name        String     @unique
   description String
+  price       Float      @default(180.00)
   Files       File[]     @relation("FileCourses")
   schedule    Schedule[]
 
   history History[]
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@index([price(sort: Asc)])
 }
 
 model Schedule {
@@ -282,34 +299,45 @@ model Schedule {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([dayOfWeek])
+  @@index([startHour])
+  @@index([endHour])
+  @@index([courseId, dayOfWeek])
 }
 
 model History {
-  id          String     @id @default(uuid())
-  action      ActionType
-  description String
-  dateAction  DateTime   @default(now())
+  id         String     @id @default(uuid())
+  action     ActionType
+  data       Json
+  dateAction DateTime   @default(now())
 
-  member   Member? @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member   Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
   memberId String?
 
-  legalGuardian   LegalGuardian? @relation(fields: [legalGuardianId], references: [id], onDelete: Cascade)
+  legalGuardian   LegalGuardian? @relation(fields: [legalGuardianId], references: [id], onDelete: SetNull)
   legalGuardianId String?
 
-  file   File?   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  file   File?   @relation(fields: [fileId], references: [id], onDelete: SetNull)
   fileId String?
 
-  course   Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  course   Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
   courseId String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([action, dateAction])
+  @@index([memberId, action])
+  @@index([legalGuardianId, action])
+  @@index([fileId, action])
+  @@index([courseId, action])
 }
 
 enum ActionType {
-  CREATE
-  MODIFY
-  DELETE
+  Create
+  Modify
+  Delete
 }
 
 enum DayOfWeek {

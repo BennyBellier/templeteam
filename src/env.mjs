@@ -41,8 +41,19 @@ export const env = createEnv({
     LOG_FOLDER: z.string().optional(),
     LOG_LEVEL: z.string().optional(),
 
-    BLOG_PAGINATION_SIZE: z.coerce.number().min(0).max(100).optional(),
-    REFERENCE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).optional(),
+    BLOG_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(10),
+    REFERENCE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
+
+    MEMBER_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
+    FILE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
+
+    FILE_YEAR: z.preprocess((str) => {
+      if (typeof str === "string") {
+        const year = str.split("/")[0];
+        return new Date(`${year}-09-01`);
+      }
+      return str; // Si ce n'est pas une chaîne, retournez-la directement
+    }, z.date()),
   },
 
   /**
@@ -75,6 +86,9 @@ export const env = createEnv({
     LOG_LEVEL: process.env.LOG_LEVEL,
     BLOG_PAGINATION_SIZE: process.env.BLOG_PAGINATION,
     REFERENCE_PAGINATION_SIZE: process.env.REFERENCES_PAGINATION,
+    MEMBER_PAGINATION_SIZE: process.env.MEMBER_PAGINATION_SIZE,
+    FILE_PAGINATION_SIZE: process.env.FILE_PAGINATION_SIZE,
+    FILE_YEAR: process.env.FILE_YEAR,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
