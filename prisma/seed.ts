@@ -1,4 +1,4 @@
-import { Membership, Role } from "@prisma/client";
+import { Role } from "@prisma/client";
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { env } from "@/env.mjs";
 import { faker } from "@faker-js/faker";

@@ -127,10 +127,7 @@ export const columns: ColumnDef<Member>[] = [
     cell: ({ row }) => {
       return (
         <a href={`tel:${row.original.phone}`} className="text-nowrap">
-          {"0"
-            .concat(row.original.phone?.substring(3))
-            .match(/.{1,2}/g)
-            .join(" ")}
+          {row.original.phone?.substring(3).padStart(1,"0").match(/.{1,2}/g)?.join(" ")}
         </a>
       );
     },
@@ -160,4 +157,21 @@ export const columns: ColumnDef<Member>[] = [
     accessorKey: "legalGuardians",
     header: "Résponsable légaux",
   },
+  {
+    accessorKey: "expander",
+    cell: ({ row }) => {
+      row.getCanExpand() ? (
+        <button
+          {...{
+            onClick: row.getToggleExpandedHandler(),
+            style: { cursor: 'pointer' },
+          }}
+        >
+          {row.getIsExpanded() ? '👇' : '👉'}
+        </button>
+      ) : (
+        '🔵'
+      )
+    }
+  }
 ];
