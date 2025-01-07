@@ -229,8 +229,8 @@ export default function AdminDashboard() {
 
   return (
     <Card>
-      <CardContent className="px-0 py-6">
-        <ScrollArea className="h-96">
+      <CardContent className="px-0 py-6 max-h-full">
+        <ScrollArea className="max-h-full">
         <DataTable
           columns={columns}
           data={members}

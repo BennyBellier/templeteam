@@ -22,7 +22,7 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider>
       <AppSidebar className="h-full" />
-      <SidebarInset className="w-full">
+      <SidebarInset className="w-full min-h-screen max-h-screen h-screen">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b">
           <div className="flex items-center gap-2 px-3">
             <SidebarTrigger className="lg:hidden"/>
@@ -42,8 +42,8 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
             </Breadcrumb>
           </div>
         </header>
-        <ScrollArea className="max-w-full">
-        <div className="flex flex-col gap-4 p-4">
+        <ScrollArea className="max-w-full max-h-full">
+        <div className="flex flex-col gap-4 p-4 h-full">
           <ErrorBoundary FallbackComponent={FallbackError}>
             {children}
           </ErrorBoundary>

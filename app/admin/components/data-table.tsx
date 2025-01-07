@@ -22,9 +22,12 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { useState } from "react";
+import { v4 as uuid4 } from "uuid";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,6 +47,7 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     state: {
@@ -52,9 +56,11 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  // https://dev.to/yangerrai/expand-tanstack-table-row-to-display-non-uniform-data-39og
+
   return (
     <>
-      <div className="flex items-center justify-between px-4 pb-4">
+      <div className="flex items-center justify-between px-4 pb-4 h-full">
         <Input
           placeholder="Filter firstname..."
           value={
@@ -89,16 +95,46 @@ export function DataTable<TData, TValue>({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
+              <>
+                <TableRow
+                  onClick={() => row.toggleExpanded()}
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  className={cn(row.getIsExpanded() && "border-none bg-muted/50")}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {/* this render the expanded row */}
+                {row.getIsExpanded() && (
+                  <TableRow key={uuid4()} className="bg-muted/50">
+                    <TableCell colSpan={columns.length} className="h-24">
+                      {/* You can create a seperate component to display the expanded data */}
+                      <div className="grid px-10">
+                        <h2 className=" font-bold">More Details</h2>
+                        <p>
+                          Information médicale:{" "}
+                          <span className=" text-slate-500">
+                            {row.original.medicalComment}
+                          </span>
+                        </p>
+                        <p>
+                          Responsable légaux:{" "}
+                          <span className=" text-slate-500 capitalize">
+                            {row.original.legalGuardians[0].firstname}
+                          </span>
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
             ))
           ) : (
             <TableRow>

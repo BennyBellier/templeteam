@@ -1,6 +1,6 @@
 "use client";
 
-import type { Member } from "@prisma/client";
+import type { LegalGuardian, Member } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import {
   Dialog,
@@ -11,9 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
-
-import { MoreHorizontal, ArrowUpDown } from "lucide-react";
-
+import { MoreHorizontal, ArrowUpDown, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,7 +24,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DataTableColumnHeader } from "@/components/ui/data-table";
 
-export const columns: ColumnDef<Member>[] = [
+export type MemberWithLegalGuardians = Member & {
+  legalGuardians: LegalGuardian[];
+};
+
+export const columns: ColumnDef<Member & { legalGuardians: Omit<LegalGuardian, "id" | "createdAt" | "updatedAt">[]}>[] = [
   {
     accessorKey: "photo",
     header: "Photo",
@@ -127,7 +130,7 @@ export const columns: ColumnDef<Member>[] = [
     cell: ({ row }) => {
       return (
         <a href={`tel:${row.original.phone}`} className="text-nowrap">
-          {row.original.phone?.substring(3).padStart(1,"0").match(/.{1,2}/g)?.join(" ")}
+          {"0".concat(row.original.phone?.substring(3)!).match(/.{1,2}/g)?.join(" ")}
         </a>
       );
     },
@@ -154,24 +157,9 @@ export const columns: ColumnDef<Member>[] = [
     },
   },
   {
-    accessorKey: "legalGuardians",
-    header: "Résponsable légaux",
-  },
-  {
-    accessorKey: "expander",
-    cell: ({ row }) => {
-      row.getCanExpand() ? (
-        <button
-          {...{
-            onClick: row.getToggleExpandedHandler(),
-            style: { cursor: 'pointer' },
-          }}
-        >
-          {row.getIsExpanded() ? '👇' : '👉'}
-        </button>
-      ) : (
-        '🔵'
-      )
-    }
+    id: "select",
+    cell: ({ row }) => (
+          <ChevronDown className={cn("w-4 h-4 transition-transform", row.getIsExpanded() && "rotate-180")}/>
+    )
   }
 ];
