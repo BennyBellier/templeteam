@@ -56,22 +56,20 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  // https://dev.to/yangerrai/expand-tanstack-table-row-to-display-non-uniform-data-39og
-
   return (
     <>
-      <div className="flex items-center justify-between px-4 pb-4 h-full">
+      <div className="flex h-full items-center justify-between px-4 pb-4">
         <Input
-          placeholder="Filter firstname..."
+          placeholder="Filtrer par nom/prénom..."
           value={
             (table.getColumn("firstname")?.getFilterValue() as string) ?? ""
           }
-          onChange={(event) =>
-            table.getColumn("firstname")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => {
+            table.getColumn("firstname")?.setFilterValue(event.target.value);
+            table.getColumn("lastname")?.setFilterValue(event.target.value);
+          }}
           className="max-w-sm"
         />
-        <DataTableViewOptions table={table} />
       </div>
       <Table className="w-full">
         <TableHeader>
@@ -98,9 +96,11 @@ export function DataTable<TData, TValue>({
               <>
                 <TableRow
                   onClick={() => row.toggleExpanded()}
-                  key={row.id}
+                  key={uuid4()}
                   data-state={row.getIsSelected() && "selected"}
-                  className={cn(row.getIsExpanded() && "border-none bg-muted/50")}
+                  className={cn(
+                    row.getIsExpanded() && "border-none bg-muted/50",
+                  )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -126,7 +126,7 @@ export function DataTable<TData, TValue>({
                         </p>
                         <p>
                           Responsable légaux:{" "}
-                          <span className=" text-slate-500 capitalize">
+                          <span className=" capitalize text-slate-500">
                             {row.original.legalGuardians[0].firstname}
                           </span>
                         </p>
