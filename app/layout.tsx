@@ -24,10 +24,10 @@ export default function RootLayout({
   modal?: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="group/html ltr" data-scroll="0" suppressHydrationWarning>
+    <html lang="fr" className="group/html ltr max-h-screen" data-scroll="0" suppressHydrationWarning>
       <body
         className={cn(
-          " font-sans antialiased ",
+          " font-sans antialiased max-h-screen",
           fontSans.variable,
           fontCaption.variable,
         )}
@@ -36,7 +36,7 @@ export default function RootLayout({
           <Providers>
             <div
               id="main-content"
-              className="flex h-full flex-col w-full min-h-svh"
+              className="flex flex-col w-full min-h-screen max-h-screen h-screen overflow-hidden"
             >
              {children}
             </div>

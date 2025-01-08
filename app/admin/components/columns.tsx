@@ -148,15 +148,6 @@ export const columns: ColumnDef<Member & { legalGuardians: Omit<LegalGuardian, "
     ),
   },
   {
-    accessorKey: "medicalComment",
-    header: () => (
-      <div className="w-60">Information médicale</div>
-    ),
-    cell: ({ row }) => {
-      return <div className="w-60 overflow-hidden h-4">{row.original.medicalComment}</div>;
-    },
-  },
-  {
     id: "select",
     cell: ({ row }) => (
           <ChevronDown className={cn("w-4 h-4 transition-transform", row.getIsExpanded() && "rotate-180")}/>

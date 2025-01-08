@@ -51,7 +51,6 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { getTeamMembers } from "@/server/get-team";
 import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 function StatusCellItem({
   picture,
@@ -228,14 +227,12 @@ export default function AdminDashboard() {
 
 
   return (
-    <Card>
-      <CardContent className="px-0 py-6 max-h-full">
-        <ScrollArea className="max-h-full">
+    <Card className="h-full">
+      <CardContent className="px-0 py-6 h-full flex flex-col justify-between">
         <DataTable
           columns={columns}
           data={members}
         />
-        </ScrollArea>
       </CardContent>
     </Card>
   );
