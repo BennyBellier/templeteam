@@ -1,7 +1,7 @@
 "use client";
 
-import type { LegalGuardian, Member } from "@prisma/client";
-import type { ColumnDef } from "@tanstack/react-table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DataTableColumnHeader } from "@/components/ui/data-table";
 import {
   Dialog,
   DialogContent,
@@ -9,26 +9,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Image from "next/image";
-import { MoreHorizontal, ArrowUpDown, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { DataTableColumnHeader } from "@/components/ui/data-table";
+import type { LegalGuardian, Member } from "@prisma/client";
+import type { ColumnDef } from "@tanstack/react-table";
+import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 export type MemberWithLegalGuardians = Member & {
   legalGuardians: LegalGuardian[];
 };
 
-export const columns: ColumnDef<Member & { legalGuardians: Omit<LegalGuardian, "id" | "createdAt" | "updatedAt">[]}>[] = [
+export const columns: ColumnDef<
+  Member & {
+    legalGuardians: Omit<LegalGuardian, "id" | "createdAt" | "updatedAt">[];
+  }
+>[] = [
   {
     accessorKey: "photo",
     header: "Photo",
@@ -128,9 +123,12 @@ export const columns: ColumnDef<Member & { legalGuardians: Omit<LegalGuardian, "
     accessorKey: "phone",
     header: "Téléphone",
     cell: ({ row }) => {
-      return (
+      return row.original.phone && (
         <a href={`tel:${row.original.phone}`} className="text-nowrap">
-          {"0".concat(row.original.phone?.substring(3)!).match(/.{1,2}/g)?.join(" ")}
+          {"0"
+            .concat(row.original.phone.substring(3))
+            .match(/.{1,2}/g)
+            ?.join(" ")}
         </a>
       );
     },
@@ -150,7 +148,12 @@ export const columns: ColumnDef<Member & { legalGuardians: Omit<LegalGuardian, "
   {
     id: "select",
     cell: ({ row }) => (
-          <ChevronDown className={cn("w-4 h-4 transition-transform", row.getIsExpanded() && "rotate-180")}/>
-    )
-  }
+      <ChevronDown
+        className={cn(
+          "h-4 w-4 transition-transform",
+          row.getIsExpanded() && "rotate-180",
+        )}
+      />
+    ),
+  },
 ];
