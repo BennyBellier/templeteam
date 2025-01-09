@@ -205,10 +205,8 @@ export const AssociationRouter = createTRPCRouter({
         address: member.address,
         city: member.city,
         postalCode: member.postalCode,
-        medicalComment: member.medicalComment ?? null,
-        photo: member.photo ?? null,
-        medicalCertificate: member.files[0]?.medicalCertificate,
-        memberships: member.files[0]?.courses.map((course) => course.name),
+        medicalComment: member.medicalComment,
+        photo: member.photo,
         legalGuardians: member.legalGuardians.map((legalGuardian) => ({
           firstname: legalGuardian.firstname,
           lastname: legalGuardian.lastname,
@@ -313,3 +311,4 @@ export const AssociationRouter = createTRPCRouter({
       return { files, nextCursor };
     }),
 });
+

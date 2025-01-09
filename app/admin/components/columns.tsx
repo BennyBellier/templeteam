@@ -1,5 +1,6 @@
 "use client";
 
+import { Prisma } from '@prisma/client';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DataTableColumnHeader } from "@/components/ui/data-table";
 import {
@@ -10,19 +11,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import type { LegalGuardian, Member } from "@prisma/client";
+import type { LegalGuardian, Member, Course } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 
-export type MemberWithLegalGuardians = Member & {
-  legalGuardians: LegalGuardian[];
-};
+
+const memberWithLegalGuardians = Prisma.validator<Prisma.MemberDefaultArgs>()({
+  include: { legalGuardians: true },
+});
+
+export type MemberWithLegalGuardians = Prisma.MemberGetPayload<
+  typeof memberWithLegalGuardians
+>;
 
 export const columns: ColumnDef<
-  Member & {
-    legalGuardians: Omit<LegalGuardian, "id" | "createdAt" | "updatedAt">[];
-  }
+MemberWithLegalGuardians
 >[] = [
   {
     accessorKey: "photo",

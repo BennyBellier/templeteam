@@ -1,5 +1,4 @@
 "use client";
-import { DataTableFacetedFilter } from "./selector";
 import {
   DataTablePagination,
   DataTableViewOptions,
@@ -29,9 +28,13 @@ import {
 import { useState } from "react";
 import { v4 as uuid4 } from "uuid";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { MemberWithLegalGuardians } from "./columns";
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
+  columns: ColumnDef<
+  MemberWithLegalGuardians
+  >[];
   data: TData[];
 }
 
@@ -51,13 +54,11 @@ export function DataTable<TData, TValue>({
     getExpandedRowModel: getExpandedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    state:l
+    state: {
       sorting,
       columnFilters,
     },
   });
-
-  const isFiltered = table.getState().columnFilters.length > 0;
 
   return (
     <>
@@ -72,23 +73,6 @@ export function DataTable<TData, TValue>({
           }
           className="max-w-sm ml-4"
         />
-        {table.getColumn("courses") && (
-          <DataTableFacetedFilter
-            column={table.getColumn("status")}
-            title="Status"
-            options={statuses}
-          />
-        )}
-        {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
-          >
-            Reset
-            <X />
-          </Button>
-        )}
         </div>
         <ScrollArea className="flex-1 max-h-full">
           <Table className="w-full border-b max-h-full">
@@ -141,13 +125,13 @@ export function DataTable<TData, TValue>({
                             <p>
                               Information médicale:{" "}
                               <span className=" text-slate-500">
-                                {row.getValue("medicalComment")}
+                                {row.original.medicalComment}
                               </span>
                             </p>
                             <p>
                               Responsable légaux:{" "}
                               <span className=" capitalize text-slate-500">
-                                {/* {row.getValue("legalGuardians")[0].firstname} */}
+                                {row.original.legalGuardians[0].lastname}
                               </span>
                             </p>
                           </div>
