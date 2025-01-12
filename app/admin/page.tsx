@@ -1,14 +1,7 @@
 "use client";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 import {
   HoverCard,
   HoverCardContent,
@@ -19,31 +12,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableRowExpandableIndicator,
-  TableRowExpandableTrigger,
-  TableRowExpandable,
-  TableRowExpandableContent,
-} from "@/components/ui/table";
+
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
 import type { Course, LegalGuardian, Member } from "@prisma/client";
-import {
-  Phone,
-  Stethoscope,
-  TicketCheck,
-  TicketSlash,
-  TicketX,
-} from "lucide-react";
+import { Stethoscope, TicketCheck, TicketSlash, TicketX } from "lucide-react";
 import Image from "next/image";
 import { useState, type ReactElement } from "react";
 import { useMediaQuery } from "usehooks-ts";
@@ -161,87 +135,17 @@ function StatusCollapsibleContent({
   );
 }
 
-function MembershipsList({
-  fileId,
-  courses,
-}: {
-  fileId: string;
-  courses: Course[];
-}) {
-  return courses.map((course) => (
-    <Badge variant="secondary" key={`${fileId}-${course.id}`}>
-      {course.name}
-    </Badge>
-  ));
-}
-
-function MemberEmergencyContactAlert({
-  emergencyContacts,
-}: {
-  emergencyContacts: LegalGuardian[];
-}) {
-  if (emergencyContacts.length > 0 && emergencyContacts[0]) {
-    return (
-      <Alert className="h-fit w-fit shadow-md">
-        <Phone className="h-4 w-4" />
-        <AlertTitle>Contact d&apos;urgence</AlertTitle>
-        {/* <AlertDescription className="flex flex-col gap-1">
-          <div
-            key={emergencyContacts[0].id}
-            className="flex justify-between gap-2 whitespace-nowrap"
-          >
-            <span>{emergencyContacts[0].contact.name}</span>
-            <a
-              href={`tel:${emergencyContacts[0].contact.phone}`}
-              className="underline"
-            >
-              0{emergencyContacts[0].contact.phone.substring(3)}
-            </a>
-          </div>
-          {emergencyContacts.length > 1 && emergencyContacts[1] && (
-            <>
-              <Separator />
-              <div
-                key={emergencyContacts[1].id}
-                className="flex justify-between gap-2"
-              >
-                <span>{emergencyContacts[1].contact.name}</span>
-                <a
-                  href={`tel:${emergencyContacts[1].contact.phone}`}
-                  className="underline"
-                >
-                  0{emergencyContacts[1].contact.phone.substring(3)}
-                </a>
-              </div>
-            </>
-          )}
-        </AlertDescription> */}
-      </Alert>
-    );
-  }
-  return null;
-}
-
 export default function AdminDashboard() {
   const [members] = trpc.association.getMembersList.useSuspenseQuery();
 
-
   return (
     <Card className="h-full">
-      <CardContent className="px-0 py-6 h-full flex flex-col justify-between">
-        <DataTable
-          columns={columns}
-          data={members}
-        />
+      <CardContent className="flex h-full flex-col justify-between px-0 py-6">
+        <DataTable columns={columns} data={members} />
       </CardContent>
     </Card>
   );
 }
-
-
-
-
-
 
 // {/* <Table>
 //   <TableCaption>Liste des adhérents</TableCaption>
@@ -260,31 +164,6 @@ export default function AdminDashboard() {
 //       <TableRowExpandable key={member.id} className="group/collapse w-full">
 //         <TableRowExpandableTrigger className="*:bg-background data-open:border-0">
 //           <TableCell>
-//             <Avatar>
-//               <Dialog>
-//                 <DialogTrigger asChild>
-//                   <AvatarImage
-//                     src={`/static/association/members/photo/${member.photo}.jpg`}
-//                     alt={`${member.lastname} ${member.firstname}`}
-//                   />
-//                 </DialogTrigger>
-//                 <DialogContent className="aspect-square h-1/3 w-fit overflow-hidden">
-//                   <DialogHeader className="sr-only">
-//                     <DialogTitle>
-//                       {`${member.lastname} ${member.firstname}`}
-//                     </DialogTitle>
-//                   </DialogHeader>
-//                   <Image
-//                     src={`/static/association/members/photo/${member.photo}.jpg`}
-//                     alt={`${member.lastname} ${member.firstname}`}
-//                     className="aspect-auto h-full w-full object-contain"
-//                     fill
-//                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-//                   />
-//                 </DialogContent>
-//               </Dialog>
-//               <AvatarFallback className="capitalize">{`${member.lastname.charAt(0)}${member.firstname.charAt(0)}`}</AvatarFallback>
-//             </Avatar>
 //           </TableCell>
 //           <TableCell>{member.lastname}</TableCell>
 //           <TableCell>{member.firstname}</TableCell>

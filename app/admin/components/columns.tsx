@@ -13,7 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { LegalGuardian, Member, Course } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Mail } from "lucide-react";
 import Image from "next/image";
 
 
@@ -25,9 +25,7 @@ export type MemberWithLegalGuardians = Prisma.MemberGetPayload<
   typeof memberWithLegalGuardians
 >;
 
-export const columns: ColumnDef<
-MemberWithLegalGuardians
->[] = [
+export const columns: ColumnDef<MemberWithLegalGuardians>[] = [
   {
     accessorKey: "photo",
     header: "Photo",
@@ -76,6 +74,35 @@ MemberWithLegalGuardians
     ),
   },
   {
+    accessorKey: "phone",
+    header: "Téléphone",
+    cell: ({ row }) => {
+      return (
+        row.original.phone && (
+          <a href={`tel:${row.original.phone}`} className="text-nowrap">
+            {"0"
+              .concat(row.original.phone.substring(3))
+              .match(/.{1,2}/g)
+              ?.join(" ")}
+          </a>
+        )
+      );
+    },
+  },
+  {
+    accessorKey: "mail",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Email" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <a href={`mailto:${row.original.mail}`}>
+          <Mail className="h-4 w-4" />
+        </a>
+      );
+    },
+  },
+  {
     accessorKey: "birthdate",
     header: "Date de naissance",
     cell: ({ row }) => {
@@ -87,7 +114,7 @@ MemberWithLegalGuardians
   {
     accessorKey: "gender",
     header: "Genre",
-    id: "actions",
+    /* id: "actions",
     /* cell: ({ row }) => {
       const member = row.original;
 
@@ -113,29 +140,6 @@ MemberWithLegalGuardians
         </DropdownMenu>
       );
     }, */
-  },
-  {
-    accessorKey: "mail",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-    cell: ({ row }) => {
-      return <a href={`mailto:${row.original.mail}`}>{row.original.mail}</a>;
-    },
-  },
-  {
-    accessorKey: "phone",
-    header: "Téléphone",
-    cell: ({ row }) => {
-      return row.original.phone && (
-        <a href={`tel:${row.original.phone}`} className="text-nowrap">
-          {"0"
-            .concat(row.original.phone.substring(3))
-            .match(/.{1,2}/g)
-            ?.join(" ")}
-        </a>
-      );
-    },
   },
   {
     accessorKey: "address",

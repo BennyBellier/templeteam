@@ -1,15 +1,7 @@
 import { AppSidebar } from "@/components/layout/sidebarAdmin";
 import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import type { PropsWithChildren } from "react";
 import { ErrorBoundary } from "react-error-boundary";
@@ -19,8 +11,8 @@ export default async function AdminLayout({ children }: PropsWithChildren) {
   return (
     <SidebarProvider>
       <AppSidebar className="h-full" />
-      <SidebarInset className="w-full h-full">
-        <div className="flex flex-col gap-4 p-4 max-h-full grow-0">
+      <SidebarInset className="h-full w-full">
+        <div className="flex max-h-full grow-0 flex-col gap-4 p-4">
           <ErrorBoundary FallbackComponent={FallbackError}>
             {children}
           </ErrorBoundary>
