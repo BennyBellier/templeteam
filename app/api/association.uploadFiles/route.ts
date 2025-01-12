@@ -1,31 +1,59 @@
 "use server";
 
 import fs from "fs";
-import rateLimite from "next-rate-limit";
+import { createHash } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
-
-const limiter = rateLimite({
-  interval: 60 * 100,
-  uniqueTokenPerInterval: 500,
-});
 
 const loggerMetadata = { type: "api", endpoint: "association.UploadFile" };
 
 export async function POST(req: NextRequest) {
   try {
-    limiter.checkNext(req, 5);
-  } catch (e) {
-    console.error(loggerMetadata && e);
+    // check if cookies exist
+    if (!req.headers.get("cookie")) {
+      return NextResponse.json({ status: "no cookie?" }, { status: 403 });
+    }
 
-    return NextResponse.json(
-      { status: "fail", message: "Rate limit exceeded", details: e },
-      { status: 429 },
-    );
-  }
+    // check existing crsf token
+    const rawCookieString = req.headers.get("cookie") ?? ""; // raw cookie string, possibly multiple cookies
+    const rawCookiesArr = rawCookieString.split(";");
 
-  try {
+    let parsedCsrfTokenAndHash: string | null = null;
+
+    for (const rawCookie of rawCookiesArr) {
+      // loop through cookies to find CSRF from next-auth
+      const cookieArr = rawCookie.split("=");
+      if (cookieArr[0]?.trim() === "next-auth.csrf-token") {
+        parsedCsrfTokenAndHash = cookieArr[1] ?? "";
+        break;
+      }
+    }
+
+    if (!parsedCsrfTokenAndHash) {
+      return NextResponse.json({ status: "missing crsf" }, { status: 403 }); // can't find next-auth CSRF in cookies
+    }
+    // delimiter could be either a '|' or a '%7C'
+    const tokenHashDelimiter =
+      parsedCsrfTokenAndHash.indexOf("|") !== -1 ? "|" : "%7C";
+
+    const [requestToken, requestHash] =
+      parsedCsrfTokenAndHash.split(tokenHashDelimiter);
+
+    const secret = process.env.SECRET;
+
+    // compute the valid hash
+    const validHash = createHash("sha256")
+      .update(`${requestToken}${secret}`)
+      .digest("hex");
+
+    if (requestHash !== validHash) {
+      return NextResponse.json(
+        { error: { status: "bad crsf token" } },
+        { status: 403 },
+      ); // bad crsf token hash
+    }
+
     // extract formData from body request
     const formData = await req.formData();
 
