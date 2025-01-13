@@ -1,11 +1,11 @@
-/* eslint-disable */
 "use server";
 
 import { env } from "@/env.mjs";
+import logger from "@/server/logger";
 import smtpOptions from "@/server/mail";
 import { render } from "@react-email/components";
 import nodemailer from "nodemailer";
-import RegistrationTemplate from "@/../emails/AssociationRegistration";
+import RegistrationTemplate from "../emails/AssociationRegistration";
 import { prisma } from "@/trpc/server";
 
 type State = {
@@ -28,11 +28,11 @@ type State = {
     mail?: string | undefined;
     phoneNumber?: string | undefined;
   };
-  emergencyContact: {
-    emergencyContactName1: string;
-    emergencyContactPhone1: string;
-    emergencyContactName2?: string | undefined;
-    emergencyContactPhone2?: string | undefined;
+  legalGuardian: {
+    legalGuardianName1: string;
+    legalGuardianPhone1: string;
+    legalGuardianName2?: string | undefined;
+    legalGuardianPhone2?: string | undefined;
   } | null;
   authorization: {
     undersigned: string;
@@ -54,7 +54,7 @@ type State = {
 export default async function registerMember({
   membership,
   member,
-  emergencyContact,
+  legalGuardian,
   authorization,
   medic,
   isAdult,
@@ -68,7 +68,7 @@ export default async function registerMember({
   const createMemberData = {
     firstname: member?.firstname,
     lastname: member?.lastname,
-    birthdate: new Date(member.birthdate!),
+    birthdate: new Date(member?.birthdate),
     gender: member?.gender,
     mail: member?.mail,
     phoneNumber: member?.phoneNumber,
@@ -83,29 +83,29 @@ export default async function registerMember({
     membership: membershipArray,
   };
 
-  // logger.info(createMemberData);
+  logger.info(createMemberData);
 
   const memberId = await prisma.association.createMember(createMemberData);
 
   if (!isAdult) {
     const emergencydata1 = {
-      name: emergencyContact?.emergencyContactName1!,
-      phone: emergencyContact?.emergencyContactPhone1!,
+      name: legalGuardian?.legalGuardianName1 ?? "inconu",
+      phone: legalGuardian?.legalGuardianPhone1 ?? "000",
       memberId: memberId,
       level: 1,
     };
 
-    await prisma.association.createEmergencyContact(emergencydata1);
+    await prisma.association.createLegalGuardian(emergencydata1);
 
-    if (emergencyContact?.emergencyContactName2 !== undefined) {
+    if (legalGuardian?.legalGuardianName2 !== undefined) {
       const emergencydata2 = {
-        name: emergencyContact?.emergencyContactName2,
-        phone: emergencyContact?.emergencyContactPhone2!,
+        name: legalGuardian?.legalGuardianName2,
+        phone: legalGuardian?.legalGuardianPhone2 ?? "000",
         memberId: memberId,
         level: 2,
       };
 
-      await prisma.association.createEmergencyContact(emergencydata2);
+      await prisma.association.createLegalGuardian(emergencydata2);
     }
   }
 
@@ -115,23 +115,25 @@ export default async function registerMember({
       firstname: member.firstname,
       lastname: member.lastname,
       birthdate: new Date(member.birthdate),
-      mail: member.mail,
-      Phone: member.phoneNumber,
+      mail: member.mail ?? "inconnu",
+      Phone: member.phoneNumber ?? "",
       gender: member.gender,
       Address: member.address,
       City: member.city,
       CodePostal: member.postalCode,
       Country: member.country,
-      PictureFile: member.picture?.at(0),
-      EmergencyContactName1: emergencyContact.emergencyContactName1,
-      EmergencyContactPhone1: emergencyContact.emergencyContactPhone1,
-      EmergencyContactName2: emergencyContact.emergencyContactName2,
-      EmergencyContactPhone2: emergencyContact.emergencyContactPhone2,
-      MedicalComment: medic.medicalComments,
-      templeBreak: membership.templeBreak,
-      templeGym: membership.templeGym,
-      templeGymJunior: membership.templeGymJunior,
-      templeRun: membership.templeRun,
+      PictureFile: member.picture?.at(0) ?? "",
+      legalGuardianName1:
+        legalGuardian?.legalGuardianName1 ?? "inconu",
+      legalGuardianPhone1: legalGuardian?.legalGuardianPhone1 ?? "000",
+      legalGuardianName2:
+        legalGuardian?.legalGuardianName2 ?? "inconu",
+      legalGuardianPhone2: legalGuardian?.legalGuardianPhone2 ?? "000",
+      MedicalComment: medic.medicalComments ?? "",
+      templeBreak: membership.templeBreak ?? false,
+      templeGym: membership.templeGym ?? false,
+      templeGymJunior: membership.templeGymJunior ?? false,
+      templeRun: membership.templeRun ?? false,
     };
 
     /* Mail à l'adhérent */
@@ -150,7 +152,7 @@ export default async function registerMember({
       ],
     });
 
-    console.info({ type: "mail", page: "inscription", message: sended });
+    logger.info({ type: "mail", page: "inscription", message: sended });
 
     /* Mail de sauvegarder */
     await transporter.sendMail({
@@ -161,7 +163,7 @@ export default async function registerMember({
       text: JSON.stringify({
         membership,
         member,
-        emergencyContact,
+        legalGuardian,
         authorization,
         medic,
         isAdult,

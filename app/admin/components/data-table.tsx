@@ -33,7 +33,7 @@ import type { LegalGuardian } from "@prisma/client";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<MemberWithLegalGuardians>[];
-  data: TData[];
+  data: MemberWithLegalGuardians[];
 }
 
 export function DataTable<TData, TValue>({

@@ -134,7 +134,7 @@ export const MembershipSchema = z
  *                          Form
    -------------------------------------------------------- */
 
-export default function MembershipForm() {
+export default function CoursesForm() {
   const { nextStep } = useStepper();
   const { setMembership, membership } = useRegisterFormStore((state) => state);
 

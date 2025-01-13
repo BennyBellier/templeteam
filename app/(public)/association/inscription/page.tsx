@@ -12,7 +12,7 @@ import { RegisterFormStoreProvider } from "@/providers/RegisterFormProvider";
 import Authorization from "./(StepForms)/Authorization";
 import EmergencyContact from "./(StepForms)/EmergencyContact";
 import MemberForm from "./(StepForms)/Member";
-import MembershipForm from "./(StepForms)/Membership";
+import CoursesForm from "./(StepForms)/Courses";
 import Medic from "./(StepForms)/Medic";
 // import { FormResume } from "./StepperFormActions";
 
@@ -29,7 +29,7 @@ export default function Register() {
   return (
     <Layout>
       <LayoutHeader>
-        <LayoutTitle>Pré-Inscription</LayoutTitle>
+        <LayoutTitle>Inscription</LayoutTitle>
         <LayoutDescription>
           Vous souhaitez participez à nos cours, inscrivez-vous dès maintenant !
         </LayoutDescription>
@@ -46,7 +46,7 @@ export default function Register() {
               if (index === 0) {
                 return (
                   <Step key={stepProps.label} {...stepProps} className="w-full">
-                    <MembershipForm />
+                    <CoursesForm />
                   </Step>
                 );
               } else if (index === 1) {

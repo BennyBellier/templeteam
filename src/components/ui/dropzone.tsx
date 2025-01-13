@@ -217,7 +217,6 @@ export const FileUploader = forwardRef<
                   description={`Seulement ${maxFiles} fichier${maxFiles > 1 ? "s sont acceptés" : " est accepté"}.`}
                 />,
               );
-              break;
             } else if (rejectedFile.errors[0]?.code === "file-too-small") {
               toast.error(
                 <DropzoneToast
