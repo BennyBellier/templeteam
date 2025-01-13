@@ -7,7 +7,8 @@ import { phoneRegex } from "@/lib/utils";
 const loggerMetadata = { type: "trpc", router: "association" };
 
 export const AssociationRouter = createTRPCRouter({
-  createMember: publicProcedure
+  createMember: publicProcedure.input(z.object({ lastname: z.string().trim().toUpperCase(), firstname: z.string().trim().transform((value) => value.charAt(0).toUpperCase()), birthdate: z.date().min(new Date(1970, 1, 1)).max(new Date()), gender: z.string().})),
+  createMemberAndFile: publicProcedure
     .input(
       z.object({
         firstname: z
@@ -50,10 +51,11 @@ export const AssociationRouter = createTRPCRouter({
         signature,
         courses,
       } = input;
-      let member = await ctx.prisma.member.findFirst({
+      let member = await ctx.prisma.member.findUnique({
         where: {
           OR: [
             {
+              lastnam
               firstname,
               lastname,
               birthdate,
@@ -265,8 +267,10 @@ export const AssociationRouter = createTRPCRouter({
 
       await ctx.prisma.file.update({
         where: {
+         year_memberId: {
           year: env.FILE_YEAR,
           memberId: input.memberId,
+         }
         },
         data: {
           medicalCertificate: input.certificateFilename,

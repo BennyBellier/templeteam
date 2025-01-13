@@ -28,7 +28,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "app/*": ["./app/*"],
-      "public/*": ["./public/*"]
+      "public/*": ["./public/*"],
+      "emails/*": ["./emails"]
     },
     "typeRoots": ["types"]
   },

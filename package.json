@@ -16,7 +16,8 @@
     "start": "next start",
     "email:dev": "email dev --port 3600",
     "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "data-migrationchange-gender-column": "tsx ./prisma/migrations/20250113123618_add_gender_enum_column/data-migration.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts",

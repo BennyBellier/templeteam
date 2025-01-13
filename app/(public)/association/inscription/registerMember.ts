@@ -5,7 +5,7 @@ import logger from "@/server/logger";
 import smtpOptions from "@/server/mail";
 import { render } from "@react-email/components";
 import nodemailer from "nodemailer";
-import RegistrationTemplate from "../emails/AssociationRegistration";
+import RegistrationTemplate from "emails/AssociationRegistration";
 import { prisma } from "@/trpc/server";
 
 type State = {

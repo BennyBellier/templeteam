@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Gender, Role } from "@prisma/client";
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { env } from "@/env.mjs";
 import { faker } from "@faker-js/faker";
@@ -169,7 +169,7 @@ const main = async () => {
         firstname: faker.person.firstName(),
         lastname: faker.person.lastName(),
         birthdate: faker.date.birthdate(),
-        gender: faker.helpers.arrayElement(["Homme", "Femme"]),
+        gender: faker.helpers.arrayElement(["men", "woman"]),
         mail: faker.internet.email(),
         phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
         address: faker.location.streetAddress(),
