@@ -3,11 +3,103 @@ import logger from "@/server/logger";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { phoneRegex } from "@/lib/utils";
+import { Gender } from "@prisma/client";
+import { zfd } from "zod-form-data";
 
 const loggerMetadata = { type: "trpc", router: "association" };
 
 export const AssociationRouter = createTRPCRouter({
-  createMember: publicProcedure.input(z.object({ lastname: z.string().trim().toUpperCase(), firstname: z.string().trim().transform((value) => value.charAt(0).toUpperCase()), birthdate: z.date().min(new Date(1970, 1, 1)).max(new Date()), gender: z.string().})),
+  createMember: publicProcedure
+    .input(
+      z.object({
+        lastname: z.string().trim().toUpperCase(),
+        firstname: z
+          .string()
+          .trim()
+          .transform((value) => value.charAt(0).toUpperCase()),
+        birthdate: z
+          .date()
+          .min(new Date(1970, 1, 1))
+          .max(new Date()),
+        gender: z.nativeEnum(Gender),
+        mail: z.string().trim().email().optional(),
+        phone: z.string().trim().regex(phoneRegex).optional(),
+        address: z.string().trim(),
+        city: z.string().trim().toUpperCase(),
+        postalCode: z.string().trim(),
+        country: z.string().trim().toUpperCase(),
+        medicalComment: z.string().trim(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const {
+        firstname,
+        lastname,
+        birthdate,
+        gender,
+        mail,
+        phone,
+        address,
+        city,
+        postalCode,
+        country,
+        medicalComment,
+      } = input;
+      let member = await ctx.prisma.member.findFirst({
+        where: {
+          OR: [
+            {
+              firstname,
+              lastname,
+              birthdate,
+            },
+            {
+              mail,
+            },
+            {
+              phone,
+            },
+          ],
+        },
+      });
+      if (!member) {
+        member = await ctx.prisma.member.create({
+          data: {
+            firstname,
+            lastname,
+            birthdate,
+            gender,
+            mail,
+            phone,
+            address,
+            city,
+            postalCode,
+            country,
+            medicalComment,
+          },
+        });
+
+        return member.id;
+      }
+    }),
+  addMemberPhoto: publicProcedure
+    .input(
+      z.object({
+        memberId: z.string().uuid(),
+        photoFilename: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.prisma.member.update({
+        where: {
+          id: input.memberId,
+        },
+        data: {
+          photo: input.photoFilename,
+        },
+      });
+    }),
+  /* createLegalGuardians:
   createMemberAndFile: publicProcedure
     .input(
       z.object({
@@ -101,7 +193,7 @@ export const AssociationRouter = createTRPCRouter({
       });
 
       return member.id;
-    }),
+    }), */
   createLegalGuardian: publicProcedure
     .input(
       z.object({
@@ -267,10 +359,10 @@ export const AssociationRouter = createTRPCRouter({
 
       await ctx.prisma.file.update({
         where: {
-         year_memberId: {
-          year: env.FILE_YEAR,
-          memberId: input.memberId,
-         }
+          year_memberId: {
+            year: env.FILE_YEAR,
+            memberId: input.memberId,
+          },
         },
         data: {
           medicalCertificate: input.certificateFilename,

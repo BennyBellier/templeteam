@@ -154,8 +154,8 @@ CREATE TABLE "Photos" (
 -- CreateTable
 CREATE TABLE "Member" (
     "id" TEXT NOT NULL,
-    "lastname" TEXT NOT NULL,
     "firstname" TEXT NOT NULL,
+    "lastname" TEXT NOT NULL,
     "birthdate" TIMESTAMP(3) NOT NULL,
     "gender" TEXT NOT NULL,
     "mail" TEXT,
@@ -164,8 +164,8 @@ CREATE TABLE "Member" (
     "city" TEXT NOT NULL,
     "postalCode" TEXT NOT NULL,
     "country" TEXT NOT NULL,
-    "photo" TEXT,
     "medicalComment" TEXT,
+    "photo" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -189,13 +189,13 @@ CREATE TABLE "LegalGuardian" (
 CREATE TABLE "File" (
     "id" TEXT NOT NULL,
     "year" TIMESTAMP(3) NOT NULL,
-    "medicalCertificate" TEXT,
     "paymentMethod" "PaymentMethod",
     "paymentDetails" TEXT,
     "paymentAmout" DOUBLE PRECISION,
     "undersigner" TEXT NOT NULL,
     "signature" TEXT NOT NULL,
     "memberId" TEXT NOT NULL,
+    "medicalCertificate" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -232,13 +232,11 @@ CREATE TABLE "History" (
     "id" TEXT NOT NULL,
     "action" "ActionType" NOT NULL,
     "data" JSONB NOT NULL,
-    "dateAction" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "memberId" TEXT,
     "legalGuardianId" TEXT,
     "fileId" TEXT,
     "courseId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "History_pkey" PRIMARY KEY ("id")
 );
@@ -308,7 +306,7 @@ CREATE INDEX "Member_gender_idx" ON "Member"("gender");
 CREATE INDEX "Member_address_city_postalCode_country_idx" ON "Member"("address", "city", "postalCode", "country");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Member_lastname_firstname_birthdate_key" ON "Member"("lastname" ASC, "firstname" ASC, "birthdate");
+CREATE UNIQUE INDEX "Member_lastname_firstname_birthdate_key" ON "Member"("lastname", "firstname", "birthdate");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LegalGuardian_phone_key" ON "LegalGuardian"("phone");
@@ -347,7 +345,7 @@ CREATE UNIQUE INDEX "Course_name_key" ON "Course"("name");
 CREATE INDEX "Course_name_idx" ON "Course"("name");
 
 -- CreateIndex
-CREATE INDEX "Course_price_idx" ON "Course"("price" ASC);
+CREATE INDEX "Course_price_idx" ON "Course"("price");
 
 -- CreateIndex
 CREATE INDEX "Schedule_dayOfWeek_idx" ON "Schedule"("dayOfWeek");
@@ -362,7 +360,7 @@ CREATE INDEX "Schedule_endHour_idx" ON "Schedule"("endHour");
 CREATE INDEX "Schedule_courseId_dayOfWeek_idx" ON "Schedule"("courseId", "dayOfWeek");
 
 -- CreateIndex
-CREATE INDEX "History_action_dateAction_idx" ON "History"("action", "dateAction");
+CREATE INDEX "History_action_createdAt_idx" ON "History"("action", "createdAt");
 
 -- CreateIndex
 CREATE INDEX "History_memberId_action_idx" ON "History"("memberId", "action");
@@ -404,16 +402,16 @@ ALTER TABLE "File" ADD CONSTRAINT "File_memberId_fkey" FOREIGN KEY ("memberId") 
 ALTER TABLE "Schedule" ADD CONSTRAINT "Schedule_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "History" ADD CONSTRAINT "History_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "History" ADD CONSTRAINT "History_legalGuardianId_fkey" FOREIGN KEY ("legalGuardianId") REFERENCES "LegalGuardian"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "History" ADD CONSTRAINT "History_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "History" ADD CONSTRAINT "History_fileId_fkey" FOREIGN KEY ("fileId") REFERENCES "File"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "History" ADD CONSTRAINT "History_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "History" ADD CONSTRAINT "History_legalGuardianId_fkey" FOREIGN KEY ("legalGuardianId") REFERENCES "LegalGuardian"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "History" ADD CONSTRAINT "History_memberId_fkey" FOREIGN KEY ("memberId") REFERENCES "Member"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_MemberLegalGuardian" ADD CONSTRAINT "_MemberLegalGuardian_A_fkey" FOREIGN KEY ("A") REFERENCES "LegalGuardian"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -426,4 +424,3 @@ ALTER TABLE "_FileCourses" ADD CONSTRAINT "_FileCourses_A_fkey" FOREIGN KEY ("A"
 
 -- AddForeignKey
 ALTER TABLE "_FileCourses" ADD CONSTRAINT "_FileCourses_B_fkey" FOREIGN KEY ("B") REFERENCES "File"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
