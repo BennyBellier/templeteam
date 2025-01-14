@@ -104,7 +104,7 @@ const main = async () => {
 
   process.stdout.write("Delete old data OK.\n");
 
-  prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       name: "admin",
       email: "contact@templeteam.fr",
@@ -112,6 +112,8 @@ const main = async () => {
       role: Role.Developer,
     },
   });
+
+  process.stdout.write("Add dev user for test at id " + user.id + ".\n");
 
   await prisma.course.create({
     data: {
@@ -230,6 +232,9 @@ const main = async () => {
       `\rProgress member generation: [${"#".repeat(progress / 10)}${" ".repeat(10 - progress / 10)}] ${progress}%`,
     );
   }
+  process.stdout.write(
+    `\rProgress member generation: [${"#".repeat(10)}}] 100%`,
+  );
 
   process.stdout.write("\n");
 
