@@ -4,7 +4,6 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { phoneRegex } from "@/lib/utils";
 import { Gender } from "@prisma/client";
-import { zfd } from "zod-form-data";
 
 const loggerMetadata = { type: "trpc", router: "association" };
 
@@ -29,6 +28,7 @@ export const AssociationRouter = createTRPCRouter({
         postalCode: z.string().trim(),
         country: z.string().trim().toUpperCase(),
         medicalComment: z.string().trim(),
+        photo: z.string().trim(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -44,6 +44,7 @@ export const AssociationRouter = createTRPCRouter({
         postalCode,
         country,
         medicalComment,
+        photo,
       } = input;
       let member = await ctx.prisma.member.findFirst({
         where: {
@@ -76,6 +77,7 @@ export const AssociationRouter = createTRPCRouter({
             postalCode,
             country,
             medicalComment,
+            photo,
           },
         });
 

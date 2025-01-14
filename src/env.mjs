@@ -54,6 +54,12 @@ export const env = createEnv({
       }
       return str; // Si ce n'est pas une chaîne, retournez-la directement
     }, z.date()),
+    STATIC_FOLDER: z.string().default("static"),
+    ASSOCIATION_FOLDER: z.string().default("association"),
+    ASSOCIATION_MEMBERS_FOLDER: z.string().default("members"),
+    ASSOCIATION_MEMBERS_PHOTOS_FOLDER: z.string().default("photos"),
+    ASSOCIATION_MEMBERS_MEDICS_FOLDER: z.string().default("medical"),
+    ASSOCIATION_MEMBERS_FILES_FOLDER: z.string().default("files")
   },
 
   /**
@@ -89,6 +95,9 @@ export const env = createEnv({
     MEMBER_PAGINATION_SIZE: process.env.MEMBER_PAGINATION_SIZE,
     FILE_PAGINATION_SIZE: process.env.FILE_PAGINATION_SIZE,
     FILE_YEAR: process.env.FILE_YEAR,
+    STATIC_PATH: process.env.STATIC_PATH,
+    ASSOCIATION_FOLDER: process.env.ASSOCIATION_FOLDER,
+    ASSOCIATION_MEMBERS_FOLDER: process.env.ASSOCIATION_MEMBERS_FOLDER,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

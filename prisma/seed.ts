@@ -169,7 +169,7 @@ const main = async () => {
         firstname: faker.person.firstName(),
         lastname: faker.person.lastName(),
         birthdate: faker.date.birthdate(),
-        gender: faker.helpers.arrayElement(["men", "woman"]),
+        gender: faker.helpers.arrayElement([Gender.Male, Gender.Female]),
         mail: faker.internet.email(),
         phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
         address: faker.location.streetAddress(),
