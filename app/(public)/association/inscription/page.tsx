@@ -49,7 +49,7 @@ export default function Register() {
                     <CoursesForm />
                   </Step>
                 );
-              } else if (index === 1) {
+              } /* else if (index === 1) {
                 return (
                   <Step key={stepProps.label} {...stepProps}>
                     <MemberForm />
@@ -73,7 +73,7 @@ export default function Register() {
                     <Authorization />
                   </Step>
                 );
-              }
+              } */
             })}
           </Stepper>
         </RegisterFormStoreProvider>

@@ -7,6 +7,7 @@ import { render } from "@react-email/components";
 import nodemailer from "nodemailer";
 import RegistrationTemplate from "emails/AssociationRegistration";
 import { prisma } from "@/trpc/server";
+import type { Gender } from "@prisma/client";
 
 type State = {
   membership: {
@@ -20,7 +21,7 @@ type State = {
     firstname: string;
     lastname: string;
     birthdate: string;
-    gender: string;
+    gender: Gender;
     address: string;
     city: string;
     postalCode: string;
@@ -80,7 +81,6 @@ export default async function registerMember({
     medicalComment: medic?.medicalComments,
     undersigner: authorization.undersigned,
     signature: authorization.signature,
-    membership: membershipArray,
   };
 
   logger.info(createMemberData);

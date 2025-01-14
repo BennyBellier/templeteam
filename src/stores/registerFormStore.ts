@@ -1,5 +1,5 @@
 // import type { AuthorizationSchema } from "app/association/inscription/(StepForms)/Authorization";
-// import type { EmergencyContactSchema } from "app/association/inscription/(StepForms)/EmergencyContact";
+// import type { legalGuardiansSchema } from "app/association/inscription/(StepForms)/legalGuardians";
 // import type { MedicSchema } from "app/association/inscription/(StepForms)/Medic";
 // import type { MemberSchema } from "app/association/inscription/(StepForms)/Member";
 // import type { MembershipSchema } from "app/association/inscription/(StepForms)/Membership";
@@ -27,11 +27,11 @@ type State = {
     mail?: string | undefined;
     phoneNumber?: string | undefined;
   } | null;
-  emergencyContact: {
-    emergencyContactName1: string;
-    emergencyContactPhone1: string;
-    emergencyContactName2?: string | undefined;
-    emergencyContactPhone2?: string | undefined;
+  legalGuardians: {
+    legalGuardiansName1: string;
+    legalGuardiansPhone1: string;
+    legalGuardiansName2?: string | undefined;
+    legalGuardiansPhone2?: string | undefined;
   } | null;
   authorization: {
     undersigned: string;
@@ -53,8 +53,8 @@ type State = {
 type Actions = {
   setMembership: (membershipData: State["membership"]) => void;
   setMember: (memberData: State["member"]) => void;
-  setEmergencyContact: (
-    emergencyContactData: State["emergencyContact"],
+  setlegalGuardians: (
+    legalGuardiansData: State["legalGuardians"],
   ) => void;
   setAuthorization: (authorizationData: State["authorization"]) => void;
   setMedic: (medicData: State["medic"]) => void;
@@ -66,7 +66,7 @@ export type RegisterFormStore = State & Actions;
 export const defaultInitState: State = {
   membership: null,
   member: null,
-  emergencyContact: null,
+  legalGuardians: null,
   authorization: null,
   medic: null,
   isAdult: null,
@@ -80,8 +80,8 @@ export const createRegisterFormStore = (
     setMembership: (membershipData) =>
       set(() => ({ membership: membershipData })),
     setMember: (memberData) => set(() => ({ member: memberData })),
-    setEmergencyContact: (emergencyContactData) =>
-      set(() => ({ emergencyContact: emergencyContactData })),
+    setlegalGuardians: (legalGuardiansData) =>
+      set(() => ({ legalGuardians: legalGuardiansData })),
     setAuthorization: (authorizationData) =>
       set(() => ({ authorization: authorizationData })),
     setMedic: (medicData) => set(() => ({ medic: medicData })),

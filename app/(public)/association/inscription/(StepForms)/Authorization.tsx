@@ -93,7 +93,7 @@ export default function Authorization() {
     setAuthorization,
     authorization,
     member,
-    emergencyContact,
+    legalGuardians,
     medic,
     membership,
     isAdult,
@@ -123,7 +123,7 @@ export default function Authorization() {
       member &&
       authorization &&
       medic &&
-      (isAdult === true || (isAdult === false && emergencyContact))
+      (isAdult === true || (isAdult === false && legalGuardians))
     ) {
       nextStep();
 
@@ -133,7 +133,7 @@ export default function Authorization() {
             await registerMember({
               membership,
               member: { ...member, picture: base64String },
-              emergencyContact,
+              legalGuardians,
               authorization,
               medic,
               isAdult,
@@ -158,22 +158,22 @@ export default function Authorization() {
       );
     }
 
-    if (emergencyContact?.emergencyContactName2) {
+    if (legalGuardians?.legalGuardiansName2) {
       return (
         <>
-          <SelectItem value={emergencyContact?.emergencyContactName1!}>
-            {emergencyContact?.emergencyContactName1}
+          <SelectItem value={legalGuardians?.legalGuardiansName1!}>
+            {legalGuardians?.legalGuardiansName1}
           </SelectItem>
-          <SelectItem value={emergencyContact?.emergencyContactName2!}>
-            {emergencyContact?.emergencyContactName2}
+          <SelectItem value={legalGuardians?.legalGuardiansName2!}>
+            {legalGuardians?.legalGuardiansName2}
           </SelectItem>
         </>
       );
     }
 
     return (
-      <SelectItem value={emergencyContact?.emergencyContactName1!}>
-        {emergencyContact?.emergencyContactName1}
+      <SelectItem value={legalGuardians?.legalGuardiansName1!}>
+        {legalGuardians?.legalGuardiansName1}
       </SelectItem>
     );
   };

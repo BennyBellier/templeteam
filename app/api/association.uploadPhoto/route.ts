@@ -1,10 +1,6 @@
 "use server";
 
-import fs from "fs";
-import { createHash } from "crypto";
 import { type NextRequest, NextResponse } from "next/server";
-import path from "path";
-import { v4 as uuidv4 } from "uuid";
 import { zfd } from "zod-form-data";
 import { z } from "zod";
 import { writeMemberPhoto } from "@/server/file-manipulations";
@@ -14,14 +10,14 @@ const loggerMetadata = { type: "api", endpoint: "association.UploadFile" };
 
 const schema = zfd.formData({
   memberId: zfd.text(z.string().uuid()),
-  photo: zfd.file()
+  photo: zfd.file(),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const { memberId, photo } = schema.parse(await req.formData());
 
-    if (!photo || !(photo instanceof File) ) {
+    if (!photo || !(photo instanceof File)) {
       return NextResponse.json(
         {
           status: "fail",
@@ -31,13 +27,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const photoUUID = writeMemberPhoto(memberId, photo);
+    const photoUUID = await writeMemberPhoto(memberId, photo);
 
-    prisma.assocation.addMemberPhoto({ memberId, photoFilename: photoUUID });
+    await prisma.association.addMemberPhoto({
+      memberId,
+      photoFilename: photoUUID,
+    });
 
     console.info(
       loggerMetadata && {
-        message: `Successfully saved ${photoPath}`,
+        message: `Successfully saved ${photoUUID}`,
       },
     );
 
@@ -58,7 +57,7 @@ export async function POST(req: NextRequest) {
         status: "error",
         message: "Erreur interne lors de l'enregistrement de la photo.",
         details: e,
-    
+      },
       { status: 500 },
     );
   }

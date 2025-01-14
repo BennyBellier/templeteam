@@ -38,13 +38,15 @@ export function AppSidebar() {
               </SidebarGroupContent>
             </SidebarGroup>
           ) : (
-            <SidebarMenuItem className="list-none" key={uuidv4()}>
-              <SidebarMenuButton asChild>
-                <Typography as={Link} href={link.href}>
-                  {link.name}
-                </Typography>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <SidebarMenu key={uuidv4()}>
+              <SidebarMenuItem className="list-none">
+                <SidebarMenuButton asChild>
+                  <Typography as={Link} href={link.href}>
+                    {link.name}
+                  </Typography>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           ),
         )}
       </SidebarContent>

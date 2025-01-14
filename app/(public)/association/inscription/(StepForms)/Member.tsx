@@ -1,4 +1,3 @@
-/* eslint-disable */
 "use client";
 
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -43,7 +42,6 @@ import { useStepper } from "@/components/ui/stepper";
 import { Typography } from "@/components/ui/typography";
 import { cn, getCountriesNames } from "@/lib/utils";
 import { useRegisterFormStore } from "@/providers/RegisterFormProvider";
-import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CheckIcon,
@@ -127,17 +125,16 @@ export default function MemberForm() {
       keepDirtyValues: true,
     },
     defaultValues: {
-      firstname: member?.firstname ?? undefined,
-      lastname: member?.lastname ?? undefined,
-      birthdate: member?.birthdate ?? undefined,
-      gender: member?.gender ?? undefined,
-      mail: member?.mail ?? undefined,
-      phoneNumber: member?.phoneNumber ?? undefined,
-      address: member?.address ?? undefined,
-      city: member?.city ?? undefined,
-      postalCode: member?.postalCode ?? undefined,
+      firstname: member?.firstname,
+      lastname: member?.lastname,
+      birthdate: member?.birthdate,
+      gender: member?.gender,
+      mail: member?.mail,
+      phoneNumber: member?.phoneNumber,
+      address: member?.address,
+      city: member?.city,
+      postalCode: member?.postalCode,
       country: member?.country ?? "France",
-      picture: undefined,
     },
     shouldFocusError: true,
   });

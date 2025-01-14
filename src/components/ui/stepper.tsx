@@ -1,9 +1,9 @@
-/* eslint-disable */
 "use client";
 
 import { cva } from "class-variance-authority";
 import { CheckIcon, Loader2, type LucideIcon, X } from "lucide-react";
 import * as React from "react";
+import { useMediaQuery } from "usehooks-ts";
 
 import { cn } from "@/lib/utils";
 import { Button } from "./button";
@@ -66,6 +66,8 @@ const StepperProvider = ({ value, children }: StepperContextProviderProps) => {
     setActiveStep(step);
   };
 
+  console.log("current step: " + activeStep);
+
   return (
     <StepperContext.Provider
       value={{
@@ -93,7 +95,7 @@ function useStepper() {
     throw new Error("useStepper must be used within a StepperProvider");
   }
 
-  const { children, className, ...rest } = context;
+  const { ...rest } = context;
 
   const isLastStep = context.activeStep === context.steps.length - 1;
   const hasCompletedAllSteps = context.activeStep === context.steps.length;
@@ -111,24 +113,6 @@ function useStepper() {
     isDisabledStep,
     currentStep,
   };
-}
-
-function useMediaQuery(query: string) {
-  const [value, setValue] = React.useState(false);
-
-  React.useEffect(() => {
-    function onChange(event: MediaQueryListEvent) {
-      setValue(event.matches);
-    }
-
-    const result = matchMedia(query);
-    result.addEventListener("change", onChange);
-    setValue(result.matches);
-
-    return () => result.removeEventListener("change", onChange);
-  }, [query]);
-
-  return value;
 }
 
 // <---------- STEPS ---------->
@@ -312,10 +296,7 @@ const VerticalContent = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       {React.Children.map(children, (child, i) => {
-        const isCompletedStep =
-          (React.isValidElement(child) &&
-            (child.props as any).isCompletedStep) ??
-          i < activeStep;
+        const isCompletedStep = (React.isValidElement(child) && (child.props as any).isCompletedStep) ?? i < activeStep;
         const isLastStep = i === stepCount - 1;
         const isCurrentStep = i === activeStep;
 
@@ -392,7 +373,7 @@ interface StepInternalConfig {
 interface FullStepProps extends StepProps, StepInternalConfig {}
 
 const Step = React.forwardRef<HTMLLIElement, StepProps>(
-  (props, ref: React.Ref<any>) => {
+  (props, ref: React.Ref<HTMLElement>) => {
     const {
       children,
       description,
@@ -514,7 +495,7 @@ const VerticalStep = React.forwardRef<HTMLDivElement, VerticalStepProps>(
     const localIsError = isError ?? state === "error";
 
     const active =
-      variant === "line" ? isCompletedStep ?? isCurrentStep : isCompletedStep;
+      variant === "line" ? (isCompletedStep ?? isCurrentStep) : isCompletedStep;
     const checkIcon = checkIconProp ?? checkIconContext;
     const errorIcon = errorIconProp ?? errorIconContext;
 
@@ -522,7 +503,7 @@ const VerticalStep = React.forwardRef<HTMLDivElement, VerticalStepProps>(
       if (!expandVerticalSteps) {
         return (
           <Collapsible open={isCurrentStep}>
-            <CollapsibleContent className="data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up overflow-hidden">
+            <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
               {children}
             </CollapsibleContent>
           </Collapsible>
@@ -648,7 +629,7 @@ const HorizontalStep = React.forwardRef<HTMLDivElement, StepSharedProps>(
     const opacity = hasVisited ? 1 : 0.8;
 
     const active =
-      variant === "line" ? isCompletedStep ?? isCurrentStep : isCompletedStep;
+      variant === "line" ? (isCompletedStep ?? isCurrentStep) : isCompletedStep;
 
     const checkIcon = checkIconProp ?? checkIconContext;
     const errorIcon = errorIconProp ?? errorIconContext;
