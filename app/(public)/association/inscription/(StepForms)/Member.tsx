@@ -58,6 +58,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 import StepperFormActions from "../StepperFormActions";
 import { FormCard } from "../formCard";
+import useStore from "@/stores/useStore";
 
 const inputClass = cn("bg-background object-bottom");
 
@@ -65,7 +66,7 @@ const inputClass = cn("bg-background object-bottom");
                     Dropzones constantes
    -------------------------------------------------------- */
 
-const MAX_UPLOAD_SIZE = 1024 * 1024 * 3; // 3MB
+const MAX_UPLOAD_SIZE = 1024 * 1024 * 5; // 3MB
 
 // Third form dropzone
 const ACCEPTED_FILE_TYPES = [
@@ -78,7 +79,7 @@ const ACCEPTED_FILE_TYPES = [
  *                          Schema
    -------------------------------------------------------- */
 export const MemberSchema = z.object({
-  picture: z
+  photo: z
     .array(z.instanceof(File))
     .refine((files) => files.length > 0, "La photo est obligatoire.")
     .refine((files) => {
@@ -114,10 +115,10 @@ export const MemberSchema = z.object({
 export default function MemberForm() {
   const { nextStep, setStep } = useStepper();
   const [isAdult, setIsAdult] = useState(false);
-  const { setMember, member, setAdult } = useRegisterFormStore(
+  const { setMember, member, setAdult } = useStore(
+    useRegisterFormStore,
     (state) => state,
   );
-  // const uploadFile = trpc.association.uploadImage.useMutation();
 
   const form = useForm<z.infer<typeof MemberSchema>>({
     resolver: zodResolver(MemberSchema),
@@ -149,10 +150,8 @@ export default function MemberForm() {
   } satisfies DropzoneOptions;
 
   const onSubmit = async (data: z.infer<typeof MemberSchema>) => {
-    if (data.picture?.[0]) {
-      const image: File = data.picture[0];
-      const pictureFilename = "";
-      console.log(`type image ${typeof image}`);
+    if (data.photo?.[0]) {
+      const image: File = data.photo[0];
       // uploadFile.mutate(
       //   { image },
       //   {
@@ -161,7 +160,7 @@ export default function MemberForm() {
       //     },
       //   },
       // );
-      setMember({ ...data, picture: pictureFilename });
+      setMember({ ...data });
       setAdult(isAdult);
       if (isAdult) {
         setStep(3);
@@ -471,7 +470,7 @@ export default function MemberForm() {
           />
           <FormField
             control={form.control}
-            name="picture"
+            name="photo"
             render={({ field }) => (
               <FormItem className="col-span-2">
                 <FormLabel>Photo (selfies acceptés)</FormLabel>
@@ -487,7 +486,7 @@ export default function MemberForm() {
                     <FileInput
                       className={cn(
                         "group h-24 w-full outline-dashed outline-1 outline-foreground data-disabled:opacity-50",
-                        form.control.getFieldState("picture").error &&
+                        form.control.getFieldState("photo").error &&
                           "outline-destructive",
                       )}
                     >

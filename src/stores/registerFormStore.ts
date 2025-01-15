@@ -1,11 +1,19 @@
-// import type { AuthorizationSchema } from "app/association/inscription/(StepForms)/Authorization";
-// import type { legalGuardiansSchema } from "app/association/inscription/(StepForms)/legalGuardians";
-// import type { MedicSchema } from "app/association/inscription/(StepForms)/Medic";
-// import type { MemberSchema } from "app/association/inscription/(StepForms)/Member";
-// import type { MembershipSchema } from "app/association/inscription/(StepForms)/Membership";
-
 // import type { z } from "zod";
+import { Course, Member } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 import { createStore } from "zustand/vanilla";
+
+const memberInformations = Prisma.validator<Prisma.MemberDefaultArgs>({
+  omit: {
+    createdAt: true,
+    updatedAt: true,
+  },
+});
+
+type StateBis = {
+  courses: Pick<Course, 'id'>;
+  member: typeof memberInformations;
+}
 
 type State = {
   membership: {
@@ -15,7 +23,7 @@ type State = {
     templeGymJunior?: boolean;
   } | null;
   member: {
-    picture: string;
+    photo: string;
     firstname: string;
     lastname: string;
     birthdate: string;

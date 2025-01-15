@@ -11,7 +11,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import type { LegalGuardian, Member, Course } from "@prisma/client";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronDown, Mail } from "lucide-react";
 import Image from "next/image";
