@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react'
+import { RegisterFormStore } from './registerFormStore'
 
-const useStore = <T, F>(
-  store: (callback: (state: T) => unknown) => unknown,
-  callback: (state: T) => F,
-) => {
-  const result = store(callback) as F
-  const [data, setData] = useState<F>()
+type StoreSelector<T> = (state: RegisterFormStore) => T;
+
+const useStore = <T>(store: (callback: StoreSelector<T>) => T, selector: StoreSelector<T>) => {
+  const result = store(selector);
+  const [data, setData] = useState<T>(result);
 
   useEffect(() => {
-    setData(result)
-  }, [result])
+    setData(result);
+  }, [result]);
 
-  return data
-}
+  return data;
+};
 
-export default useStore
+export default useStore;

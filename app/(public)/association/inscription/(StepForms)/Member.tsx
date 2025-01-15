@@ -40,8 +40,7 @@ import {
 } from "@/components/ui/select";
 import { useStepper } from "@/components/ui/stepper";
 import { Typography } from "@/components/ui/typography";
-import { cn, getCountriesNames } from "@/lib/utils";
-import { useRegisterFormStore } from "@/providers/RegisterFormProvider";
+import { calculateAge, cn, getCountriesNames } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   CheckIcon,
@@ -58,7 +57,9 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 import StepperFormActions from "../StepperFormActions";
 import { FormCard } from "../formCard";
+import { useRegisterFormStore } from "@/stores/registerFormStore";
 import useStore from "@/stores/useStore";
+import { Gender, Prisma } from "@prisma/client";
 
 const inputClass = cn("bg-background object-bottom");
 
@@ -78,6 +79,16 @@ const ACCEPTED_FILE_TYPES = [
 /* --------------------------------------------------------
  *                          Schema
    -------------------------------------------------------- */
+const memberWithoutPhoto = Prisma.validator<Prisma.MemberDefaultArgs>()({
+  omit: {
+    id: true,
+    birthdate: true,
+    photo: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+});
+
 export const MemberSchema = z.object({
   photo: z
     .array(z.instanceof(File))
@@ -89,24 +100,25 @@ export const MemberSchema = z.object({
       return files?.every((file) => ACCEPTED_FILE_TYPES.includes(file.type));
     }, "Le fichier doit être de type PNG, JPEG ou TIFF.")
     .nullable(),
-  firstname: z.string({ required_error: "Ce champ est obligatoire." }),
-  lastname: z.string({ required_error: "Ce champ est obligatoire." }),
-  birthdate: z.string({
-    required_error: "Ce champ est obligatoire.",
+  firstname: z.string({ required_error: "Ce champs est obligatoire." }),
+  lastname: z.string({ required_error: "Ce champs est obligatoire." }),
+  birthdate: z.date({ required_error: "Ce champs est obligatoire." }),
+  gender: z.nativeEnum(Gender, {
+    required_error: "Ce champs est obligatoire.",
   }),
-  gender: z.string({ required_error: "Ce champ est obligatoire." }),
-  mail: z.string().email("Adresse email invalide."),
-  phoneNumber: z
-    .string({ required_error: "Ce champ est obligatoire." })
+  mail: z.string().email("Adresse email invalide.").nullable(),
+  phone: z
+    .string({ required_error: "Ce champs est obligatoire." })
     .refine(isValidPhoneNumber, { message: "Numéro de téléphone invalide." })
-    .optional(),
-  address: z.string({ required_error: "Ce champ est obligatoire." }),
-  city: z.string({ required_error: "Ce champ est obligatoire." }),
+    .nullable(),
+  address: z.string({ required_error: "Ce champs est obligatoire." }),
+  city: z.string({ required_error: "Ce champs est obligatoire." }),
   postalCode: z.string({
-    required_error: "Ce champ est obligatoire.",
+    required_error: "Ce champs est obligatoire.",
   }),
-  country: z.string({ required_error: "Ce champ est obligatoire." }),
-});
+  country: z.string({ required_error: "Ce champs est obligatoire." }),
+  medicalComment: z.string().nullable(),
+}) satisfies z.Schema<Prisma.MemberGetPayload<typeof memberWithoutPhoto>>;
 
 /* --------------------------------------------------------
  *                            Form
@@ -116,7 +128,7 @@ export default function MemberForm() {
   const { nextStep, setStep } = useStepper();
   const [isAdult, setIsAdult] = useState(false);
   const { setMember, member, setAdult } = useStore(
-    useRegisterFormStore,
+    useRegisterFormStore.getState,
     (state) => state,
   );
 
@@ -126,15 +138,7 @@ export default function MemberForm() {
       keepDirtyValues: true,
     },
     defaultValues: {
-      firstname: member?.firstname,
-      lastname: member?.lastname,
-      birthdate: member?.birthdate,
-      gender: member?.gender,
-      mail: member?.mail,
-      phoneNumber: member?.phoneNumber,
-      address: member?.address,
-      city: member?.city,
-      postalCode: member?.postalCode,
+      ...member,
       country: member?.country ?? "France",
     },
     shouldFocusError: true,
@@ -242,17 +246,18 @@ export default function MemberForm() {
                     className={inputClass}
                     aria-required
                     {...field}
+                    value={field.value.toISOString().split("T")[0]}
                     onChange={(event) => {
                       if (event.target.value) {
-                        const timeDiff = Math.abs(
-                          Date.now() -
-                            (event.target.valueAsDate?.getTime() ??
-                              Date.parse("01-01-1970")),
-                        );
-                        const age = Math.floor(
-                          timeDiff / (1000 * 3600 * 24) / 365,
-                        );
-                        age >= 18 ? setIsAdult(true) : setIsAdult(false);
+                        // Convert string to date
+                        const inputDate = new Date(event.target.value);
+                        // Check if adult
+                        calculateAge(inputDate) >= 18
+                          ? setIsAdult(true)
+                          : setIsAdult(false);
+
+                        // emit date converted to string
+                        field.onChange(inputDate);
                       }
                       field.onChange(event);
                     }}
@@ -286,9 +291,9 @@ export default function MemberForm() {
                       <SelectValue placeholder="Sélectionner" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="men">Masculin</SelectItem>
-                      <SelectItem value="woman">Féminin</SelectItem>
-                      <SelectItem value="other">Autre</SelectItem>
+                      <SelectItem value={Gender.Male}>Masculin</SelectItem>
+                      <SelectItem value={Gender.Female}>Féminin</SelectItem>
+                      <SelectItem value={Gender.NotSpecified}>Autre</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormControl>
@@ -302,7 +307,9 @@ export default function MemberForm() {
             render={({ field }) => (
               <FormItem className="col-span-2">
                 <FormLabel className="flex justify-between">
-                  <span>E-mail de l&apos;adhérent ou responsable légale</span>
+                  <span>
+                    E-mail de l&apos;adhérent <strong>UNIQUEMENT</strong>
+                  </span>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -311,6 +318,7 @@ export default function MemberForm() {
                     className={inputClass}
                     aria-required
                     {...field}
+                    value={field.value ?? ""}
                   />
                 </FormControl>
                 <FormMessage />
@@ -319,7 +327,7 @@ export default function MemberForm() {
           />
           <FormField
             control={form.control}
-            name="phoneNumber"
+            name="phone"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex justify-between">

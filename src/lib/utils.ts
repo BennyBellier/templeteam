@@ -2,6 +2,7 @@
 import { BlogCategory } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { differenceInYears, isBefore } from "date-fns";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -60,3 +61,22 @@ export function getCountriesNames(lang = "fr") {
 }
 
 export const phoneRegex = new RegExp(/^\+33 [67](?: [0-9]{2}){4}$/);
+
+export const calculateAge = (birthDate: Date): number => {
+  const today = new Date();
+
+  let age = differenceInYears(today, birthDate);
+
+  // Vérifier si l'anniversaire est passé cette année
+  const thisYearBirthday = new Date(
+    today.getFullYear(),
+    birthDate.getMonth(),
+    birthDate.getDate()
+  );
+
+  if (isBefore(today, thisYearBirthday)) {
+    age--; // Si l'anniversaire n'est pas encore passé
+  }
+
+  return age;
+};

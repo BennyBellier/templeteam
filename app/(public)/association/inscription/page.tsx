@@ -35,7 +35,7 @@ export default function Register() {
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="gap-6">
-        <RegisterFormStoreProvider>
+        {/* <RegisterFormStoreProvider> */}
           <Stepper
             variant="line"
             initialStep={0}
@@ -76,7 +76,7 @@ export default function Register() {
               } */
             })}
           </Stepper>
-        </RegisterFormStoreProvider>
+        {/* </RegisterFormStoreProvider> */}
       </LayoutSection>
     </Layout>
   );

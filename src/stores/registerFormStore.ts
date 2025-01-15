@@ -1,98 +1,98 @@
 // import type { z } from "zod";
-import { Course, Member } from "@prisma/client";
-import { Prisma } from '@prisma/client';
+import { Prisma } from "@prisma/client";
 import { createStore } from "zustand/vanilla";
+import { persist, createJSONStorage } from "zustand/middleware";
 
-const memberInformations = Prisma.validator<Prisma.MemberDefaultArgs>({
+const courseId = Prisma.validator<Prisma.CourseDefaultArgs>()({
+  select: { id: true },
+});
+
+const memberData = Prisma.validator<Prisma.MemberDefaultArgs>()({
   omit: {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    photo: true,
+  },
+});
+
+const legalGuardiansData = Prisma.validator<Prisma.LegalGuardianDefaultArgs>()({
+  omit: {
+    id: true,
     createdAt: true,
     updatedAt: true,
   },
 });
 
-type StateBis = {
-  courses: Pick<Course, 'id'>;
-  member: typeof memberInformations;
-}
+const fileData = Prisma.validator<Prisma.FileDefaultArgs>()({
+  omit: {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+    memberId: true,
+    paymentMethod: true,
+    paymentDetails: true,
+    paymentAmout: true,
+  },
+});
 
 type State = {
-  membership: {
-    templeRun?: boolean;
-    templeGym?: boolean;
-    templeBreak?: boolean;
-    templeGymJunior?: boolean;
-  } | null;
-  member: {
-    photo: string;
-    firstname: string;
-    lastname: string;
-    birthdate: string;
-    gender: string;
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    mail?: string | undefined;
-    phoneNumber?: string | undefined;
-  } | null;
-  legalGuardians: {
-    legalGuardiansName1: string;
-    legalGuardiansPhone1: string;
-    legalGuardiansName2?: string | undefined;
-    legalGuardiansPhone2?: string | undefined;
-  } | null;
+  courses: Prisma.CourseGetPayload<typeof courseId>[] | null;
+  member: Prisma.MemberGetPayload<typeof memberData> | null;
+  legalGuardians:
+    | Prisma.LegalGuardianGetPayload<typeof legalGuardiansData>[]
+    | null;
+  file: Prisma.FileGetPayload<typeof fileData> | null;
   authorization: {
-    undersigned: string;
     emergencyAuthorization: boolean;
     travelAuthorization: boolean;
     imageRights: boolean;
     theftLossLiability: boolean;
     refund: boolean;
     internalRules: boolean;
-    signature: string;
-  } | null;
-  medic: {
-    medicalCertificate: boolean;
-    medicalComments?: string | undefined;
   } | null;
   isAdult: boolean | null;
 };
 
 type Actions = {
-  setMembership: (membershipData: State["membership"]) => void;
-  setMember: (memberData: State["member"]) => void;
-  setlegalGuardians: (
-    legalGuardiansData: State["legalGuardians"],
+  setCourses: (courses: State["courses"]) => void;
+  setMember: (member: State["member"]) => void;
+  setLegalGuardians: (legalGuardians: State["legalGuardians"]) => void;
+  setFile: (file: State["file"]) => void;
+  setAuthorization: (
+    authorization: State["authorization"],
+    undersignerLastname: string,
+    undersignerFirstname: string,
+    signature: string,
   ) => void;
-  setAuthorization: (authorizationData: State["authorization"]) => void;
-  setMedic: (medicData: State["medic"]) => void;
   setAdult: (isAdult: boolean) => void;
 };
 
 export type RegisterFormStore = State & Actions;
 
 export const defaultInitState: State = {
-  membership: null,
+  courses: null,
   member: null,
   legalGuardians: null,
+  file: null,
   authorization: null,
-  medic: null,
   isAdult: null,
 };
 
-export const createRegisterFormStore = (
-  initState: State = defaultInitState,
-) => {
-  return createStore<RegisterFormStore>()((set) => ({
-    ...initState,
-    setMembership: (membershipData) =>
-      set(() => ({ membership: membershipData })),
-    setMember: (memberData) => set(() => ({ member: memberData })),
-    setlegalGuardians: (legalGuardiansData) =>
-      set(() => ({ legalGuardians: legalGuardiansData })),
-    setAuthorization: (authorizationData) =>
-      set(() => ({ authorization: authorizationData })),
-    setMedic: (medicData) => set(() => ({ medic: medicData })),
-    setAdult: (isAdult) => set(() => ({ isAdult: isAdult })),
-  }));
-};
+export const useRegisterFormStore = createStore<RegisterFormStore>()(
+  persist(
+    (set, get) => ({
+      ...defaultInitState,
+      setCourses: (courses) => set(() => ({ courses })),
+      setMember: (member) => set(() => ({ member })),
+      setLegalGuardians: (legalGuardians) => set(() => ({ legalGuardians })),
+      setFile: (file) => set(() => ({ file })),
+      setAuthorization: (authorization) => set(() => ({ authorization })),
+      setAdult: (isAdult) => set(() => ({ isAdult })),
+    }),
+    {
+      name: "register-form-store",
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+);
