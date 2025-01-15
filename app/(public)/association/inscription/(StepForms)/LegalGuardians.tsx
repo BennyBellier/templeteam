@@ -26,22 +26,22 @@ const inputClass = cn("bg-background object-bottom");
 /* --------------------------------------------------------
  *                          Schema
    -------------------------------------------------------- */
-export const EmergencyContactSchema = z.object({
-  emergencyContactName1: z
+export const LegalGuardiansSchema = z.object({
+  LegalGuardiansName1: z
     .string({
       required_error: "Ce champ est obligatoire.",
     })
     .min(1, {
       message: "Ce champ est obligatoire.",
     }),
-  emergencyContactPhone1: z
+  LegalGuardiansPhone1: z
     .string({ required_error: "Ce champ est obligatoire." })
     .refine(isValidPhoneNumber, { message: "Numéro de téléphone invalide." })
     .or(z.literal("")),
-  emergencyContactName2: z
+  LegalGuardiansName2: z
     .string({ required_error: "Ce champ est obligatoire." })
     .optional(),
-  emergencyContactPhone2: z
+  LegalGuardiansPhone2: z
     .string()
     .refine(isValidPhoneNumber, { message: "Numéro de téléphone invalide." })
     .or(z.literal(""))
@@ -52,16 +52,16 @@ export const EmergencyContactSchema = z.object({
  *                          Form
    -------------------------------------------------------- */
 
-export default function EmergencyContact() {
+export default function LegalGuardians() {
   const { nextStep } = useStepper();
-  const [emergencyContact2PartialFilled, setEmergencyContact2PartialFilled] =
+  const [LegalGuardians2PartialFilled, setLegalGuardians2PartialFilled] =
     useState(false);
-  const { setEmergencyContact, emergencyContact, isAdult } =
+  const { setLegalGuardians, LegalGuardians, isAdult } =
     useRegisterFormStore((state) => state);
 
-  const dynamicSchema: z.ZodSchema<z.infer<typeof EmergencyContactSchema>> =
-    EmergencyContactSchema.extend({
-      emergencyContactName2: emergencyContact2PartialFilled
+  const dynamicSchema: z.ZodSchema<z.infer<typeof LegalGuardiansSchema>> =
+    LegalGuardiansSchema.extend({
+      LegalGuardiansName2: LegalGuardians2PartialFilled
         ? z.string({
             required_error: "Ce champ est obligatoire.",
           })
@@ -70,7 +70,7 @@ export default function EmergencyContact() {
               required_error: "Ce champ est obligatoire.",
             })
             .optional(),
-      emergencyContactPhone2: emergencyContact2PartialFilled
+      LegalGuardiansPhone2: LegalGuardians2PartialFilled
         ? z
             .string({
               required_error: "Ce champ est obligatoire.",
@@ -88,26 +88,26 @@ export default function EmergencyContact() {
             .optional(),
     });
 
-  const form = useForm<z.infer<typeof EmergencyContactSchema>>({
+  const form = useForm<z.infer<typeof LegalGuardiansSchema>>({
     resolver: zodResolver(dynamicSchema),
     resetOptions: {
       keepDirtyValues: true,
     },
     defaultValues: {
-      emergencyContactName1:
-        emergencyContact?.emergencyContactName1 ?? undefined,
-      emergencyContactPhone1:
-        emergencyContact?.emergencyContactPhone1 ?? undefined,
-      emergencyContactName2:
-        emergencyContact?.emergencyContactName2 ?? undefined,
-      emergencyContactPhone2:
-        emergencyContact?.emergencyContactPhone2 ?? undefined,
+      LegalGuardiansName1:
+        LegalGuardians?.LegalGuardiansName1 ?? undefined,
+      LegalGuardiansPhone1:
+        LegalGuardians?.LegalGuardiansPhone1 ?? undefined,
+      LegalGuardiansName2:
+        LegalGuardians?.LegalGuardiansName2 ?? undefined,
+      LegalGuardiansPhone2:
+        LegalGuardians?.LegalGuardiansPhone2 ?? undefined,
     },
     shouldFocusError: true,
   });
 
-  const onSubmit = async (data: z.infer<typeof EmergencyContactSchema>) => {
-    setEmergencyContact(data);
+  const onSubmit = async (data: z.infer<typeof LegalGuardiansSchema>) => {
+    setLegalGuardians(data);
     nextStep();
   };
 
@@ -129,7 +129,7 @@ export default function EmergencyContact() {
             </Typography>
             <FormField
               control={form.control}
-              name="emergencyContactName1"
+              name="LegalGuardiansName1"
               render={({ field }) => (
                 <FormItem className="col-span-2 sm:col-span-1">
                   <FormLabel>Nom prénom</FormLabel>
@@ -147,7 +147,7 @@ export default function EmergencyContact() {
             />
             <FormField
               control={form.control}
-              name="emergencyContactPhone1"
+              name="LegalGuardiansPhone1"
               render={({ field }) => (
                 <FormItem className="col-span-2 sm:col-span-1">
                   <FormLabel>Téléphone</FormLabel>
@@ -169,7 +169,7 @@ export default function EmergencyContact() {
             </Typography>
             <FormField
               control={form.control}
-              name="emergencyContactName2"
+              name="LegalGuardiansName2"
               render={({ field }) => (
                 <FormItem className="col-span-2 sm:col-span-1">
                   <FormLabel>Nom prénom</FormLabel>
@@ -181,8 +181,8 @@ export default function EmergencyContact() {
                       {...field}
                       onInput={(event) => {
                         event.currentTarget.value?.length
-                          ? setEmergencyContact2PartialFilled(true)
-                          : setEmergencyContact2PartialFilled(false);
+                          ? setLegalGuardians2PartialFilled(true)
+                          : setLegalGuardians2PartialFilled(false);
                       }}
                     />
                   </FormControl>
@@ -192,7 +192,7 @@ export default function EmergencyContact() {
             />
             <FormField
               control={form.control}
-              name="emergencyContactPhone2"
+              name="LegalGuardiansPhone2"
               render={({ field }) => (
                 <FormItem className="col-span-2 sm:col-span-1">
                   <FormLabel>Téléphone</FormLabel>
@@ -203,8 +203,8 @@ export default function EmergencyContact() {
                       aria-required={isAdult ?? false}
                       onInput={(event) => {
                         event.currentTarget.value?.length
-                          ? setEmergencyContact2PartialFilled(true)
-                          : setEmergencyContact2PartialFilled(false);
+                          ? setLegalGuardians2PartialFilled(true)
+                          : setLegalGuardians2PartialFilled(false);
                       }}
                     />
                   </FormControl>

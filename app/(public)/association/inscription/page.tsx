@@ -7,25 +7,29 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import { Step, Stepper } from "@/components/ui/stepper";
-import { RegisterFormStoreProvider } from "@/providers/RegisterFormProvider";
+// import { RegisterFormStoreProvider } from "@/providers/RegisterFormProvider";
 import Authorization from "./(StepForms)/Authorization";
-import EmergencyContact from "./(StepForms)/EmergencyContact";
-import MemberForm from "./(StepForms)/Member";
-import CoursesForm from "./(StepForms)/Courses";
-import Medic from "./(StepForms)/Medic";
-// import { FormResume } from "./StepperFormActions";
+import LegalGuardians from "./(StepForms)/LegalGuardians";
+import Member from "./(StepForms)/Member";
+import Courses from "./(StepForms)/Courses";
+import { Resume } from "./StepperFormActions";
+import { defineStepper } from "@stepperize/react";
+import { useMediaQuery } from "usehooks-ts";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import { Typography } from "@/components/ui/typography";
 
-const steps = [
-  { label: "Adhésion" },
-  { label: "Informations" },
-  { label: "Contact d'urgence", optional: true, description: "optionel" },
-  { label: "Médical" },
-  { label: "Autorisations" },
-  // { label: "Récapitulatif" },
-];
+const { useStepper } = defineStepper(
+  { index: 0, id: "courses", label: "Cours", optional: false },
+  { index: 1, id: "informations", label: "Informations", optional: false },
+  { index: 2, id: "legalGuardians", label: "Responsable légaux", optional: true },
+  { index: 3, id: "authorization", label: "Autorisations", optional: false },
+  { index: 4, id: "resume", label: "Récapitulatif", optional: false },
+);
 
 export default function Register() {
+  const stepper = useStepper();
+  const orientation = useMediaQuery("(max-with)")
   return (
     <Layout>
       <LayoutHeader>
@@ -35,48 +39,35 @@ export default function Register() {
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="gap-6">
-        {/* <RegisterFormStoreProvider> */}
-          <Stepper
-            variant="line"
-            initialStep={0}
-            steps={steps}
-            className="h-full w-full"
-          >
-            {steps.map((stepProps, index) => {
-              if (index === 0) {
-                return (
-                  <Step key={stepProps.label} {...stepProps} className="w-full">
-                    <CoursesForm />
-                  </Step>
-                );
-              } /* else if (index === 1) {
-                return (
-                  <Step key={stepProps.label} {...stepProps}>
-                    <MemberForm />
-                  </Step>
-                );
-              } else if (index === 2) {
-                return (
-                  <Step key={stepProps.label} {...stepProps}>
-                    <EmergencyContact />
-                  </Step>
-                );
-              } else if (index === 3) {
-                return (
-                  <Step key={stepProps.label} {...stepProps}>
-                    <Medic />
-                  </Step>
-                );
-              } else {
-                return (
-                  <Step key={stepProps.label} {...stepProps}>
-                    <Authorization />
-                  </Step>
-                );
-              } */
-            })}
-          </Stepper>
-        {/* </RegisterFormStoreProvider> */}
+        <ol className="flex w-full gap-2">
+          {stepper.all.map((step, index) => (
+            <li key={step.id} className="w-full flex-1 flex flex-col gap-0.5">
+              <Separator
+                className={cn(
+                  "h-0.5 w-full bg-border",
+                  index < stepper.current.index && "bg-blue-500",
+                )}
+              />
+              <Typography as="span" className="text-[0.8rem] font-light w-fit">
+                {step.label}
+              </Typography>
+              {step.optional && (
+                <Typography as="span" variant="muted" className="text-xs w-fit">
+                  optionel
+                </Typography>
+              )}
+            </li>
+          ))}
+        </ol>
+        <div>
+          {/* {stepper.switch({
+            courses: () => <Courses />,
+            informations: () => <Member />,
+            legalGuardians: () => <LegalGuardians />,
+            authorization: () => <Authorization />,
+            resume: () => <Resume />,
+          })} */}
+        </div>
       </LayoutSection>
     </Layout>
   );

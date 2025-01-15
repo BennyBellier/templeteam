@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useStepper } from "@/components/ui/stepper";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
+import { FormCard } from "./formCard";
 
 /* --------------------------------------------------------
                     Dropzones constantes
@@ -299,15 +300,15 @@ export const ThirdFormSchema = z.object({
  *                 Form Resume
    -------------------------------------------------------- */
 
-// function FormResume() {
-//   return (
-//     <FormCard
-//       title="Résumé"
-//       description=" "
-//       button={<StepperFormActions />}
-//     ></FormCard>
-//   );
-// }
+export function Resume() {
+  return (
+    <FormCard
+      title="Résumé"
+      description=" "
+      button={<StepperFormActions />}
+    ></FormCard>
+  );
+}
 
 /* --------------------------------------------------------
  *                 Stepper Form Action

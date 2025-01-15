@@ -134,9 +134,12 @@ export const MembershipSchema = z
  *                          Form
    -------------------------------------------------------- */
 
-export default function CoursesForm() {
+export default function Courses() {
   const { nextStep } = useStepper();
-  const { setMembership, membership } = useRegisterFormStore((state) => state);
+  const { setMembership, membership } = useStore(
+    useRegisterFormStore.getState,
+    (state) => state,
+  );
 
   const form = useForm<z.infer<typeof MembershipSchema>>({
     resolver: zodResolver(MembershipSchema),
@@ -217,10 +220,10 @@ export default function CoursesForm() {
                         className="col-start-1 row-start-2"
                       >
                         Votre enfant souhaite découvrir le Breakdance, une danse
-                        urbaine acrobatique et pleine d&apos;énergie ? Encadré par
-                        des professionnels passionnés, il sera accompagné dans
-                        l&apos;apprentissage de cette discipline artistique et
-                        sportive !
+                        urbaine acrobatique et pleine d&apos;énergie ? Encadré
+                        par des professionnels passionnés, il sera accompagné
+                        dans l&apos;apprentissage de cette discipline artistique
+                        et sportive !
                       </Typography>
                     </div>
                     <Localisation

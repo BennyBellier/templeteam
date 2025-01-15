@@ -124,7 +124,7 @@ export const MemberSchema = z.object({
  *                            Form
    -------------------------------------------------------- */
 
-export default function MemberForm() {
+export default function Member() {
   const { nextStep, setStep } = useStepper();
   const [isAdult, setIsAdult] = useState(false);
   const { setMember, member, setAdult } = useStore(
