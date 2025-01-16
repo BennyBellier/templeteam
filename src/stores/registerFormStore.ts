@@ -4,7 +4,7 @@ import { createStore } from "zustand/vanilla";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 const courseId = Prisma.validator<Prisma.CourseDefaultArgs>()({
-  select: { id: true },
+  select: { name: true },
 });
 
 const memberData = Prisma.validator<Prisma.MemberDefaultArgs>()({

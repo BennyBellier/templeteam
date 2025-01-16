@@ -106,9 +106,7 @@ export const AssociationRouter = createTRPCRouter({
       select:{
         name: true,
         description: true,
-        info: true
-      },
-      include: {
+        info: true,
         schedule: {
           select: {
             dayOfWeek: true,

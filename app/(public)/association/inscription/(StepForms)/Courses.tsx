@@ -21,6 +21,7 @@ import StepperFormActions from "../StepperFormActions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Rocket } from "lucide-react";
 import { trpc } from "@/trpc/TrpcProvider";
+import { useRegisterFormStore } from "@/stores/registerFormStore";
 
 /* --------------------------------------------------------
             Localisation element for First Form
@@ -136,7 +137,7 @@ export const MembershipSchema = z
 
 export default function Courses() {
   const { nextStep } = useStepper();
-  const query = trpc.association.
+  const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
   const { setCourses, courses } = useStore(
     useRegisterFormStore.getState,
     (state) => state,
@@ -148,8 +149,8 @@ export default function Courses() {
       keepDirtyValues: true,
     },
     defaultValues: {
-      templeRun: membership?.templeRun ?? false,
-      templeGym: membership?.templeGym ?? false,
+      templeRun: courses.,
+      templeGym: ,
     },
     shouldFocusError: true,
   });

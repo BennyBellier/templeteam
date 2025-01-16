@@ -17,7 +17,8 @@
     "email:dev": "email dev --port 3600",
     "format:check": "prettier --check \"**/*.{ts,tsx,md}\"",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "data-migration:add-gender_enum": "tsx ./prisma/migrations/20250113175744_add_gender_enum/data-migration.ts"
+    "data-migration:add-gender_enum": "tsx ./prisma/migrations/20250113175744_add_gender_enum/data-migration.ts",
+    "data-migration:replace-courseId-per-courseName": "tsx ./prisma/migrations/20250116120255_delete_id_for_course_use_name_instead/data-migration.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts",

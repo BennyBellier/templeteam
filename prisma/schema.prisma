@@ -219,17 +219,16 @@ model File {
 }
 
 model Course {
-  id               String          @id @default(uuid())
-  name             String          @unique
-  description      String
-  info             String?
-  price            Float
-  location         CourseLocation?
-  history          History[]
-  schedule         Schedule[]
-  Files            File[]          @relation("FileCourses")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  name        String          @id
+  description String
+  info        String?
+  price       Float
+  location    CourseLocation?
+  history     History[]
+  schedule    Schedule[]
+  Files       File[]          @relation("FileCourses")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([name])
   @@index([price])
@@ -242,28 +241,29 @@ model CourseLocation {
   postalCode     String
   appleLocation  String
   googleLocation String
-  courseId       String   @unique
-  course         Course   @relation(fields: [courseId], references: [id])
+  courseName     String   @unique
+  course         Course   @relation(fields: [courseName], references: [name])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  @@index([courseId])
+  @@index([courseName])
 }
 
 model Schedule {
-  id        String    @id @default(uuid())
-  dayOfWeek DayOfWeek
-  startHour DateTime
-  endHour   DateTime
-  courseId  String
-  Course    Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String    @id @default(uuid())
+  dayOfWeek  DayOfWeek
+  startHour  DateTime
+  endHour    DateTime
+  courseId String
+  courseName String
+  Course     Course    @relation(fields: [courseName], references: [name], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([dayOfWeek])
   @@index([startHour])
   @@index([endHour])
-  @@index([courseId, dayOfWeek])
+  @@index([courseName, dayOfWeek])
 }
 
 model History {
@@ -273,8 +273,8 @@ model History {
   memberId        String?
   legalGuardianId String?
   fileId          String?
-  courseId        String?
-  course          Course?        @relation(fields: [courseId], references: [id])
+  courseName      String?
+  course          Course?        @relation(fields: [courseName], references: [name])
   file            File?          @relation(fields: [fileId], references: [id])
   legalGuardian   LegalGuardian? @relation(fields: [legalGuardianId], references: [id])
   member          Member?        @relation(fields: [memberId], references: [id])
@@ -284,7 +284,7 @@ model History {
   @@index([memberId, action])
   @@index([legalGuardianId, action])
   @@index([fileId, action])
-  @@index([courseId, action])
+  @@index([courseName, action])
 }
 
 enum Role {
