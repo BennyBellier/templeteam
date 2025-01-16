@@ -219,18 +219,35 @@ model File {
 }
 
 model Course {
-  id          String     @id @default(uuid())
-  name        String     @unique
-  description String
-  price       Float      @default(180.00)
-  history     History[]
-  schedule    Schedule[]
-  Files       File[]     @relation("FileCourses")
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id               String          @id @default(uuid())
+  name             String          @unique
+  description      String
+  info             String?
+  price            Float
+  location         CourseLocation?
+  history          History[]
+  schedule         Schedule[]
+  Files            File[]          @relation("FileCourses")
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@index([name])
   @@index([price])
+}
+
+model CourseLocation {
+  id             String   @id @default(uuid())
+  place          String
+  city           String
+  postalCode     String
+  appleLocation  String
+  googleLocation String
+  courseId       String   @unique
+  course         Course   @relation(fields: [courseId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([courseId])
 }
 
 model Schedule {

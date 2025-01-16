@@ -12,7 +12,6 @@ import {
 import { useStepper } from "@/components/ui/stepper";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
-import { useRegisterFormStore } from "@/providers/RegisterFormProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
@@ -21,6 +20,7 @@ import { FormCard } from "../formCard";
 import StepperFormActions from "../StepperFormActions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Rocket } from "lucide-react";
+import { trpc } from "@/trpc/TrpcProvider";
 
 /* --------------------------------------------------------
             Localisation element for First Form
@@ -136,7 +136,8 @@ export const MembershipSchema = z
 
 export default function Courses() {
   const { nextStep } = useStepper();
-  const { setMembership, membership } = useStore(
+  const query = trpc.association.
+  const { setCourses, courses } = useStore(
     useRegisterFormStore.getState,
     (state) => state,
   );

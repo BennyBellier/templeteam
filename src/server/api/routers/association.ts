@@ -101,6 +101,34 @@ export const AssociationRouter = createTRPCRouter({
         },
       });
     }),
+  getCourses: publicProcedure.query(async ({ ctx }) => {
+    const courses = await ctx.prisma.course.findMany({
+      select:{
+        name: true,
+        description: true,
+        info: true
+      },
+      include: {
+        schedule: {
+          select: {
+            dayOfWeek: true,
+            startHour: true,
+            endHour: true,
+          }
+        },
+        location: {
+          select: {
+            place: true,
+            city: true,
+            postalCode: true,
+            appleLocation: true,
+            googleLocation: true,
+          }
+        }
+      }
+    });
+    return courses;
+  }),
   /* createLegalGuardians:
   createMemberAndFile: publicProcedure
     .input(
