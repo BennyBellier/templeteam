@@ -33,7 +33,7 @@ const fileData = Prisma.validator<Prisma.FileDefaultArgs>()({
 });
 
 type State = {
-  courses: Record<string, boolean>[] | null;
+  courses: Record<string, boolean> | null;
   member: Prisma.MemberGetPayload<typeof memberData> | null;
   legalGuardians:
     | Prisma.LegalGuardianGetPayload<typeof legalGuardiansData>[]

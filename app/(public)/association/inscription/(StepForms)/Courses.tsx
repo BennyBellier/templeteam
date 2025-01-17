@@ -39,7 +39,7 @@ const LocationInfo = Prisma.validator<Prisma.CourseLocationDefaultArgs>()({
 
 function Localisation({
   location 
-}: {location: Prisma.CourseLocationGetPayload<LocationInfo>}) {
+}: {location: Prisma.CourseLocationGetPayload<typeof LocationInfo>}) {
   const isMac =
     typeof window !== "undefined"
       ? navigator.userAgent.toUpperCase().indexOf("MAC") >= 0
@@ -118,15 +118,19 @@ export default function Courses() {
       keepDirtyValues: true,
     },
     defaultValues: {
-      checkboxes: new Array(coursesQuery.length).fill(false);
+      checkboxes: courses ? courses : new Array(coursesQuery.length).fill(false);
     },
     shouldFocusError: true,
   });
 
   const onSubmit = async (data: z.infer<typeof CoursesSchema>) => {
-    const checkedCourses: Record<string, boolean>[] = coursesQuery.map((course, index) => {
-        [course.name]: data.checkboxes[index] ?? false
-    });
+    const checkedCourses: Record<string, boolean> = coursesQuery.reduce(
+      (acc, course, index) => ({
+        ...acc,
+        [course.name]: data.checkboxes[index],
+      }),
+      {}
+    );
 
     setCourses(checkedCourses);
     nextStep();
@@ -206,9 +210,8 @@ export default function Courses() {
                          qui est le nôtre ! */}
                        </Typography>
                      </div>
-                     <Localisation
-                       location={course.location}
-                     />
+                     {course.location && (
+                     <Localisation location={course.location} />)}
                    </div>
                  </FormLabel>
                  <FormMessage />
