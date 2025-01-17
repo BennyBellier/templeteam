@@ -103,27 +103,27 @@ export const AssociationRouter = createTRPCRouter({
     }),
   getCourses: publicProcedure.query(async ({ ctx }) => {
     const courses = await ctx.prisma.course.findMany({
-      select:{
+      select: {
         name: true,
         description: true,
         info: true,
-        schedule: {
+        sessions: {
           select: {
+            id: true,
             dayOfWeek: true,
             startHour: true,
             endHour: true,
-          }
+            location: {
+              select: {
+                place: true,
+                city: true,
+                postalCode: true,
+                query: true,
+              },
+            },
+          },
         },
-        location: {
-          select: {
-            place: true,
-            city: true,
-            postalCode: true,
-            appleLocation: true,
-            googleLocation: true,
-          }
-        }
-      }
+      },
     });
     return courses;
   }),

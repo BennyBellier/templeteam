@@ -33,7 +33,6 @@ import { Separator } from "@/components/ui/separator";
 import { useStepper } from "@/components/ui/stepper";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
-import { useRegisterFormStore } from "@/providers/RegisterFormProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Info, Signature as SignatureIcon } from "lucide-react";
 import Image from "next/image";

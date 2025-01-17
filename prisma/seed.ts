@@ -13,28 +13,18 @@ const references = [
     img: "pvbc.png",
     href: "pvbc.fr",
     alt: "Logo du PVBC",
-    categoryId: 1,
   },
   {
     name: "Ville de Voiron",
     img: "ville-de-voiron-social-logo.png",
     href: "voiron.fr",
     alt: "Logo de la ville de Voiron",
-    categoryId: 1,
   },
   {
     name: "Outsider",
     img: null,
     href: null,
     alt: "Outsider",
-    categoryId: 1,
-  },
-];
-
-const referencesCategory = [
-  {
-    id: 1,
-    name: "Loisir & Tourisme",
   },
 ];
 
@@ -100,7 +90,8 @@ const main = async () => {
   await prisma.legalGuardian.deleteMany();
   await prisma.file.deleteMany();
   await prisma.course.deleteMany();
-  await prisma.schedule.deleteMany();
+  await prisma.courseSession.deleteMany();
+  await prisma.courseSessionLocation.deleteMany();
 
   process.stdout.write("Delete old data OK.\n");
 
@@ -118,12 +109,32 @@ const main = async () => {
   await prisma.course.create({
     data: {
       name: "Temple Run",
-      description: "",
-      schedule: {
+      description:
+        "Votre enfant souhaite découvrir le Parkour (art du déplacement) en intérieur, comme en extérieur ? Encadré, on sera l'accompagné dans la découverte de ce sport qui est le nôtre !",
+      price: 200,
+      sessions: {
         create: {
           dayOfWeek: "Saturday",
           startHour: new Date("1970-01-01T17:00:00Z"),
           endHour: new Date("1970-01-01T18:30:00Z"),
+          location: {
+            connectOrCreate: {
+              create: {
+                place: "Salle des Prairies",
+                city: "Voiron",
+                postalCode: "38500",
+                query:
+                  "22%20Av.%20Fran%C3%A7ois%20Mitterrand,%2038500%20Voiron",
+              },
+              where: {
+                place_city_postalCode: {
+                  place: "Salle des Prairies",
+                  city: "Voiron",
+                  postalCode: "38500",
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -132,12 +143,33 @@ const main = async () => {
   await prisma.course.create({
     data: {
       name: "Temple Gym Junior",
-      description: "",
-      schedule: {
+      description:
+        "Une salle spécialisée gymnastique, de quoi vous entraîner et essayer tout ce qui vous passe par la tête sans vous blesser !",
+      info: "de 6 à 13 ans",
+      price: 180,
+      sessions: {
         create: {
           dayOfWeek: "Saturday",
           startHour: new Date("1970-01-01T19:00:00Z"),
           endHour: new Date("1970-01-01T20:15:00Z"),
+          location: {
+            connectOrCreate: {
+              create: {
+                place: "Gymnase Pierre de Coubertin",
+                city: "Voiron",
+                postalCode: "38500",
+                query:
+                  "Gymnase%20Pierre%20de%20Coubertin,%206%20Rue%20George%20Sand,%2038500%20Voiron",
+              },
+              where: {
+                place_city_postalCode: {
+                  place: "Gymnase Pierre de Coubertin",
+                  city: "Voiron",
+                  postalCode: "38500",
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -146,12 +178,33 @@ const main = async () => {
   await prisma.course.create({
     data: {
       name: "Temple Gym",
-      description: "",
-      schedule: {
+      description:
+        "Une salle spécialisée gymnastique, de quoi vous entraîner et essayer tout ce qui vous passe par la tête sans vous blesser !",
+      info: "14 ans et +",
+      price: 200,
+      sessions: {
         create: {
           dayOfWeek: "Saturday",
           startHour: new Date("1970-01-01T20:15:00Z"),
           endHour: new Date("1970-01-01T21:45:00Z"),
+          location: {
+            connectOrCreate: {
+              create: {
+                place: "Gymnase Pierre de Coubertin",
+                city: "Voiron",
+                postalCode: "38500",
+                query:
+                  "Gymnase%20Pierre%20de%20Coubertin,%206%20Rue%20George%20Sand,%2038500%20Voiron",
+              },
+              where: {
+                place_city_postalCode: {
+                  place: "Gymnase Pierre de Coubertin",
+                  city: "Voiron",
+                  postalCode: "38500",
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -259,12 +312,25 @@ const main = async () => {
     });
   }
 
-  referencesCategory.map(async (category) => {
-    await prisma.referenceCategory.create({ data: category });
-  });
-
   references.map(async (ref) => {
-    await prisma.references.create({ data: ref });
+    await prisma.references.create({
+      data: {
+        name: ref.name,
+        img: ref.img,
+        href: ref.href,
+        alt: ref.alt,
+        category: {
+          connectOrCreate: {
+            create: {
+              name: "Loisir & Tourisme",
+            },
+            where: {
+              name: "Loisir & Tourisme",
+            },
+          },
+        },
+      },
+    });
   });
 
   for (const member of Members) {

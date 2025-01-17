@@ -49,7 +49,9 @@ export function associationPositionToText(position: string): string {
 export function getCountriesNames(lang = "fr") {
   const countries = require("i18n-iso-countries");
 
-  countries.registerLocale(require("i18n-iso-countries/langs/" + lang + ".json"));
+  countries.registerLocale(
+    require("i18n-iso-countries/langs/" + lang + ".json"),
+  );
   const jsonObject = countries.getNames(lang, { select: "official" });
 
   return Object.keys(jsonObject)
@@ -71,7 +73,7 @@ export const calculateAge = (birthDate: Date): number => {
   const thisYearBirthday = new Date(
     today.getFullYear(),
     birthDate.getMonth(),
-    birthDate.getDate()
+    birthDate.getDate(),
   );
 
   if (isBefore(today, thisYearBirthday)) {
@@ -79,4 +81,14 @@ export const calculateAge = (birthDate: Date): number => {
   }
 
   return age;
+};
+
+export const displayTime = (date: Date) => {
+  const hours = date.getUTCHours();
+  const minutes = date.getUTCMinutes();
+
+  if (minutes < 10) {
+    return `${hours}:0${minutes}`;
+  }
+  return `${hours}:${minutes}`;
 };
