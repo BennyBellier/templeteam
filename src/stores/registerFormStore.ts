@@ -3,10 +3,6 @@ import { Prisma } from "@prisma/client";
 import { createStore } from "zustand/vanilla";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-const courseId = Prisma.validator<Prisma.CourseDefaultArgs>()({
-  select: { name: true },
-});
-
 const memberData = Prisma.validator<Prisma.MemberDefaultArgs>()({
   omit: {
     id: true,
@@ -37,7 +33,7 @@ const fileData = Prisma.validator<Prisma.FileDefaultArgs>()({
 });
 
 type State = {
-  courses: Prisma.CourseGetPayload<typeof courseId>[] | null;
+  courses: Record<string, boolean>[] | null;
   member: Prisma.MemberGetPayload<typeof memberData> | null;
   legalGuardians:
     | Prisma.LegalGuardianGetPayload<typeof legalGuardiansData>[]

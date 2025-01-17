@@ -22,24 +22,24 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Rocket } from "lucide-react";
 import { trpc } from "@/trpc/TrpcProvider";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
+import useStore from "@/stores/useStore";
+import { Course, Prisma } from "@prisma/client";
 
 /* --------------------------------------------------------
             Localisation element for First Form
    -------------------------------------------------------- */
 
-type LocalisationProps = {
-  place: string;
-  city: string;
-  postalCode: string;
-  locationQuery: { apple: string; google: string };
-};
+const LocationInfo = Prisma.validator<Prisma.CourseLocationDefaultArgs>()({
+  omit: {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  }
+});
 
 function Localisation({
-  place,
-  city,
-  postalCode,
-  locationQuery,
-}: LocalisationProps) {
+  location 
+}: {location: Prisma.CourseLocationGetPayload<LocationInfo>}) {
   const isMac =
     typeof window !== "undefined"
       ? navigator.userAgent.toUpperCase().indexOf("MAC") >= 0
@@ -50,7 +50,7 @@ function Localisation({
       {isMac ? (
         <a
           target="_blank"
-          href={`http://maps.apple.com/?${locationQuery.apple}`}
+          href={`http://maps.apple.com/?${location.appleLocation}`}
         >
           <Image
             src="/img/icon/apple_map_icon.png"
@@ -63,7 +63,7 @@ function Localisation({
       ) : (
         <a
           target="_blank"
-          href={`https://www.google.com/maps/search/?api=1&${locationQuery.google}`}
+          href={`https://www.google.com/maps/search/?api=1&${location.googleLocation}`}
           className="w-14"
         >
           <Image
@@ -77,10 +77,10 @@ function Localisation({
       )}
       <div className="flex flex-col justify-start gap-0.5">
         <Typography as="h3" variant="base" className="text-base font-normal">
-          {place}
+          {location.place}
         </Typography>
         <Typography as="span" variant="base" className="font-light">
-          {city}, {postalCode}
+          {location.city}, {location.postalCode}
         </Typography>
       </div>
     </div>
@@ -91,45 +91,14 @@ function Localisation({
  *                          Schema
    -------------------------------------------------------- */
 
-export const MembershipSchema = z
-  .object({
-    templeRun: z.boolean().optional(),
-    templeGym: z.boolean().optional(),
-    templeBreak: z.boolean().optional(),
-    templeGymJunior: z.boolean().optional(),
+export const CoursesSchema = z.object({
+  checkboxes: z
+  .array(z.boolean())
+  .min(1, "Veuillez sélectionner au moins 1 cours.")
+  .refine((checkboxes) => checkboxes.some((checked) => checked), {
+    message: "Veuillez sélectionner au moins 1 cours."
   })
-  .superRefine((val, ctx) => {
-    // notentitled is a valid option on it's own no need to check other conditions
-    if (
-      val.templeRun ??
-      val.templeGym ??
-      val.templeBreak ??
-      val.templeGymJunior
-    )
-      return true;
-
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["templeRun"],
-      message: "Veuillez selectionner au moins un cours.",
-    });
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["templeBreak"],
-      message: "Veuillez selectionner au moins un cours.",
-    });
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["templeGymJunior"],
-      message: "Veuillez selectionner au moins un cours.",
-    });
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["templeGym"],
-      message: "Veuillez selectionner au moins un cours.",
-    });
-    return true;
-  });
+});
 
 /* --------------------------------------------------------
  *                          Form
@@ -143,20 +112,23 @@ export default function Courses() {
     (state) => state,
   );
 
-  const form = useForm<z.infer<typeof MembershipSchema>>({
-    resolver: zodResolver(MembershipSchema),
+  const form = useForm<z.infer<typeof CoursesSchema>>({
+    resolver: zodResolver(CoursesSchema),
     resetOptions: {
       keepDirtyValues: true,
     },
     defaultValues: {
-      templeRun: courses.,
-      templeGym: ,
+      checkboxes: new Array(coursesQuery.length).fill(false);
     },
     shouldFocusError: true,
   });
 
-  const onSubmit = async (data: z.infer<typeof MembershipSchema>) => {
-    setMembership(data);
+  const onSubmit = async (data: z.infer<typeof CoursesSchema>) => {
+    const checkedCourses: Record<string, boolean>[] = coursesQuery.map((course, index) => {
+        [course.name]: data.checkboxes[index] ?? false
+    });
+
+    setCourses(checkedCourses);
     nextStep();
   };
 
@@ -180,71 +152,71 @@ export default function Courses() {
               La licence est offert (soit 20 €) !
             </AlertDescription>
           </Alert>
-          <FormField
-            control={form.control}
-            name="templeBreak"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel
-                  className={cn(
-                    "flex cursor-pointer items-center gap-4 rounded-lg border p-6",
-                    field.value ? "border-primary" : "",
-                  )}
-                >
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="hidden"
-                    />
-                  </FormControl>
-                  <div className="grid w-full grid-cols-[3fr_1fr] grid-rows-[1.75rem_auto] gap-2">
-                    <Typography
-                      as="h1"
-                      variant="lead"
-                      className={cn(
-                        "col-span-2 col-start-1 row-start-1 text-foreground",
-                        field.value ? "text-primary" : "",
-                      )}
-                    >
-                      Temple Break
-                    </Typography>
-                    <div className="flex flex-col gap-2 font-normal">
-                      <Typography
-                        variant="base"
-                        className="col-start-1 row-start-2 self-start font-light"
-                      >
-                        Vendredi - 17h30/18h30
-                      </Typography>
-                      <Typography
-                        as="p"
-                        variant="base"
-                        className="col-start-1 row-start-2"
-                      >
-                        Votre enfant souhaite découvrir le Breakdance, une danse
-                        urbaine acrobatique et pleine d&apos;énergie ? Encadré
-                        par des professionnels passionnés, il sera accompagné
-                        dans l&apos;apprentissage de cette discipline artistique
-                        et sportive !
-                      </Typography>
-                    </div>
-                    <Localisation
-                      place="Salle des Prairies"
-                      city="Voiron"
-                      postalCode="38500"
-                      locationQuery={{
-                        apple:
-                          "address=22%20Av.%20Fran%C3%A7ois%20Mitterrand,%2038500%20Voiron",
-                        google:
-                          "query=22%20Av.%20Fran%C3%A7ois%20Mitterrand,%2038500%20Voiron",
-                      }}
-                    />
-                  </div>
-                </FormLabel>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+
+          {coursesQuery.map((course, index) => (
+             <FormField
+             control={form.control}
+             name={`checkboxes.${index}`}
+             render={({ field }) => (
+               <FormItem>
+                 <FormLabel
+                   className={cn(
+                     "flex cursor-pointer items-center gap-4 rounded-lg border p-6",
+                     field.value ? "border-primary" : "",
+                   )}
+                 >
+                   <FormControl>
+                     <Checkbox
+                       checked={field.value}
+                       onCheckedChange={field.onChange}
+                       className="hidden"
+                     />
+                   </FormControl>
+                   <div className="grid w-full grid-cols-[3fr_1fr] grid-rows-[1.75rem_auto] gap-2">
+                     <Typography
+                       as="h1"
+                       variant="lead"
+                       className={cn(
+                         "col-span-2 col-start-1 row-start-1 text-foreground",
+                         field.value ? "text-primary" : "",
+                       )}
+                     >
+                       {course.name}
+                     </Typography>
+                     <div className="flex flex-col gap-2 font-normal">
+                      <div className="flex gap-2">
+                        {course.schedule.map((schedule) => (
+                          <Typography
+                          variant="base"
+                          className="col-start-1 row-start-2 self-start font-light"
+                        >
+                          {`${schedule.dayOfWeek} - ${schedule.startHour}/${schedule.endHour}`}
+                        </Typography>
+                        ))}
+                       </div>
+                       <Typography
+                         as="p"
+                         variant="base"
+                         className="col-start-1 row-start-2"
+                       >
+                        {course.description}
+                         {/* Votre enfant souhaite découvrir le Parkour (art du
+                         déplacement) en intérieur, comme en extérieur ? Encadré,
+                         on sera l&apos;accompagné dans la découverte de ce sport
+                         qui est le nôtre ! */}
+                       </Typography>
+                     </div>
+                     <Localisation
+                       location={course.location}
+                     />
+                   </div>
+                 </FormLabel>
+                 <FormMessage />
+               </FormItem>
+             )}
+           />
+          ))}
+
           <FormField
             control={form.control}
             name="templeRun"
