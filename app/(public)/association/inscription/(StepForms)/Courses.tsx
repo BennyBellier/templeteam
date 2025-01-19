@@ -117,8 +117,6 @@ const coursesQueryProps = Prisma.validator<Prisma.CourseDefaultArgs>()({
   },
 });
 
-
-
 export default function Courses({
   query,
 }: {

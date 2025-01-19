@@ -34,7 +34,11 @@ const fileData = Prisma.validator<Prisma.FileDefaultArgs>()({
 
 type State = {
   courses: Record<string, boolean> | null;
-  member: Prisma.MemberGetPayload<typeof memberData> | null;
+  member:
+    | (Prisma.MemberGetPayload<typeof memberData> & {
+        photo: File | null;
+      })
+    | null;
   legalGuardians:
     | Prisma.LegalGuardianGetPayload<typeof legalGuardiansData>[]
     | null;
@@ -46,6 +50,8 @@ type State = {
     theftLossLiability: boolean;
     refund: boolean;
     internalRules: boolean;
+    undersigner: string;
+    signature: string;
   } | null;
   isAdult: boolean | null;
 };
@@ -55,12 +61,7 @@ type Actions = {
   setMember: (member: State["member"]) => void;
   setLegalGuardians: (legalGuardians: State["legalGuardians"]) => void;
   setFile: (file: State["file"]) => void;
-  setAuthorization: (
-    authorization: State["authorization"],
-    undersignerLastname: string,
-    undersignerFirstname: string,
-    signature: string,
-  ) => void;
+  setAuthorization: (authorization: State["authorization"]) => void;
   setAdult: (isAdult: boolean) => void;
 };
 
