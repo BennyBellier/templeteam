@@ -20,11 +20,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { defineStepper } from "@stepperize/react";
 import { Gender, Prisma } from "prisma/prisma-client";
 import { useForm } from "react-hook-form";
-import { isValidPhoneNumber } from "react-phone-number-input";
 import { useMediaQuery } from "usehooks-ts";
 import { z } from "zod";
 import Courses from "./(StepForms)/Courses";
 import Member from "./(StepForms)/Member";
+import LegalGuardians from "./(StepForms)/LegalGuardians";
 import { getPhoneData } from "@/components/ui/phone-input";
 
 /* --------------------------------------------------------
@@ -143,8 +143,16 @@ export const LegalGuardiansSchema = z.array(
     lastname: z.string({ required_error: "Ce champs est obligatoire." }),
     mail: z.string().email("Adresse email invalide.").nullable(),
     phone: z
-      .string({ required_error: "Ce champs est obligatoire." })
-      .refine(isValidPhoneNumber, { message: "Numéro de téléphone invalide." }),
+    .string({ required_error: "Ce champs est obligatoire." })
+    .refine(
+      (data) => {
+        const phoneData = getPhoneData(data);
+        return phoneData.isValid && phoneData.isPossible;
+      },
+      {
+        message: "Numéro de téléphone invalide.",
+      },
+    ),
   }),
 ) satisfies z.Schema<Prisma.LegalGuardianGetPayload<typeof legalGuardians>[]>;
 
@@ -182,14 +190,14 @@ const { useStepper } = defineStepper(
     label: "Cours",
     optional: false,
     schema: CoursesSchema,
-  }, */
+  },
   {
     index: 1,
     id: "informations",
     label: "Informations",
     optional: false,
     schema: MemberSchema,
-  },
+  }, */
   {
     index: 2,
     id: "legalGuardians",
@@ -227,7 +235,7 @@ export default function Register() {
         (course) => store.courses?.[course.name] ?? false,
       ),
       ...store.member,
-      medicalComment: store.member?.medicalComment ?? null,
+      medicalComment: store.member?.medicalComment ?? "",
       country: store.member?.country ?? "France",
     },
   });
@@ -292,7 +300,7 @@ export default function Register() {
       <LayoutSection className="gap-6">
         <ol className="flex w-full gap-2">
           {stepper.all.map((step, index) => (
-            <li key={step.id} className="flex w-full flex-1 flex-col gap-0.5">
+            <li key={step.id} className="relative flex w-full flex-1 flex-col gap-0.5">
               <Separator
                 className={cn(
                   "h-0.5 w-full bg-border",
@@ -320,8 +328,8 @@ export default function Register() {
               {stepper.switch({
                 courses: () => <Courses query={coursesQuery} />,
                 informations: () => <Member />,
-                /*legalGuardians: () => <LegalGuardians />,
-            authorization: () => <Authorization />,
+                legalGuardians: () => <LegalGuardians />,
+            /* authorization: () => <Authorization />,
             resume: () => <Resume />, */
               })}
               <CardFooter className={cn("h-12 w-full rounded-none p-0")}>

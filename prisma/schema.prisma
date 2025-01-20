@@ -224,8 +224,8 @@ model Course {
   info        String?
   price       Float
 
-  history  History[]
   sessions CourseSession[]
+  history  History[]
   Files    File[]          @relation("FileCourses")
 
   createdAt DateTime @default(now())

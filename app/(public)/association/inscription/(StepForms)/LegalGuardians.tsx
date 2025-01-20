@@ -8,136 +8,66 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input, PhoneInput } from "@/components/ui/input";
-import { useStepper } from "@/components/ui/stepper";
+import {
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { Typography } from "@/components/ui/typography";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useRegisterFormStore } from "@/providers/RegisterFormProvider";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { isValidPhoneNumber } from "react-phone-number-input";
+import { useFormContext } from "react-hook-form";
+import { type LegalGuardiansSchema } from "../page";
 import { z } from "zod";
-import { FormCard } from "../formCard";
-import StepperFormActions from "../StepperFormActions";
+import { CirclePlus, CircleMinus } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
 
 const inputClass = cn("bg-background object-bottom");
 
-/* --------------------------------------------------------
- *                          Schema
-   -------------------------------------------------------- */
-export const LegalGuardiansSchema = z.object({
-  LegalGuardiansName1: z
-    .string({
-      required_error: "Ce champ est obligatoire.",
-    })
-    .min(1, {
-      message: "Ce champ est obligatoire.",
-    }),
-  LegalGuardiansPhone1: z
-    .string({ required_error: "Ce champ est obligatoire." })
-    .refine(isValidPhoneNumber, { message: "Numéro de téléphone invalide." })
-    .or(z.literal("")),
-  LegalGuardiansName2: z
-    .string({ required_error: "Ce champ est obligatoire." })
-    .optional(),
-  LegalGuardiansPhone2: z
-    .string()
-    .refine(isValidPhoneNumber, { message: "Numéro de téléphone invalide." })
-    .or(z.literal(""))
-    .optional(),
-});
+const defaultCountry = "FR";
 
 /* --------------------------------------------------------
  *                          Form
    -------------------------------------------------------- */
 
 export default function LegalGuardians() {
-  const { nextStep } = useStepper();
+  const form = useFormContext<z.infer<typeof LegalGuardiansSchema>>();
+  const [nbLegalGuardians, setNbLegalGuardians] = useState(1);
   const [LegalGuardians2PartialFilled, setLegalGuardians2PartialFilled] =
     useState(false);
-  const { setLegalGuardians, LegalGuardians, isAdult } =
-    useRegisterFormStore((state) => state);
-
-  const dynamicSchema: z.ZodSchema<z.infer<typeof LegalGuardiansSchema>> =
-    LegalGuardiansSchema.extend({
-      LegalGuardiansName2: LegalGuardians2PartialFilled
-        ? z.string({
-            required_error: "Ce champ est obligatoire.",
-          })
-        : z
-            .string({
-              required_error: "Ce champ est obligatoire.",
-            })
-            .optional(),
-      LegalGuardiansPhone2: LegalGuardians2PartialFilled
-        ? z
-            .string({
-              required_error: "Ce champ est obligatoire.",
-            })
-            .refine(isValidPhoneNumber, {
-              message: "Numéro de téléphone invalide.",
-            })
-            .or(z.literal(""))
-        : z
-            .string()
-            .refine(isValidPhoneNumber, {
-              message: "Numéro de téléphone invalide.",
-            })
-            .or(z.literal(""))
-            .optional(),
-    });
-
-  const form = useForm<z.infer<typeof LegalGuardiansSchema>>({
-    resolver: zodResolver(dynamicSchema),
-    resetOptions: {
-      keepDirtyValues: true,
-    },
-    defaultValues: {
-      LegalGuardiansName1:
-        LegalGuardians?.LegalGuardiansName1 ?? undefined,
-      LegalGuardiansPhone1:
-        LegalGuardians?.LegalGuardiansPhone1 ?? undefined,
-      LegalGuardiansName2:
-        LegalGuardians?.LegalGuardiansName2 ?? undefined,
-      LegalGuardiansPhone2:
-        LegalGuardians?.LegalGuardiansPhone2 ?? undefined,
-    },
-    shouldFocusError: true,
-  });
-
-  const onSubmit = async (data: z.infer<typeof LegalGuardiansSchema>) => {
-    setLegalGuardians(data);
-    nextStep();
-  };
 
   return (
-    <Form {...form}>
-      <form
-        id="registerForm"
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6"
-      >
-        <FormCard
-          title="Autres informations"
-          description="Photo, contact d'urgence, etc..."
-          button={<StepperFormActions />}
-        >
-          <div className="col-span-2 grid w-full gap-2">
+    <>
+      <CardHeader className="flex-none pb-2 pt-4">
+        <Typography as={CardTitle} variant="h1" className="lg:text-4xl">
+          Responsables Légaux
+        </Typography>
+      </CardHeader>
+      <CardContent className="flex h-full flex-col gap-6">
+        {Array.from(
+          { length: nbLegalGuardians },
+          (value, index) => index + 1,
+        ).map((value) => (
+          <div key={uuidv4()} className="col-span-2 grid w-full gap-3">
             <Typography as="h2" variant="h3" className="col-span-2">
-              Contact d&apos;urgence n°1
+              Contact d&apos;urgence n°{value}
             </Typography>
             <FormField
               control={form.control}
-              name="LegalGuardiansName1"
+              name={`${value}.firstname`}
               render={({ field }) => (
-                <FormItem className="col-span-2 sm:col-span-1">
-                  <FormLabel>Nom prénom</FormLabel>
+                <FormItem>
+                  <FormLabel>Prénom</FormLabel>
                   <FormControl>
                     <Input
                       type="text"
-                      className={inputClass}
-                      aria-required={isAdult ?? false}
+                      placeholder="Pierre"
+                      className={cn(inputClass, "capitalize")}
+                      aria-required
                       {...field}
                     />
                   </FormControl>
@@ -147,15 +77,52 @@ export default function LegalGuardians() {
             />
             <FormField
               control={form.control}
-              name="LegalGuardiansPhone1"
+              name={`${value}.lastname`}
+              render={({ field }) => (
+                <FormItem className="col-start-2">
+                  <FormLabel>Nom</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Dupont"
+                      className={cn(inputClass, "uppercase")}
+                      aria-required
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`${value}.phone`}
               render={({ field }) => (
                 <FormItem className="col-span-2 sm:col-span-1">
                   <FormLabel>Téléphone</FormLabel>
                   <FormControl>
-                    <PhoneInput
-                      defaultCountry="FR"
+                    <PhoneInput defaultCountry="FR" {...field} aria-required />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name={`${value}.mail`}
+              render={({ field }) => (
+                <FormItem className="col-span-2">
+                  <FormLabel className="flex justify-between">E-mail<span className="translate-y-2 text-xs font-normal text-muted-foreground">
+                  optionnel
+                </span></FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="exemple@domaine.fr"
+                      className={inputClass}
                       {...field}
-                      aria-required={isAdult ?? false}
+                      value={field.value ?? ""}
+                      aria-required
                     />
                   </FormControl>
                   <FormMessage />
@@ -163,58 +130,33 @@ export default function LegalGuardians() {
               )}
             />
           </div>
-          <div className="col-span-2 grid w-full gap-2">
-            <Typography as="h2" variant="h3" className="col-span-2">
-              Contact d&apos;urgence n°2
-            </Typography>
-            <FormField
-              control={form.control}
-              name="LegalGuardiansName2"
-              render={({ field }) => (
-                <FormItem className="col-span-2 sm:col-span-1">
-                  <FormLabel>Nom prénom</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      className={inputClass}
-                      aria-required={isAdult ?? false}
-                      {...field}
-                      onInput={(event) => {
-                        event.currentTarget.value?.length
-                          ? setLegalGuardians2PartialFilled(true)
-                          : setLegalGuardians2PartialFilled(false);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="LegalGuardiansPhone2"
-              render={({ field }) => (
-                <FormItem className="col-span-2 sm:col-span-1">
-                  <FormLabel>Téléphone</FormLabel>
-                  <FormControl>
-                    <PhoneInput
-                      defaultCountry="FR"
-                      {...field}
-                      aria-required={isAdult ?? false}
-                      onInput={(event) => {
-                        event.currentTarget.value?.length
-                          ? setLegalGuardians2PartialFilled(true)
-                          : setLegalGuardians2PartialFilled(false);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-        </FormCard>
-      </form>
-    </Form>
+        ))}
+        <div className="flex gap-2 ml-auto">
+          {nbLegalGuardians > 1 && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                const newValue = nbLegalGuardians - 1;
+                setNbLegalGuardians(newValue);
+                form.
+              }}
+              className="flex w-fit gap-2"
+            >
+              <CircleMinus /> <span>Supprimer</span>
+            </Button>
+          )}
+          <Button
+            variant="default"
+            onClick={() => {
+              const newValue = nbLegalGuardians + 1;
+              setNbLegalGuardians(newValue);
+            }}
+            className="flex w-fit gap-2"
+          >
+            <CirclePlus /> <span>Ajouter</span>
+          </Button>
+        </div>
+      </CardContent>
+    </>
   );
 }
