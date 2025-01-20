@@ -18,7 +18,7 @@ import useStore from "@/stores/useStore";
 import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defineStepper } from "@stepperize/react";
-import { Gender, Prisma } from "prisma/prisma-client";
+import { Gender } from "prisma/prisma-client";
 import { useForm } from "react-hook-form";
 import { useMediaQuery } from "usehooks-ts";
 import { z } from "zod";
@@ -45,35 +45,25 @@ const ACCEPTED_FILE_TYPES = [
    -------------------------------------------------------- */
 
 export const CoursesSchema = z.object({
-  checkboxes: z
-    .array(z.boolean())
-    .refine((checkboxes) => checkboxes.some((checked) => checked), {
+  courses: z
+    .boolean()
+    .array()
+    .refine((courses) => courses.some((checked) => checked), {
       message: "Veuillez sélectionner au moins un cours.",
     }),
-});
-
-const memberWithoutPhoto = Prisma.validator<Prisma.MemberDefaultArgs>()({
-  omit: {
-    id: true,
-    birthdate: true,
-    photo: true,
-    createdAt: true,
-    updatedAt: true,
-  },
 });
 
 export const MemberSchema = z
   .object({
     photo: z
-      .array(z.instanceof(File), { message: "Ce champs est obligatoire." })
+      .array(z.instanceof(File))
       .refine((files) => files.length > 0, "La photo est obligatoire.")
       .refine((files) => {
         return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
       }, "La taille du fichier doit faire moins de 3MB.")
       .refine((files) => {
         return files?.every((file) => ACCEPTED_FILE_TYPES.includes(file.type));
-      }, "Le fichier doit être de type PNG, JPEG ou TIFF.")
-      .nullable(),
+      }, "Le fichier doit être de type PNG, JPEG ou TIFF.").nullable(),
     firstname: z.string({ required_error: "Ce champs est obligatoire." }),
     lastname: z.string({ required_error: "Ce champs est obligatoire." }),
     birthdate: z
@@ -88,7 +78,7 @@ export const MemberSchema = z
     gender: z.nativeEnum(Gender, {
       required_error: "Ce champs est obligatoire.",
     }),
-    mail: z.string().email("Adresse email invalide.").nullable(),
+    mail: z.string().email("Adresse email invalide.").optional(),
     phone: z
       .string()
       .refine(
@@ -100,7 +90,7 @@ export const MemberSchema = z
           message: "Numéro de téléphone invalide.",
         },
       )
-      .nullable(),
+      .optional(),
     address: z.string({ required_error: "Ce champs est obligatoire." }),
     city: z.string({ required_error: "Ce champs est obligatoire." }),
     postalCode: z
@@ -114,7 +104,7 @@ export const MemberSchema = z
     medicalComment: z
       .string()
       .max(200, { message: "Le texte est trop long." })
-      .nullable(),
+      .optional(),
   })
   .superRefine((data, ctx) => {
     const age = calculateAge(new Date(data.birthdate ?? ""));
@@ -127,24 +117,15 @@ export const MemberSchema = z
           "L'email et le numéro de téléphone sont obligatoires pour les personnes de 18 ans et plus.",
       });
     }
-  }) satisfies z.Schema<Prisma.MemberGetPayload<typeof memberWithoutPhoto>>;
+  });
 
-const legalGuardians = Prisma.validator<Prisma.LegalGuardianDefaultArgs>()({
-  omit: {
-    id: true,
-    createdAt: true,
-    updatedAt: true,
-  },
-});
-
-export const LegalGuardiansSchema = z.array(
+export const LegalGuardiansSchema = z.object({
+  legalGuardians: z.array(
   z.object({
     firstname: z.string({ required_error: "Ce champs est obligatoire." }),
     lastname: z.string({ required_error: "Ce champs est obligatoire." }),
-    mail: z.string().email("Adresse email invalide.").nullable(),
-    phone: z
-    .string({ required_error: "Ce champs est obligatoire." })
-    .refine(
+    mail: z.string().email("Adresse email invalide.").optional(),
+    phone: z.string({ required_error: "Ce champs est obligatoire." }).refine(
       (data) => {
         const phoneData = getPhoneData(data);
         return phoneData.isValid && phoneData.isPossible;
@@ -154,7 +135,7 @@ export const LegalGuardiansSchema = z.array(
       },
     ),
   }),
-) satisfies z.Schema<Prisma.LegalGuardianGetPayload<typeof legalGuardians>[]>;
+).min(1, "Au moins un responsable légal est requis.")});
 
 export const AuthorizationSchema = z.object({
   undersigner: z.string({ required_error: "Ce champs est obligatoire." }),
@@ -184,7 +165,7 @@ export const ResumeSchema = z.object({});
    -------------------------------------------------------- */
 
 const { useStepper } = defineStepper(
-  /* {
+  {
     index: 0,
     id: "courses",
     label: "Cours",
@@ -197,7 +178,7 @@ const { useStepper } = defineStepper(
     label: "Informations",
     optional: false,
     schema: MemberSchema,
-  }, */
+  },
   {
     index: 2,
     id: "legalGuardians",
@@ -229,14 +210,23 @@ export default function Register() {
 
   const form = useForm({
     mode: "onTouched",
-    resolver: zodResolver(stepper.current.schema),
+    resolver: /* async (data, context, options) => {
+      // you can debug your validation schema here
+      console.log("formData", data);
+      console.log(
+        "validation result",
+        await zodResolver(stepper.current.schema)(data, context, options),
+      );
+      return zodResolver(stepper.current.schema)(data, context, options);
+    } */ zodResolver(stepper.current.schema),
     defaultValues: {
-      checkboxes: coursesQuery.map(
+      courses: coursesQuery.map(
         (course) => store.courses?.[course.name] ?? false,
       ),
       ...store.member,
-      medicalComment: store.member?.medicalComment ?? "",
+      photo: null,
       country: store.member?.country ?? "France",
+      legalGuardians : store.legalGuardians ? store.legalGuardians : Array(1),
     },
   });
 
@@ -244,22 +234,21 @@ export default function Register() {
     console.log(stepper.current.id);
     switch (stepper.current.id) {
       case "courses":
-        const coursesValues = values as z.infer<typeof CoursesSchema>;
-        const checkedCourses: Record<string, boolean> = coursesQuery.reduce(
+        const data = values as z.infer<typeof CoursesSchema>;
+        const courses: Record<string, boolean> = coursesQuery.reduce(
           (acc, course, index) => ({
             ...acc,
-            [course.name]: coursesValues.checkboxes[index],
+            [course.name]: data.courses[index],
           }),
           {},
         );
-        store.setCourses(checkedCourses);
+        store.setCourses(courses);
         stepper.next();
         break;
 
       case "informations":
-        const membersInfo = values as z.infer<typeof MemberSchema>;
-        const image: File | null = membersInfo.photo?.[0] ?? null;
-        store.setMember({ ...membersInfo, photo: image });
+        const memberInfo = values as z.infer<typeof MemberSchema>;
+        store.setMember({ ...memberInfo});
         console.log(store.member);
         stepper.next();
         break;
@@ -268,7 +257,7 @@ export default function Register() {
         const legalGuardiansValues = values as z.infer<
           typeof LegalGuardiansSchema
         >;
-        store.setLegalGuardians(legalGuardiansValues);
+        store.setLegalGuardians(legalGuardiansValues.legalGuardians);
         stepper.next();
         break;
 
@@ -300,7 +289,10 @@ export default function Register() {
       <LayoutSection className="gap-6">
         <ol className="flex w-full gap-2">
           {stepper.all.map((step, index) => (
-            <li key={step.id} className="relative flex w-full flex-1 flex-col gap-0.5">
+            <li
+              key={step.id}
+              className="relative flex w-full flex-1 flex-col gap-0.5"
+            >
               <Separator
                 className={cn(
                   "h-0.5 w-full bg-border",
@@ -329,7 +321,7 @@ export default function Register() {
                 courses: () => <Courses query={coursesQuery} />,
                 informations: () => <Member />,
                 legalGuardians: () => <LegalGuardians />,
-            /* authorization: () => <Authorization />,
+                /* authorization: () => <Authorization />,
             resume: () => <Resume />, */
               })}
               <CardFooter className={cn("h-12 w-full rounded-none p-0")}>

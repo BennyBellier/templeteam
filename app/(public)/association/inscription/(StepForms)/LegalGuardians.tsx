@@ -1,34 +1,24 @@
 "use client";
 
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import {
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { Typography } from "@/components/ui/typography";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { type LegalGuardiansSchema } from "../page";
-import { z } from "zod";
-import { CirclePlus, CircleMinus } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
+import type { z } from "zod";
+import { CirclePlus, Trash2 } from "lucide-react";
 
 const inputClass = cn("bg-background object-bottom");
-
-const defaultCountry = "FR";
 
 /* --------------------------------------------------------
  *                          Form
@@ -36,9 +26,9 @@ const defaultCountry = "FR";
 
 export default function LegalGuardians() {
   const form = useFormContext<z.infer<typeof LegalGuardiansSchema>>();
-  const [nbLegalGuardians, setNbLegalGuardians] = useState(1);
-  const [LegalGuardians2PartialFilled, setLegalGuardians2PartialFilled] =
-    useState(false);
+  const { fields, append, remove } = useFieldArray({
+    name: "legalGuardian",
+  });
 
   return (
     <>
@@ -48,17 +38,26 @@ export default function LegalGuardians() {
         </Typography>
       </CardHeader>
       <CardContent className="flex h-full flex-col gap-6">
-        {Array.from(
-          { length: nbLegalGuardians },
-          (value, index) => index + 1,
-        ).map((value) => (
-          <div key={uuidv4()} className="col-span-2 grid w-full gap-3">
-            <Typography as="h2" variant="h3" className="col-span-2">
-              Contact d&apos;urgence n°{value}
-            </Typography>
+        {fields.map((field, index) => (
+          <div key={field.id} className="col-span-2 grid w-full gap-3">
+            <div className="col-span-2 flex justify-between">
+              <Typography as="h2" variant="h3" className="col-span-2">
+                Contact d&apos;urgence n°{index + 1}
+              </Typography>
+              {index !== 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => remove(index)}
+                  className="flex w-fit gap-2 px-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
             <FormField
               control={form.control}
-              name={`${value}.firstname`}
+              name={`legalGuardians.${index}.firstname`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Prénom</FormLabel>
@@ -77,7 +76,7 @@ export default function LegalGuardians() {
             />
             <FormField
               control={form.control}
-              name={`${value}.lastname`}
+              name={`legalGuardians.${index}.lastname`}
               render={({ field }) => (
                 <FormItem className="col-start-2">
                   <FormLabel>Nom</FormLabel>
@@ -96,12 +95,16 @@ export default function LegalGuardians() {
             />
             <FormField
               control={form.control}
-              name={`${value}.phone`}
+              name={`legalGuardians.${index}.phone`}
               render={({ field }) => (
                 <FormItem className="col-span-2 sm:col-span-1">
                   <FormLabel>Téléphone</FormLabel>
                   <FormControl>
-                    <PhoneInput defaultCountry="FR" {...field} aria-required />
+                    <PhoneInput
+                      defaultCountry="FR"
+                      {...field}
+                      aria-required
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,12 +112,15 @@ export default function LegalGuardians() {
             />
             <FormField
               control={form.control}
-              name={`${value}.mail`}
+              name={`legalGuardians.${index}.mail`}
               render={({ field }) => (
                 <FormItem className="col-span-2">
-                  <FormLabel className="flex justify-between">E-mail<span className="translate-y-2 text-xs font-normal text-muted-foreground">
-                  optionnel
-                </span></FormLabel>
+                  <FormLabel className="flex justify-between">
+                    E-mail
+                    <span className="translate-y-2 text-xs font-normal text-muted-foreground">
+                      optionnel
+                    </span>
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -122,7 +128,6 @@ export default function LegalGuardians() {
                       className={inputClass}
                       {...field}
                       value={field.value ?? ""}
-                      aria-required
                     />
                   </FormControl>
                   <FormMessage />
@@ -131,26 +136,17 @@ export default function LegalGuardians() {
             />
           </div>
         ))}
-        <div className="flex gap-2 ml-auto">
-          {nbLegalGuardians > 1 && (
-            <Button
-              variant="outline"
-              onClick={() => {
-                const newValue = nbLegalGuardians - 1;
-                setNbLegalGuardians(newValue);
-                form.
-              }}
-              className="flex w-fit gap-2"
-            >
-              <CircleMinus /> <span>Supprimer</span>
-            </Button>
-          )}
+        <div className="ml-auto flex gap-2">
           <Button
             variant="default"
-            onClick={() => {
-              const newValue = nbLegalGuardians + 1;
-              setNbLegalGuardians(newValue);
-            }}
+            onClick={() =>
+              append({
+                firstname: "",
+                lastname: "",
+                phone: "",
+                mail: "",
+              })
+            }
             className="flex w-fit gap-2"
           >
             <CirclePlus /> <span>Ajouter</span>

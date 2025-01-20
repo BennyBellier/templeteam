@@ -83,7 +83,7 @@ export default function Member() {
 
   const birthdate = form.watch("birthdate");
 
-  const isAdult = birthdate ? calculateAge(birthdate) >= 18 : false;
+  const isAdult = calculateAge(new Date(birthdate)) >= 18;
 
   return (
     <>
@@ -217,7 +217,6 @@ export default function Member() {
                   className={inputClass}
                   aria-required={isAdult}
                   {...field}
-                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -240,7 +239,6 @@ export default function Member() {
               <FormControl>
                 <PhoneInput
                   {...field}
-                  value={field.value ?? undefined}
                   aria-required={isAdult}
                   defaultCountry={defaultCountry}
                 />
