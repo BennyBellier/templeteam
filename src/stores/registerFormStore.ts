@@ -1,10 +1,11 @@
 // import type { z } from "zod";
 import { type Gender } from "@prisma/client";
 import { createStore } from "zustand/vanilla";
+import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 type MemberState = {
-  photo: File[] | null;
+  photo: File | null;
   firstname: string;
   lastname: string;
   birthdate: Date;
@@ -59,18 +60,18 @@ export const defaultInitState: State = {
   authorization: undefined,
 };
 
-export const useRegisterFormStore = createStore<RegisterFormStore>()(
-  persist(
-    (set, get) => ({
+export const useRegisterFormStore = create<RegisterFormStore>(
+  // persist(
+    (set) => ({
       ...defaultInitState,
       setCourses: (courses) => set(() => ({ courses })),
       setMember: (member) => set(() => ({ member })),
       setLegalGuardians: (legalGuardians) => set(() => ({ legalGuardians })),
       setAuthorization: (authorization) => set(() => ({ authorization })),
     }),
-    {
-      name: "register-form-store",
-      storage: createJSONStorage(() => localStorage),
-    },
-  ),
+  //   {
+  //     name: "register-form-store",
+  //     storage: createJSONStorage(() => localStorage),
+  //   },
+  // ),
 );

@@ -26,6 +26,7 @@ import Courses from "./(StepForms)/Courses";
 import Member from "./(StepForms)/Member";
 import LegalGuardians from "./(StepForms)/LegalGuardians";
 import { getPhoneData } from "@/components/ui/phone-input";
+import { useEffect } from "react";
 
 /* --------------------------------------------------------
                     Dropzones constantes
@@ -56,14 +57,16 @@ export const CoursesSchema = z.object({
 export const MemberSchema = z
   .object({
     photo: z
-      .array(z.instanceof(File))
+      .array(z.instanceof(File), {
+        invalid_type_error: "La photo est obligatoire.",
+      })
       .refine((files) => files.length > 0, "La photo est obligatoire.")
       .refine((files) => {
         return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
       }, "La taille du fichier doit faire moins de 3MB.")
       .refine((files) => {
         return files?.every((file) => ACCEPTED_FILE_TYPES.includes(file.type));
-      }, "Le fichier doit être de type PNG, JPEG ou TIFF.").nullable(),
+      }, "Le fichier doit être de type PNG, JPEG ou TIFF."),
     firstname: z.string({ required_error: "Ce champs est obligatoire." }),
     lastname: z.string({ required_error: "Ce champs est obligatoire." }),
     birthdate: z
@@ -120,22 +123,27 @@ export const MemberSchema = z
   });
 
 export const LegalGuardiansSchema = z.object({
-  legalGuardians: z.array(
-  z.object({
-    firstname: z.string({ required_error: "Ce champs est obligatoire." }),
-    lastname: z.string({ required_error: "Ce champs est obligatoire." }),
-    mail: z.string().email("Adresse email invalide.").optional(),
-    phone: z.string({ required_error: "Ce champs est obligatoire." }).refine(
-      (data) => {
-        const phoneData = getPhoneData(data);
-        return phoneData.isValid && phoneData.isPossible;
-      },
-      {
-        message: "Numéro de téléphone invalide.",
-      },
-    ),
-  }),
-).min(1, "Au moins un responsable légal est requis.")});
+  legalGuardians: z
+    .array(
+      z.object({
+        firstname: z.string({ required_error: "Ce champs est obligatoire." }),
+        lastname: z.string({ required_error: "Ce champs est obligatoire." }),
+        mail: z.string().email("Adresse email invalide.").optional(),
+        phone: z
+          .string({ required_error: "Ce champs est obligatoire." })
+          .refine(
+            (data) => {
+              const phoneData = getPhoneData(data);
+              return phoneData.isValid && phoneData.isPossible;
+            },
+            {
+              message: "Numéro de téléphone invalide.",
+            },
+          ),
+      }),
+    )
+    .min(1, "Au moins un responsable légal est requis."),
+});
 
 export const AuthorizationSchema = z.object({
   undersigner: z.string({ required_error: "Ce champs est obligatoire." }),
@@ -206,7 +214,18 @@ export default function Register() {
   const stepper = useStepper();
   const orientation = useMediaQuery("(max-with: 768px)");
   const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
-  const store = useStore(useRegisterFormStore.getState, (state) => state);
+  const courses = useRegisterFormStore((state) => state.courses);
+  const setCourses = useRegisterFormStore((state) => state.setCourses);
+  const member = useRegisterFormStore((state) => state.member);
+  const setMember = useRegisterFormStore((state) => state.setMember); // useStore(useRegisterFormStore.getState, (state) => state);
+  const legalGuardians = useRegisterFormStore((state) => state.legalGuardians);
+  const setLegalGuardians = useRegisterFormStore((state) => state.setLegalGuardians);
+
+  useEffect(() => {
+    if (member) {
+      console.log("Store values updated: ", member);
+    }
+  }, [member]);
 
   const form = useForm({
     mode: "onTouched",
@@ -221,17 +240,19 @@ export default function Register() {
     } */ zodResolver(stepper.current.schema),
     defaultValues: {
       courses: coursesQuery.map(
-        (course) => store.courses?.[course.name] ?? false,
+        (course) => courses?.[course.name] ?? false,
       ),
-      ...store.member,
+      ...member,
       photo: null,
-      country: store.member?.country ?? "France",
-      legalGuardians : store.legalGuardians ? store.legalGuardians : Array(1),
+      country: member?.country ?? "France",
+      legalGuardians: legalGuardians ?? [
+        { firstname: "", lastname: "", phone: "", mail: "" },
+      ],
     },
   });
 
   const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
-    console.log(stepper.current.id);
+    console.log(values);
     switch (stepper.current.id) {
       case "courses":
         const data = values as z.infer<typeof CoursesSchema>;
@@ -242,22 +263,39 @@ export default function Register() {
           }),
           {},
         );
-        store.setCourses(courses);
+        setCourses(courses);
         stepper.next();
         break;
 
       case "informations":
         const memberInfo = values as z.infer<typeof MemberSchema>;
-        store.setMember({ ...memberInfo});
-        console.log(store.member);
+        console.log("Form values : ", memberInfo);
+        const firstname = memberInfo.firstname.trim()[0]?.toUpperCase() + memberInfo.firstname.trim().slice(1);
+        const lastname = memberInfo.lastname.trim().toUpperCase();
+        const address = memberInfo.address.trim().toUpperCase();
+        const city = memberInfo.city.trim().toUpperCase();
+        const postalCode = memberInfo.postalCode.trim();
+
+        setMember({
+          ...memberInfo,
+          photo: memberInfo.photo[0] ?? null,
+          firstname,
+          lastname,
+          address,
+          city,
+          postalCode,
+          });
+
         stepper.next();
+
+        // stepper.goTo("authorization");
         break;
 
       case "legalGuardians":
         const legalGuardiansValues = values as z.infer<
           typeof LegalGuardiansSchema
         >;
-        store.setLegalGuardians(legalGuardiansValues.legalGuardians);
+        setLegalGuardians(legalGuardiansValues.legalGuardians);
         stepper.next();
         break;
 
@@ -265,11 +303,12 @@ export default function Register() {
         const authorizationValues = values as z.infer<
           typeof AuthorizationSchema
         >;
-        store.setAuthorization(authorizationValues);
+        // store.setAuthorization(authorizationValues);
         stepper.next();
         break;
 
       case "resume":
+        console.log(values);
         stepper.reset();
         break;
 
@@ -288,27 +327,39 @@ export default function Register() {
       </LayoutHeader>
       <LayoutSection className="gap-6">
         <ol className="flex w-full gap-2">
-          {stepper.all.map((step, index) => (
-            <li
-              key={step.id}
-              className="relative flex w-full flex-1 flex-col gap-0.5"
-            >
-              <Separator
-                className={cn(
-                  "h-0.5 w-full bg-border",
-                  index < stepper.current.index && "bg-blue-500",
-                )}
-              />
-              <Typography as="span" className="w-fit text-[0.8rem] font-light">
-                {step.label}
-              </Typography>
-              {step.optional && (
-                <Typography as="span" variant="muted" className="w-fit text-xs">
-                  optionel
-                </Typography>
-              )}
-            </li>
-          ))}
+          {stepper.all.map((step, index) => {
+            if (step.id !== "legalGuardians") {
+              return (
+                <li
+                  key={step.id}
+                  className="relative flex w-full flex-1 flex-col gap-0.5"
+                >
+                  <Separator
+                    className={cn(
+                      "h-0.5 w-full bg-border",
+                      index < stepper.current.index && "bg-blue-500",
+                    )}
+                  />
+                  <Typography
+                    as="span"
+                    className="w-fit text-[0.8rem] font-light"
+                  >
+                    {step.label}
+                  </Typography>
+                  {step.optional && (
+                    <Typography
+                      as="span"
+                      variant="muted"
+                      className="w-fit text-xs"
+                    >
+                      optionel
+                    </Typography>
+                  )}
+                </li>
+              );
+            }
+            return null;
+          })}
         </ol>
         <Form {...form}>
           <form id="registerForm" onSubmit={form.handleSubmit(onSubmit)}>

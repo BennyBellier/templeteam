@@ -27,8 +27,10 @@ const inputClass = cn("bg-background object-bottom");
 export default function LegalGuardians() {
   const form = useFormContext<z.infer<typeof LegalGuardiansSchema>>();
   const { fields, append, remove } = useFieldArray({
-    name: "legalGuardian",
+    name: "legalGuardians",
   });
+
+  const rootError = form.formState.errors.legalGuardians?.root;
 
   return (
     <>
@@ -152,6 +154,7 @@ export default function LegalGuardians() {
             <CirclePlus /> <span>Ajouter</span>
           </Button>
         </div>
+        <Typography variant="alert" className={cn(!rootError && "hidden")}>{rootError?.message}</Typography>
       </CardContent>
     </>
   );
