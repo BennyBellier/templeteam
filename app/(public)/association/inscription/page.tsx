@@ -25,6 +25,7 @@ import Courses from "./(StepForms)/Courses";
 import Member from "./(StepForms)/Member";
 import LegalGuardians from "./(StepForms)/LegalGuardians";
 import Authorization from "./(StepForms)/Authorization";
+import Resume from "./(StepForms)/Resume";
 import { getPhoneData } from "@/components/ui/phone-input";
 import { useEffect } from "react";
 
@@ -215,7 +216,11 @@ export default function Register() {
   const orientation = useMediaQuery("(max-with: 768px)");
   const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
   const store = useRegisterFormStore((state) => state);
-  const scrollComponent = document.getElementById("main-scrollArea");
+  let scrollComponent: HTMLElement | null = null;
+
+  useEffect(() => {
+    scrollComponent = document.getElementById("main-scrollArea");
+  }, []);
 
   const form = useForm({
     mode: "onTouched",
@@ -229,7 +234,9 @@ export default function Register() {
       return zodResolver(stepper.current.schema)(data, context, options);
     } */ zodResolver(stepper.current.schema),
     defaultValues: {
-      courses: coursesQuery.map((course) => store.courses?.[course.name] ?? false),
+      courses: coursesQuery.map(
+        (course) => store.courses?.[course.name] ?? false,
+      ),
       ...store.member,
       photo: null,
       country: store.member?.country ?? "France",
@@ -239,9 +246,8 @@ export default function Register() {
           lastname: undefined,
           phone: "",
           mail: undefined,
-        }
+        },
       ],
-      ...store.authorization,
     },
   });
 
@@ -272,21 +278,22 @@ export default function Register() {
         const address = memberInfo.address.trim().toUpperCase();
         const city = memberInfo.city.trim().toUpperCase();
         const postalCode = memberInfo.postalCode.trim();
+        if (memberInfo.photo[0]) {
+          store.setMember({
+            ...memberInfo,
+            photo: memberInfo.photo[0],
+            firstname,
+            lastname,
+            address,
+            city,
+            postalCode,
+          });
 
-        store.setMember({
-          ...memberInfo,
-          photo: memberInfo.photo[0] ?? null,
-          firstname,
-          lastname,
-          address,
-          city,
-          postalCode,
-        });
-
-        if (calculateAge(memberInfo.birthdate) >= 18) {
-          stepper.goTo("authorization");
-        } else {
-          stepper.next();
+          if (calculateAge(memberInfo.birthdate) >= 18) {
+            stepper.goTo("authorization");
+          } else {
+            stepper.next();
+          }
         }
         break;
 
@@ -302,7 +309,7 @@ export default function Register() {
         const authorizationValues = values as z.infer<
           typeof AuthorizationSchema
         >;
-        store.setAuthorization({...authorizationValues });
+        store.setAuthorization({ ...authorizationValues });
         stepper.next();
         break;
 
@@ -373,7 +380,7 @@ export default function Register() {
                 informations: () => <Member />,
                 legalGuardians: () => <LegalGuardians />,
                 authorization: () => <Authorization />,
-                // resume: () => <Resume />,
+                resume: () => <Resume />,
               })}
               <CardFooter className={cn("h-12 w-full rounded-none p-0")}>
                 {!stepper.isFirst && (

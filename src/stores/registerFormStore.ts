@@ -1,11 +1,9 @@
 // import type { z } from "zod";
 import { type Gender } from "@prisma/client";
-import { createStore } from "zustand/vanilla";
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 
 type MemberState = {
-  photo: File | null;
+  photo: File;
   firstname: string;
   lastname: string;
   birthdate: Date;
