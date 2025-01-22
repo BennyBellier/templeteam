@@ -34,7 +34,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild suppressHydrationWarning>
+            <SidebarMenuButton size="lg" asChild >
               <a href="#">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <GalleryVerticalEnd className="size-4" />
@@ -65,7 +65,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <SidebarMenuSubButton
                           asChild
                           // isActive={item.isActive}
-                          suppressHydrationWarning
                         >
                           <a href={`/admin${item.url}`}>{item.title}</a>
                         </SidebarMenuSubButton>
