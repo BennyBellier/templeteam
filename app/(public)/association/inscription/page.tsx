@@ -246,7 +246,7 @@ export default function Register() {
       photo: null,
       country: member?.country ?? "France",
       legalGuardians: legalGuardians ?? [
-        { firstname: "", lastname: "", phone: "", mail: "" },
+        { firstname: undefined, lastname: undefined, phone: "", mail: undefined },
       ],
     },
   });
