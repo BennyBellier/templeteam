@@ -4,6 +4,12 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui/card";
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -30,47 +36,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useStepper } from "@/components/ui/stepper";
 import { Typography } from "@/components/ui/typography";
-import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { calculateAge, cn } from "@/lib/utils";
 import { Info, Signature as SignatureIcon } from "lucide-react";
-import Image from "next/image";
 import { useRef, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useFormContext } from "react-hook-form";
 import SignatureCanvas from "react-signature-canvas";
 import { z } from "zod";
-import { FormCard } from "../formCard";
-import registerMember from "../registerMember";
 import StepperFormActions from "../StepperFormActions";
+import { useRegisterFormStore } from "@/stores/registerFormStore";
+import { AuthorizationSchema } from "../page";
 
 const labelClassName = cn(
   "grid cursor-pointer gap-2 rounded-lg border border-input px-4 py-3",
 );
-
-/* --------------------------------------------------------
- *                          Schema
-   -------------------------------------------------------- */
-export const AuthorizationSchema = z.object({
-  undersigned: z.string({ required_error: "Ce champs est obligatoire." }),
-  emergencyAuthorization: z
-    .boolean()
-    .refine((value) => value, "Ce champs est obligatoire."),
-  travelAuthorization: z
-    .boolean()
-    .refine((value) => value, "Ce champs est obligatoire."),
-  imageRights: z
-    .boolean()
-    .refine((value) => value, "Ce champs est obligatoire."),
-  theftLossLiability: z
-    .boolean()
-    .refine((value) => value, "Ce champs est obligatoire."),
-  refund: z.boolean().refine((value) => value, "Ce champs est obligatoire."),
-  internalRules: z
-    .boolean()
-    .refine((value) => value, "Ce champs est obligatoire."),
-  signature: z.string({ required_error: "La signature est obligatoire." }),
-});
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -86,113 +65,91 @@ function fileToBase64(file: File): Promise<string> {
    -------------------------------------------------------- */
 
 export default function Authorization() {
-  const { nextStep } = useStepper();
+  const form = useFormContext<z.infer<typeof AuthorizationSchema>>();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const {
-    setAuthorization,
-    authorization,
-    member,
-    legalGuardians,
-    medic,
-    membership,
-    isAdult,
-  } = useRegisterFormStore((state) => state);
+  const store = useRegisterFormStore((state) => state);
 
-  const form = useForm<z.infer<typeof AuthorizationSchema>>({
-    resolver: zodResolver(AuthorizationSchema),
-    resetOptions: {
-      keepDirtyValues: true,
-    },
-    shouldFocusError: true,
-    defaultValues: {
-      emergencyAuthorization: authorization?.emergencyAuthorization ?? false,
-      travelAuthorization: authorization?.travelAuthorization ?? false,
-      theftLossLiability: authorization?.theftLossLiability ?? false,
-      refund: authorization?.refund ?? false,
-      imageRights: authorization?.imageRights ?? false,
-      internalRules: authorization?.internalRules ?? false,
-      signature: authorization?.signature ?? undefined,
-    },
-  });
+  // const form = useForm<z.infer<typeof AuthorizationSchema>>({
+  //   resolver: zodResolver(AuthorizationSchema),
+  //   resetOptions: {
+  //     keepDirtyValues: true,
+  //   },
+  //   shouldFocusError: true,
+  //   defaultValues: {
+  //     emergencyAuthorization: authorization?.emergencyAuthorization ?? false,
+  //     travelAuthorization: authorization?.travelAuthorization ?? false,
+  //     theftLossLiability: authorization?.theftLossLiability ?? false,
+  //     refund: authorization?.refund ?? false,
+  //     imageRights: authorization?.imageRights ?? false,
+  //     internalRules: authorization?.internalRules ?? false,
+  //     signature: authorization?.signature ?? undefined,
+  //   },
+  // });
 
-  const onSubmit = async (data: z.infer<typeof AuthorizationSchema>) => {
-    setAuthorization(data);
-    if (
-      membership &&
-      member &&
-      authorization &&
-      medic &&
-      (isAdult === true || (isAdult === false && legalGuardians))
-    ) {
-      nextStep();
+  // const onSubmit = async (data: z.infer<typeof AuthorizationSchema>) => {
+  //   setAuthorization(data);
+  //   if (
+  //     membership &&
+  //     member &&
+  //     authorization &&
+  //     medic &&
+  //     (isAdult === true || (isAdult === false && legalGuardians))
+  //   ) {
+  //     nextStep();
 
-      if (member.picture && member.picture.length > 0) {
-        await fileToBase64(member.picture[0]!)
-          .then(async (base64String) => {
-            await registerMember({
-              membership,
-              member: { ...member, picture: base64String },
-              legalGuardians,
-              authorization,
-              medic,
-              isAdult,
-            });
-          })
-          .catch((error) => {
-            console.error("Erreur lors de la conversion en Base64 :", error);
-          });
-      } else {
-        console.log("Aucun fichier à convertir.");
-      }
+  //     if (member.picture && member.picture.length > 0) {
+  //       await fileToBase64(member.picture[0]!)
+  //         .then(async (base64String) => {
+  //           await registerMember({
+  //             membership,
+  //             member: { ...member, picture: base64String },
+  //             legalGuardians,
+  //             authorization,
+  //             medic,
+  //             isAdult,
+  //           });
+  //         })
+  //         .catch((error) => {
+  //           console.error("Erreur lors de la conversion en Base64 :", error);
+  //         });
+  //     } else {
+  //       console.log("Aucun fichier à convertir.");
+  //     }
 
-    }
-  };
+  //   }
+  // };
 
   const undersigner = () => {
-    if (isAdult) {
+    if (calculateAge(store.member?.birthdate!) >= 18) {
       return (
-        <SelectItem value={member?.lastname + " " + member?.firstname}>
-          {member?.lastname + " " + member?.firstname}
+        <SelectItem value={store.member?.lastname + " " + store.member?.firstname}>
+          {store.member?.lastname + " " + store.member?.firstname}
         </SelectItem>
       );
     }
 
-    if (legalGuardians?.legalGuardiansName2) {
-      return (
-        <>
-          <SelectItem value={legalGuardians?.legalGuardiansName1!}>
-            {legalGuardians?.legalGuardiansName1}
-          </SelectItem>
-          <SelectItem value={legalGuardians?.legalGuardiansName2!}>
-            {legalGuardians?.legalGuardiansName2}
-          </SelectItem>
-        </>
-      );
-    }
-
-    return (
-      <SelectItem value={legalGuardians?.legalGuardiansName1!}>
-        {legalGuardians?.legalGuardiansName1}
+    return store.legalGuardians?.map((legalGuardian) => (
+      <SelectItem value={legalGuardian.lastname + " " + legalGuardian.firstname}>
+        {legalGuardian.lastname + " " + legalGuardian.firstname}
       </SelectItem>
-    );
+    ));
   };
 
   return (
-    <Form {...form}>
-      <form
-        id="registerForm"
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-6"
-      >
-        <FormCard
-          title="Autorisations"
-          description="Concernant le licencié"
-          button={<StepperFormActions />}
-        >
+    <>
+      <CardHeader className="flex-none pb-2 pt-4">
+        <Typography as={CardTitle} variant="h1" className="lg:text-4xl">
+        Autorisations
+        </Typography>
+        <Typography as={CardDescription} variant="lead">
+        Concernant le licencié
+        </Typography>
+      </CardHeader>
+      <CardContent className="grid h-full gap-6">
           {/* Undersigned */}
           <FormField
             control={form.control}
-            name="undersigned"
+            name="undersigner"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Je soussigné</FormLabel>
@@ -472,9 +429,8 @@ export default function Authorization() {
               </FormItem>
             )}
           />
-        </FormCard>
-      </form>
-    </Form>
+        </CardContent>
+      </>
   );
 }
 

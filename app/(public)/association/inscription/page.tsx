@@ -14,7 +14,6 @@ import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/ui/typography";
 import { calculateAge, cn } from "@/lib/utils";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
-import useStore from "@/stores/useStore";
 import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defineStepper } from "@stepperize/react";
@@ -25,8 +24,8 @@ import { z } from "zod";
 import Courses from "./(StepForms)/Courses";
 import Member from "./(StepForms)/Member";
 import LegalGuardians from "./(StepForms)/LegalGuardians";
+import Authorization from "./(StepForms)/Authorization";
 import { getPhoneData } from "@/components/ui/phone-input";
-import { useEffect } from "react";
 
 /* --------------------------------------------------------
                     Dropzones constantes
@@ -214,18 +213,7 @@ export default function Register() {
   const stepper = useStepper();
   const orientation = useMediaQuery("(max-with: 768px)");
   const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
-  const courses = useRegisterFormStore((state) => state.courses);
-  const setCourses = useRegisterFormStore((state) => state.setCourses);
-  const member = useRegisterFormStore((state) => state.member);
-  const setMember = useRegisterFormStore((state) => state.setMember); // useStore(useRegisterFormStore.getState, (state) => state);
-  const legalGuardians = useRegisterFormStore((state) => state.legalGuardians);
-  const setLegalGuardians = useRegisterFormStore((state) => state.setLegalGuardians);
-
-  useEffect(() => {
-    if (member) {
-      console.log("Store values updated: ", member);
-    }
-  }, [member]);
+  const store = useRegisterFormStore((state) => state);
 
   const form = useForm({
     mode: "onTouched",
@@ -239,15 +227,19 @@ export default function Register() {
       return zodResolver(stepper.current.schema)(data, context, options);
     } */ zodResolver(stepper.current.schema),
     defaultValues: {
-      courses: coursesQuery.map(
-        (course) => courses?.[course.name] ?? false,
-      ),
-      ...member,
+      courses: coursesQuery.map((course) => store.courses?.[course.name] ?? false),
+      ...store.member,
       photo: null,
-      country: member?.country ?? "France",
-      legalGuardians: legalGuardians ?? [
-        { firstname: undefined, lastname: undefined, phone: "", mail: undefined },
+      country: store.member?.country ?? "France",
+      legalGuardians: store.legalGuardians ?? [
+        {
+          firstname: undefined,
+          lastname: undefined,
+          phone: "",
+          mail: undefined,
+        }
       ],
+      ...store.authorization,
     },
   });
 
@@ -263,20 +255,22 @@ export default function Register() {
           }),
           {},
         );
-        setCourses(courses);
+        store.setCourses(courses);
         stepper.next();
         break;
 
       case "informations":
         const memberInfo = values as z.infer<typeof MemberSchema>;
         console.log("Form values : ", memberInfo);
-        const firstname = memberInfo.firstname.trim()[0]?.toUpperCase() + memberInfo.firstname.trim().slice(1);
+        const firstname =
+          memberInfo.firstname.trim()[0]?.toUpperCase() +
+          memberInfo.firstname.trim().slice(1);
         const lastname = memberInfo.lastname.trim().toUpperCase();
         const address = memberInfo.address.trim().toUpperCase();
         const city = memberInfo.city.trim().toUpperCase();
         const postalCode = memberInfo.postalCode.trim();
 
-        setMember({
+        store.setMember({
           ...memberInfo,
           photo: memberInfo.photo[0] ?? null,
           firstname,
@@ -284,18 +278,20 @@ export default function Register() {
           address,
           city,
           postalCode,
-          });
+        });
 
-        stepper.next();
-
-        // stepper.goTo("authorization");
+        if (calculateAge(memberInfo.birthdate) >= 18) {
+          stepper.goTo("authorization");
+        } else {
+          stepper.next();
+        }
         break;
 
       case "legalGuardians":
         const legalGuardiansValues = values as z.infer<
           typeof LegalGuardiansSchema
         >;
-        setLegalGuardians(legalGuardiansValues.legalGuardians);
+        store.setLegalGuardians(legalGuardiansValues.legalGuardians);
         stepper.next();
         break;
 
@@ -303,7 +299,7 @@ export default function Register() {
         const authorizationValues = values as z.infer<
           typeof AuthorizationSchema
         >;
-        // store.setAuthorization(authorizationValues);
+        store.setAuthorization(authorizationValues);
         stepper.next();
         break;
 
@@ -372,8 +368,8 @@ export default function Register() {
                 courses: () => <Courses query={coursesQuery} />,
                 informations: () => <Member />,
                 legalGuardians: () => <LegalGuardians />,
-                /* authorization: () => <Authorization />,
-            resume: () => <Resume />, */
+                authorization: () => <Authorization />,
+                // resume: () => <Resume />,
               })}
               <CardFooter className={cn("h-12 w-full rounded-none p-0")}>
                 {!stepper.isFirst && (
