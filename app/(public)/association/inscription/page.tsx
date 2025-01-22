@@ -12,7 +12,7 @@ import { Card, CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/ui/typography";
-import { calculateAge, cn } from "@/lib/utils";
+import { calculateAge, cn, fileToBase64 } from "@/lib/utils";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -26,6 +26,7 @@ import Member from "./(StepForms)/Member";
 import LegalGuardians from "./(StepForms)/LegalGuardians";
 import Authorization from "./(StepForms)/Authorization";
 import { getPhoneData } from "@/components/ui/phone-input";
+import { useEffect } from "react";
 
 /* --------------------------------------------------------
                     Dropzones constantes
@@ -214,6 +215,7 @@ export default function Register() {
   const orientation = useMediaQuery("(max-with: 768px)");
   const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
   const store = useRegisterFormStore((state) => state);
+  const scrollComponent = document.getElementById("main-scrollArea");
 
   const form = useForm({
     mode: "onTouched",
@@ -257,6 +259,7 @@ export default function Register() {
         );
         store.setCourses(courses);
         stepper.next();
+        console.log(store.member);
         break;
 
       case "informations":
@@ -299,7 +302,7 @@ export default function Register() {
         const authorizationValues = values as z.infer<
           typeof AuthorizationSchema
         >;
-        store.setAuthorization(authorizationValues);
+        store.setAuthorization({...authorizationValues });
         stepper.next();
         break;
 
@@ -311,6 +314,7 @@ export default function Register() {
       default:
         break;
     }
+    scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
   };
 
   return (

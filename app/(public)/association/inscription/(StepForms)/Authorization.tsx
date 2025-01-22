@@ -46,19 +46,11 @@ import { z } from "zod";
 import StepperFormActions from "../StepperFormActions";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { AuthorizationSchema } from "../page";
+import Image from "next/image";
 
 const labelClassName = cn(
   "grid cursor-pointer gap-2 rounded-lg border border-input px-4 py-3",
 );
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-}
 
 /* --------------------------------------------------------
  *                          Form
@@ -165,7 +157,7 @@ export default function Authorization() {
                         !field.value && "text-muted-foreground",
                       )}
                       aria-invalid={
-                        form.getFieldState("undersigned").invalid
+                        form.getFieldState("undersigner").invalid
                           ? "true"
                           : "false"
                       }

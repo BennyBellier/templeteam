@@ -10,7 +10,7 @@ import { Footer } from "@/components/layout/Footer";
 
 export default function PublicLayout({ children }: PropsWithChildren) {
   return (
-    <ScrollArea>
+    <ScrollArea viewportId="main-scrollArea">
       <Header />
       <main className="grid grow auto-rows-auto gap-6 pb-10 pt-5 overflow-y-auto">
         <ErrorBoundary FallbackComponent={FallbackError}>{children}</ErrorBoundary>

@@ -72,6 +72,8 @@ export default function Member() {
   const [countrySelectorOpen, setCountrySelectorOpen] = useState(false);
   const [medicalCommentsLength, setMedicalCommentsLength] = useState(0);
 
+  console.log(form);
+
   const dropZoneConfig = {
     accept: {
       "image/*": [".jpg", ".jpeg", ".png", ".tiff"],
