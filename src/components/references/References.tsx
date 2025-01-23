@@ -57,8 +57,8 @@ export const References: React.FC = () => {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="ml-2" />
-        <CarouselNext className="mr-2" />
+        <CarouselPrevious className="hidden sm:flex ml-2" />
+        <CarouselNext className="hidden sm:flex mr-2" />
       </Carousel>
     </LayoutSection>
   );

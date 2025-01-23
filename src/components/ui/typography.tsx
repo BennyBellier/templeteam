@@ -38,7 +38,7 @@ const typographyVariants = cva("", {
       alert: "text-destructive",
       lead: "text-xl text-muted-foreground",
       large: "text-lg font-semibold",
-      small: "text-sm font-medium leading-none",
+      small: "text-sm leading-none",
       muted: "text-sm text-muted-foreground",
       link: "font-normal lg:font-light text-xl lg:text-lg",
       footerLink: "font-light lg:font-light text-xl lg:text-base",

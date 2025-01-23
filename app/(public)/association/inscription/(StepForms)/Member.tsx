@@ -58,6 +58,7 @@ import { Gender } from "@prisma/client";
 import { countries } from "@/components/ui/phone-input/countries";
 import Image from "next/image";
 import * as React from "react";
+import { useRegisterFormStore } from "@/stores/registerFormStore";
 
 const inputClass = cn("bg-background object-bottom");
 
@@ -71,8 +72,7 @@ export default function Member() {
   const form = useFormContext<z.infer<typeof MemberSchema>>();
   const [countrySelectorOpen, setCountrySelectorOpen] = useState(false);
   const [medicalCommentsLength, setMedicalCommentsLength] = useState(0);
-
-  console.log(form);
+  const { member } = useRegisterFormStore((state) => state);
 
   const dropZoneConfig = {
     accept: {
@@ -84,6 +84,9 @@ export default function Member() {
   } satisfies DropzoneOptions;
 
   const birthdate = form.watch("birthdate");
+
+  console.log(member);
+  console.log(birthdate, birthdate.);
 
   const isAdult = calculateAge(new Date(birthdate)) >= 18;
 
@@ -150,13 +153,13 @@ export default function Member() {
                   className={inputClass}
                   aria-required
                   value={
-                    field.value
+                    new Date(field.value).toString() !== 'Invalid Date';
                       ? new Date(field.value).toISOString().split("T")[0]
                       : ""
                   }
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value ? new Date(e.target.value) : null,
+                      e.target.value ? new Date(e.target.value) : "",
                     )
                   }
                 />

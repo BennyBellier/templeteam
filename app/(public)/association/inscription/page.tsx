@@ -173,7 +173,7 @@ export const ResumeSchema = z.object({});
  *                          Stepper definition
    -------------------------------------------------------- */
 
-const { useStepper } = defineStepper(
+const { useStepper, utils } = defineStepper(
   {
     index: 0,
     id: "courses",
@@ -218,9 +218,9 @@ export default function Register() {
   const store = useRegisterFormStore((state) => state);
   let scrollComponent: HTMLElement | null = null;
 
-  useEffect(() => {
-    scrollComponent = document.getElementById("main-scrollArea");
-  }, []);
+  // useEffect(() => {
+  //   scrollComponent = document.getElementById("main-scrollArea");
+  // }, []);
 
   const form = useForm({
     mode: "onTouched",
@@ -252,7 +252,6 @@ export default function Register() {
   });
 
   const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
-    console.log(values);
     switch (stepper.current.id) {
       case "courses":
         const data = values as z.infer<typeof CoursesSchema>;
@@ -265,12 +264,10 @@ export default function Register() {
         );
         store.setCourses(courses);
         stepper.next();
-        console.log(store.member);
         break;
 
       case "informations":
         const memberInfo = values as z.infer<typeof MemberSchema>;
-        console.log("Form values : ", memberInfo);
         const firstname =
           memberInfo.firstname.trim()[0]?.toUpperCase() +
           memberInfo.firstname.trim().slice(1);
@@ -315,6 +312,7 @@ export default function Register() {
 
       case "resume":
         console.log(values);
+        store.reset();
         stepper.reset();
         break;
 
@@ -323,6 +321,24 @@ export default function Register() {
     }
     scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
   };
+
+  const onPrev = () => {
+    // switch (stepper.current.id) {
+    //   case "authorization":
+    //     if (!store.member || (store.member && calculateAge(store.member.birthdate) >= 18)) {
+    //       stepper.goTo("informations");
+    //     } else {
+    //       stepper.prev();
+    //     }
+
+    //   default:
+    //     stepper.prev();
+    //     break;
+    // }
+
+    console.log(utils.getPrev(stepper.current.id));
+    stepper.prev();
+  }
 
   return (
     <Layout>
@@ -385,7 +401,7 @@ export default function Register() {
               <CardFooter className={cn("h-12 w-full rounded-none p-0")}>
                 {!stepper.isFirst && (
                   <Button
-                    onClick={stepper.prev}
+                    onClick={onPrev}
                     variant="secondary"
                     className="h-full w-full rounded-b-lg rounded-l-none rounded-t-none hover:scale-100 focus-visible:scale-100 disabled:opacity-100"
                   >

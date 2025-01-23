@@ -15,7 +15,7 @@ type MemberState = {
   postalCode: string;
   country: string;
   medicalComment?: string;
-}
+};
 
 type LegalGuardianState = {
   firstname: string;
@@ -47,6 +47,7 @@ type Actions = {
   setMember: (member: State["member"]) => void;
   setLegalGuardians: (legalGuardians: State["legalGuardians"]) => void;
   setAuthorization: (authorization: State["authorization"]) => void;
+  reset: () => void;
 };
 
 export type RegisterFormStore = State & Actions;
@@ -58,18 +59,11 @@ export const defaultInitState: State = {
   authorization: undefined,
 };
 
-export const useRegisterFormStore = create<RegisterFormStore>(
-  // persist(
-    (set) => ({
-      ...defaultInitState,
-      setCourses: (courses) => set(() => ({ courses })),
-      setMember: (member) => set(() => ({ member })),
-      setLegalGuardians: (legalGuardians) => set(() => ({ legalGuardians })),
-      setAuthorization: (authorization) => set(() => ({ authorization })),
-    }),
-  //   {
-  //     name: "register-form-store",
-  //     storage: createJSONStorage(() => localStorage),
-  //   },
-  // ),
-);
+export const useRegisterFormStore = create<RegisterFormStore>((set) => ({
+  ...defaultInitState,
+  setCourses: (courses) => set(() => ({ courses })),
+  setMember: (member) => set(() => ({ member })),
+  setLegalGuardians: (legalGuardians) => set(() => ({ legalGuardians })),
+  setAuthorization: (authorization) => set(() => ({ authorization })),
+  reset: () => set(() => defaultInitState),
+}));

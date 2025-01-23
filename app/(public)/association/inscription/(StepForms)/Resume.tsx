@@ -8,11 +8,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { Gender } from "@prisma/client";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 
 export default function Resume() {
-  const { member, legalGuardians, authorization } = useRegisterFormStore((state) => state);
+  const { member, legalGuardians, authorization } = useRegisterFormStore(
+    (state) => state,
+  );
 
   const photo = member ? URL.createObjectURL(member?.photo) : "";
 
@@ -38,80 +40,137 @@ export default function Resume() {
           Résumé
         </Typography>
       </CardHeader>
-      <CardContent className="grid h-full gap-6">
-        <Avatar>
-          <AvatarImage
-            src={photo}
-            alt={`${member?.lastname} ${member?.firstname}`}
-          />
-          <AvatarFallback className="capitalize">{`${member?.lastname.charAt(0)}${member?.firstname.charAt(0)}`}</AvatarFallback>
-        </Avatar>
-        <Typography variant="large">
-          {member?.lastname} {member?.firstname}
-        </Typography>
-        <Typography variant="muted">
-          Né(e) le {member?.birthdate.toLocaleDateString()} - {gender}
-        </Typography>
-        <Typography variant="lead">Email</Typography>
-        <Typography>{member?.mail ?? "Non renseigné"}</Typography>
-        <Typography variant="lead">Téléphone</Typography>
-        <Typography>{member?.phone ?? "Non renseigné"}</Typography>
-        <Typography variant="lead">Adresse</Typography>
-        <Typography>
-          {member?.address}
-          <br />
-          {`${member?.postalCode} ${member?.city}`}
-          <br />
-          {member?.country}
-        </Typography>
-        {member?.medicalComment && (
-          <>
-            <Typography variant="lead">information médicale</Typography>
-            <Typography>{member?.medicalComment}</Typography>
-          </>
-        )}
-        {legalGuardians?.map((legalGuardian) => (
-          <div key={`${legalGuardian.lastname} ${legalGuardian.firstname}`}>
-            <Typography variant="lead">{`${legalGuardian.lastname} ${legalGuardian.firstname}`}</Typography>
-            <Typography>Tél: {legalGuardian.phone}</Typography>
-            {legalGuardian.mail && (
-              <Typography>Email: {legalGuardian.mail}</Typography>
-            )}
-          </div>
-        ))}
-        <Typography variant="lead">Autorisations</Typography>
-        <div>
+      <CardContent className="grid h-full gap-4 sm:gap-6">
+        <div className="flex gap-4">
+          <Avatar>
+            <AvatarImage
+              src={photo}
+              alt={`${member?.lastname} ${member?.firstname}`}
+            />
+            <AvatarFallback className="capitalize">{`${member?.lastname.charAt(0)}${member?.firstname.charAt(0)}`}</AvatarFallback>
+          </Avatar>
           <div>
-            <Checkbox checked />
-            <Typography>Urgence médicale</Typography>
-          </div>
-          <div>
-            <Checkbox checked />
-            <Typography>Transport</Typography>
-          </div>
-          <div>
-            <Checkbox checked />
-            <Typography>Droit à l&apos;image</Typography>
-          </div>
-          <div>
-            <Checkbox checked />
-            <Typography>Non-responsabilité</Typography>
-          </div>
-          <div>
-            <Checkbox checked />
-            <Typography>Non remboursement</Typography>
-          </div>
-          <div>
-            <Checkbox checked />
-            <Typography>Non remboursement</Typography>
-          </div>
-          <div>
-            <Checkbox checked />
-            <Typography>Réglement intérieur</Typography>
+            <Typography variant="large">
+              {member?.lastname} {member?.firstname}
+            </Typography>
+            <Typography variant="muted">
+              Né(e) le {member?.birthdate.toLocaleDateString()} - {gender}
+            </Typography>
           </div>
         </div>
-        <Typography variant="lead">Signature</Typography>
-        <Image src={authorization?.signature ?? ""} alt="signature" width={250} height={100} />
+        <div className="flex flex-wrap gap-6"><div>
+          <Typography
+            variant="large"
+            className="text-foreground-muted text-base"
+          >
+            Email
+          </Typography>
+          <Typography variant="small">
+            {member?.mail ?? "Non renseigné"}
+          </Typography>
+        </div>
+        <div>
+          <Typography
+            variant="large"
+            className="text-foreground-muted text-base"
+          >
+            Téléphone
+          </Typography>
+          <Typography variant="small">
+            {member?.phone ?? "Non renseigné"}
+          </Typography>
+        </div></div>
+        <div>
+          <Typography
+            variant="large"
+            className="text-foreground-muted text-base"
+          >
+            Adresse
+          </Typography>
+          <Typography variant="small">
+            {member?.address}
+            <br />
+            {`${member?.postalCode} ${member?.city}`}
+            <br />
+            {member?.country}
+          </Typography>
+        </div>
+        {member?.medicalComment && (
+          <div>
+            <Typography
+              variant="large"
+              className="text-foreground-muted text-base"
+            >
+              information médicale
+            </Typography>
+            <Typography variant="small">{member?.medicalComment}</Typography>
+          </div>
+        )}
+        {legalGuardians?.length && legalGuardians.length > 0 && (
+          <div>
+            <Typography
+              variant="large"
+              className="text-foreground-muted text-base"
+            >
+              Responsables légaux
+            </Typography>
+            {legalGuardians?.map((legalGuardian) => (
+              <div key={`${legalGuardian.lastname} ${legalGuardian.firstname}`}>
+                <Typography
+                  variant="large"
+                  className="text-foreground-muted"
+                >{`${legalGuardian.lastname} ${legalGuardian.firstname}`}</Typography>
+                <Typography>Tél: {legalGuardian.phone}</Typography>
+                {legalGuardian.mail && (
+                  <Typography>Email: {legalGuardian.mail}</Typography>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+        <Typography variant="large" className="text-foreground-muted text-base">
+          Autorisations
+        </Typography>
+        <div className="grid gap-x-4 space-y-2 *:gap-2 sm:grid-cols-2">
+          <div className="flex items-center">
+            <Checkbox checked />
+            <Typography variant="small">Urgence médicale</Typography>
+          </div>
+          <div className="flex items-center">
+            <Checkbox checked />
+            <Typography variant="small">Transport</Typography>
+          </div>
+          <div className="flex items-center">
+            <Checkbox checked />
+            <Typography variant="small">Droit à l&apos;image</Typography>
+          </div>
+          <div className="flex items-center">
+            <Checkbox checked />
+            <Typography variant="small">Non-responsabilité</Typography>
+          </div>
+          <div className="flex items-center">
+            <Checkbox checked />
+            <Typography variant="small">Non remboursement</Typography>
+          </div>
+          <div className="flex items-center">
+            <Checkbox checked />
+            <Typography variant="small">Non remboursement</Typography>
+          </div>
+          <div className="flex items-center">
+            <Checkbox checked />
+            <Typography variant="small">Réglement intérieur</Typography>
+          </div>
+        </div>
+        <Typography variant="large" className="text-foreground-muted text-base">
+          Signature
+        </Typography>
+        <Image
+          src={authorization?.signature ?? ""}
+          alt="signature"
+          width={200}
+          height={75}
+          className="justify-center"
+        />
       </CardContent>
     </>
   );
