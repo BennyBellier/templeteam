@@ -178,35 +178,30 @@ const { useStepper, utils } = defineStepper(
     index: 0,
     id: "courses",
     label: "Cours",
-    optional: false,
     schema: CoursesSchema,
   },
   {
     index: 1,
     id: "informations",
     label: "Informations",
-    optional: false,
     schema: MemberSchema,
   },
   {
     index: 2,
     id: "legalGuardians",
     label: "Responsable légaux",
-    optional: true,
     schema: LegalGuardiansSchema,
   },
   {
     index: 3,
     id: "authorization",
     label: "Autorisations",
-    optional: false,
     schema: AuthorizationSchema,
   },
   {
     index: 4,
     id: "resume",
     label: "Récapitulatif",
-    optional: false,
     schema: ResumeSchema,
   },
 );
@@ -249,6 +244,7 @@ export default function Register() {
         },
       ],
     },
+    ...store.authorization,
   });
 
   const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
@@ -311,7 +307,6 @@ export default function Register() {
         break;
 
       case "resume":
-        console.log(values);
         store.reset();
         stepper.reset();
         break;
@@ -319,25 +314,32 @@ export default function Register() {
       default:
         break;
     }
-    scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
+    // scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
   };
 
-  const onPrev = () => {
-    // switch (stepper.current.id) {
-    //   case "authorization":
-    //     if (!store.member || (store.member && calculateAge(store.member.birthdate) >= 18)) {
-    //       stepper.goTo("informations");
-    //     } else {
-    //       stepper.prev();
-    //     }
+  const onPrev = (e) => {
+    e.preventDefault();
+    console.log("handle previous from : ", stepper.current.id);
+    switch (stepper.current.id) {
 
-    //   default:
-    //     stepper.prev();
-    //     break;
-    // }
+      case "authorization":
+        console.log(!store.member?.birthdate, calculateAge(store.member.birthdate) >= 18)
+        if (!store.member?.birthdate) {
+          console.log("stepper go to : informations");
+          stepper.goTo("informations");
+        } else if (calculateAge(store.member.birthdate) >= 18) {
+          console.log("stepper go to : informations");
+          stepper.goTo("informations");
+        } else {
+          console.log("stepper previous");
+          stepper.prev();
+        }
+        break;
 
-    console.log(utils.getPrev(stepper.current.id));
-    stepper.prev();
+      default:
+        stepper.prev();
+        break;
+    }
   }
 
   return (
@@ -369,15 +371,6 @@ export default function Register() {
                   >
                     {step.label}
                   </Typography>
-                  {step.optional && (
-                    <Typography
-                      as="span"
-                      variant="muted"
-                      className="w-fit text-xs"
-                    >
-                      optionel
-                    </Typography>
-                  )}
                 </li>
               );
             }
@@ -391,14 +384,12 @@ export default function Register() {
                 "ease flex h-full w-full max-w-[750px] flex-col space-y-6 overflow-hidden transition-transform duration-500",
               )}
             >
-              {stepper.switch({
-                courses: () => <Courses query={coursesQuery} />,
-                informations: () => <Member />,
-                legalGuardians: () => <LegalGuardians />,
-                authorization: () => <Authorization />,
-                resume: () => <Resume />,
-              })}
-              <CardFooter className={cn("h-12 w-full rounded-none p-0")}>
+                {stepper.when("courses", () => <Courses query={coursesQuery} />)}
+                {stepper.when("informations", () => <Member />)}
+                {stepper.when("legalGuardians", () => <LegalGuardians />)}
+                {stepper.when("authorization", () => <Authorization />)}
+                {stepper.when("resume", () => <Resume />)}
+              <CardFooter className={cn("h-12 w-full rounded-none p-0 mt-0")}>
                 {!stepper.isFirst && (
                   <Button
                     onClick={onPrev}

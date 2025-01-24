@@ -10,11 +10,11 @@ import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { Gender } from "@prisma/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
 
 export default function Resume() {
-  const { member, legalGuardians, authorization } = useRegisterFormStore(
-    (state) => state,
-  );
+  const { courses, member, legalGuardians, authorization } =
+    useRegisterFormStore((state) => state);
 
   const photo = member ? URL.createObjectURL(member?.photo) : "";
 
@@ -40,7 +40,7 @@ export default function Resume() {
           Résumé
         </Typography>
       </CardHeader>
-      <CardContent className="grid h-full gap-4 sm:gap-6">
+      <CardContent className="grid p-0 px-6 h-full gap-4 sm:gap-6">
         <div className="flex gap-4">
           <Avatar>
             <AvatarImage
@@ -58,28 +58,48 @@ export default function Resume() {
             </Typography>
           </div>
         </div>
-        <div className="flex flex-wrap gap-6"><div>
-          <Typography
-            variant="large"
-            className="text-foreground-muted text-base"
-          >
-            Email
-          </Typography>
-          <Typography variant="small">
-            {member?.mail ?? "Non renseigné"}
-          </Typography>
+        <div className="flex flex-wrap gap-6">
+          <div>
+            <Typography
+              variant="large"
+              className="text-foreground-muted text-base"
+            >
+              Email
+            </Typography>
+            <Typography variant="small">
+              {member?.mail ?? "Non renseigné"}
+            </Typography>
+          </div>
+          <div>
+            <Typography
+              variant="large"
+              className="text-foreground-muted text-base"
+            >
+              Téléphone
+            </Typography>
+            <Typography variant="small">
+              {member?.phone ?? "Non renseigné"}
+            </Typography>
+          </div>
         </div>
-        <div>
+        <div className="space-y-2">
           <Typography
             variant="large"
             className="text-foreground-muted text-base"
           >
-            Téléphone
+            Cours
           </Typography>
-          <Typography variant="small">
-            {member?.phone ?? "Non renseigné"}
-          </Typography>
-        </div></div>
+          <div className="flex flex-wrap gap-2">
+          {Object.keys(courses!).map(
+            (key) =>
+              courses?.[key] && (
+                <Badge variant="secondary" key={key}>
+                  {key}
+                </Badge>
+              ),
+          )}
+          </div>
+        </div>
         <div>
           <Typography
             variant="large"
@@ -101,7 +121,7 @@ export default function Resume() {
               variant="large"
               className="text-foreground-muted text-base"
             >
-              information médicale
+              Information médicale
             </Typography>
             <Typography variant="small">{member?.medicalComment}</Typography>
           </div>
@@ -154,23 +174,20 @@ export default function Resume() {
           </div>
           <div className="flex items-center">
             <Checkbox checked />
-            <Typography variant="small">Non remboursement</Typography>
-          </div>
-          <div className="flex items-center">
-            <Checkbox checked />
             <Typography variant="small">Réglement intérieur</Typography>
           </div>
         </div>
         <Typography variant="large" className="text-foreground-muted text-base">
           Signature
         </Typography>
+        <div className="relative w-24 h-24">
         <Image
           src={authorization?.signature ?? ""}
           alt="signature"
-          width={200}
-          height={75}
-          className="justify-center"
+          fill
+          className="justify-center object-contain aspect-square"
         />
+        </div>
       </CardContent>
     </>
   );

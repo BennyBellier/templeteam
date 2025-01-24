@@ -84,10 +84,6 @@ export default function Member() {
   } satisfies DropzoneOptions;
 
   const birthdate = form.watch("birthdate");
-
-  console.log(member);
-  console.log(birthdate, birthdate.);
-
   const isAdult = calculateAge(new Date(birthdate)) >= 18;
 
   return (
@@ -153,7 +149,7 @@ export default function Member() {
                   className={inputClass}
                   aria-required
                   value={
-                    new Date(field.value).toString() !== 'Invalid Date';
+                    new Date(field.value).toString() !== 'Invalid Date'
                       ? new Date(field.value).toISOString().split("T")[0]
                       : ""
                   }

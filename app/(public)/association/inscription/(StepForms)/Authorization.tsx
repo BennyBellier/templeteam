@@ -187,7 +187,7 @@ export default function Authorization() {
                     />
                   </FormControl>
                   <Typography as="span" className="col-start-2 row-start-1">
-                    Décision en cas d&apos;urgence d&apos;urgence
+                  Urgence médicale
                   </Typography>
                   <Typography
                     as={FormDescription}
@@ -221,7 +221,7 @@ export default function Authorization() {
                     />
                   </FormControl>
                   <Typography as="span" className="col-start-2 row-start-1">
-                    Utilisation des véhicules{" "}
+                  Transport
                   </Typography>
                   <Typography
                     as={FormDescription}
@@ -288,7 +288,7 @@ export default function Authorization() {
                     />
                   </FormControl>
                   <Typography as="span" className="col-start-2 row-start-1">
-                    Déclinaison de responsabilité en cas de perte ou vol
+                  Non-responsabilité
                   </Typography>
                   <Typography
                     as={FormDescription}
@@ -322,7 +322,7 @@ export default function Authorization() {
                     />
                   </FormControl>
                   <Typography as="span" className="col-start-2 row-start-1">
-                    Absence de remboursement
+                  Non remboursement
                   </Typography>
                   <Typography
                     as={FormDescription}
@@ -355,8 +355,7 @@ export default function Authorization() {
                     />
                   </FormControl>
                   <Typography as="span" className="col-start-2 row-start-1">
-                    Certification de lecture et d&apos;acceptation du règlement
-                    intérieur
+                  Réglement intérieur
                   </Typography>
                   <Typography
                     as={FormDescription}
