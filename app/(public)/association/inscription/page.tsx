@@ -19,7 +19,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { defineStepper } from "@stepperize/react";
 import { Gender } from "prisma/prisma-client";
 import { useForm } from "react-hook-form";
-import { useMediaQuery } from "usehooks-ts";
 import { z } from "zod";
 import Courses from "./(StepForms)/Courses";
 import Member from "./(StepForms)/Member";
@@ -68,8 +67,14 @@ export const MemberSchema = z
       .refine((files) => {
         return files?.every((file) => ACCEPTED_FILE_TYPES.includes(file.type));
       }, "Le fichier doit être de type PNG, JPEG ou TIFF."),
-    firstname: z.string({ required_error: "Ce champs est obligatoire." }),
-    lastname: z.string({ required_error: "Ce champs est obligatoire." }),
+    firstname: z
+      .string({ required_error: "Ce champs est obligatoire." })
+      .trim()
+      .min(1, "La saisie est incorrecte."),
+    lastname: z
+      .string({ required_error: "Ce champs est obligatoire." })
+      .trim()
+      .min(1, "La saisie est incorrecte."),
     birthdate: z
       .date({
         message: "Ce champs est obligatoire.",
@@ -82,21 +87,34 @@ export const MemberSchema = z
     gender: z.nativeEnum(Gender, {
       required_error: "Ce champs est obligatoire.",
     }),
-    mail: z.string().email("Adresse email invalide.").optional(),
+    mail: z.union([
+      z.literal(""),
+      z.string().optional(),
+      z.string().email("Adresse email invalide."),
+    ]),
     phone: z
       .string()
       .refine(
         (data) => {
           const phoneData = getPhoneData(data);
-          return phoneData.isValid && phoneData.isPossible;
+          if (phoneData.nationalNumber && phoneData.nationalNumber.length > 0) {
+            return phoneData.isValid && phoneData.isPossible;
+          }
+          return true;
         },
         {
           message: "Numéro de téléphone invalide.",
         },
       )
       .optional(),
-    address: z.string({ required_error: "Ce champs est obligatoire." }),
-    city: z.string({ required_error: "Ce champs est obligatoire." }),
+    address: z
+      .string({ required_error: "Ce champs est obligatoire." })
+      .trim()
+      .min(1, "La saisie est incorrecte."),
+    city: z
+      .string({ required_error: "Ce champs est obligatoire." })
+      .trim()
+      .min(1, "La saisie est incorrecte."),
     postalCode: z
       .string({
         required_error: "Ce champs est obligatoire.",
@@ -107,6 +125,7 @@ export const MemberSchema = z
     country: z.string({ required_error: "Ce champs est obligatoire." }),
     medicalComment: z
       .string()
+      .trim()
       .max(200, { message: "Le texte est trop long." })
       .optional(),
   })
@@ -116,35 +135,79 @@ export const MemberSchema = z
     if (age >= 18 && !data.phone && !data.mail) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
+        path: ["phone"],
+        message:
+          "Le numéro de téléphone est obligatoire pour les personnes de 18 ans et plus.",
+      });
+
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
         path: ["mail"],
         message:
-          "L'email et le numéro de téléphone sont obligatoires pour les personnes de 18 ans et plus.",
+          "L'email est obligatoire pour les personnes de 18 ans et plus.",
       });
     }
   });
 
-export const LegalGuardiansSchema = z.object({
-  legalGuardians: z
-    .array(
-      z.object({
-        firstname: z.string({ required_error: "Ce champs est obligatoire." }),
-        lastname: z.string({ required_error: "Ce champs est obligatoire." }),
-        mail: z.string().email("Adresse email invalide.").optional(),
-        phone: z
-          .string({ required_error: "Ce champs est obligatoire." })
-          .refine(
-            (data) => {
-              const phoneData = getPhoneData(data);
-              return phoneData.isValid && phoneData.isPossible;
-            },
-            {
-              message: "Numéro de téléphone invalide.",
-            },
-          ),
-      }),
-    )
-    .min(1, "Au moins un responsable légal est requis."),
-});
+export const LegalGuardiansSchema = z
+  .object({
+    legalGuardians: z
+      .array(
+        z.object({
+          firstname: z
+            .string({ required_error: "Ce champs est obligatoire." })
+            .trim()
+            .min(1, "La saisie est incorrecte."),
+          lastname: z
+            .string({ required_error: "Ce champs est obligatoire." })
+            .trim()
+            .min(1, "La saisie est incorrecte."),
+          mail: z.string().email("Adresse email invalide.").optional(),
+          phone: z
+            .string({ required_error: "Ce champs est obligatoire." })
+            .refine(
+              (data) => {
+                const phoneData = getPhoneData(data);
+                if (
+                  phoneData.nationalNumber &&
+                  phoneData.nationalNumber.length > 0
+                ) {
+                  return phoneData.isValid && phoneData.isPossible;
+                }
+              },
+              {
+                message: "Numéro de téléphone invalide.",
+              },
+            ),
+        }),
+      )
+      .min(1, "Au moins un responsable légal est requis.")
+      .max(2, "Maximum 2 responsables légaux possibles."),
+  })
+  .superRefine((data, ctx) => {
+    if (!data.legalGuardians.some((value) => value.mail)) {
+      for (let index = 0; index < data.legalGuardians.length; index++) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [`legalGuardians.${index}.mail`],
+          message: "Au moins 1 email doit être renseignée.",
+        });
+      }
+    }
+  })
+  .superRefine((data, ctx) => {
+    const phones = data.legalGuardians.map((lg) => lg.phone);
+    if (phones.length !== new Set(phones).size) {
+      for (let index = 0; index < data.legalGuardians.length; index++) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [`legalGuardians.${index}.phone`],
+          message:
+            "Le même numéro de téléphone ne peux pas être utilisé 2 fois.",
+        });
+      }
+    }
+  });
 
 export const AuthorizationSchema = z.object({
   undersigner: z.string({ required_error: "Ce champs est obligatoire." }),
@@ -173,7 +236,7 @@ export const ResumeSchema = z.object({});
  *                          Stepper definition
    -------------------------------------------------------- */
 
-const { useStepper, utils } = defineStepper(
+const { useStepper } = defineStepper(
   {
     index: 0,
     id: "courses",
@@ -208,17 +271,16 @@ const { useStepper, utils } = defineStepper(
 
 export default function Register() {
   const stepper = useStepper();
-  const orientation = useMediaQuery("(max-with: 768px)");
   const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
   const store = useRegisterFormStore((state) => state);
   let scrollComponent: HTMLElement | null = null;
 
-  // useEffect(() => {
-  //   scrollComponent = document.getElementById("main-scrollArea");
-  // }, []);
+  useEffect(() => {
+    scrollComponent = document.getElementById("main-scrollArea");
+  }, []);
 
   const form = useForm({
-    mode: "onTouched",
+    mode: "onSubmit",
     resolver: /* async (data, context, options) => {
       // you can debug your validation schema here
       console.log("formData", data);
@@ -245,6 +307,7 @@ export default function Register() {
       ],
     },
     ...store.authorization,
+    undersigner: store.authorization?.undersigner,
   });
 
   const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
@@ -294,7 +357,18 @@ export default function Register() {
         const legalGuardiansValues = values as z.infer<
           typeof LegalGuardiansSchema
         >;
-        store.setLegalGuardians(legalGuardiansValues.legalGuardians);
+        const dataLegalGuardians = legalGuardiansValues.legalGuardians.map((lg) => {
+          const firstname =
+            lg.firstname.trim()[0]?.toUpperCase() +
+            lg.firstname.trim().slice(1);
+          const lastname = lg.lastname.trim().toUpperCase();
+          return {
+            ...lg,
+            firstname,
+            lastname,
+          }
+        });
+        store.setLegalGuardians(dataLegalGuardians);
         stepper.next();
         break;
 
@@ -314,16 +388,13 @@ export default function Register() {
       default:
         break;
     }
-    // scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
+    scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
   };
 
-  const onPrev = (e) => {
+  const onPrev = (e: MouseEvent) => {
     e.preventDefault();
-    console.log("handle previous from : ", stepper.current.id);
     switch (stepper.current.id) {
-
       case "authorization":
-        console.log(!store.member?.birthdate, calculateAge(store.member.birthdate) >= 18)
         if (!store.member?.birthdate) {
           console.log("stepper go to : informations");
           stepper.goTo("informations");
@@ -340,7 +411,8 @@ export default function Register() {
         stepper.prev();
         break;
     }
-  }
+    scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
+  };
 
   return (
     <Layout>
@@ -351,7 +423,7 @@ export default function Register() {
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="gap-6">
-        <ol className="flex w-full gap-2">
+        <ol className="flex w-full gap-2 px-2 sm:px-6">
           {stepper.all.map((step, index) => {
             if (step.id !== "legalGuardians") {
               return (
@@ -381,15 +453,25 @@ export default function Register() {
           <form id="registerForm" onSubmit={form.handleSubmit(onSubmit)}>
             <Card
               className={cn(
-                "ease flex h-full w-full max-w-[750px] flex-col space-y-6 overflow-hidden transition-transform duration-500",
+                "ease flex h-full w-full max-w-[750px] flex-col space-y-2 overflow-hidden transition-transform duration-500 sm:space-y-6",
               )}
             >
-                {stepper.when("courses", () => <Courses query={coursesQuery} />)}
-                {stepper.when("informations", () => <Member />)}
-                {stepper.when("legalGuardians", () => <LegalGuardians />)}
-                {stepper.when("authorization", () => <Authorization />)}
-                {stepper.when("resume", () => <Resume />)}
-              <CardFooter className={cn("h-12 w-full rounded-none p-0 mt-0")}>
+              {stepper.when("courses", () => (
+                <Courses query={coursesQuery} />
+              ))}
+              {stepper.when("informations", () => (
+                <Member />
+              ))}
+              {stepper.when("legalGuardians", () => (
+                <LegalGuardians />
+              ))}
+              {stepper.when("authorization", () => (
+                <Authorization />
+              ))}
+              {stepper.when("resume", () => (
+                <Resume />
+              ))}
+              <CardFooter className={cn("mt-0 h-12 w-full rounded-none p-0")}>
                 {!stepper.isFirst && (
                   <Button
                     onClick={onPrev}

@@ -3,7 +3,6 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardDescription,
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
@@ -11,27 +10,30 @@ import { Gender } from "@prisma/client";
 import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
+import { useMemo } from "react";
+import { getPhoneData } from "@/components/ui/phone-input";
+import { createRegisterFormProxy } from "@/stores/registerFormStore";
 
 export default function Resume() {
-  const { courses, member, legalGuardians, authorization } =
-    useRegisterFormStore((state) => state);
+  const { courses, member, legalGuardians, authorization } = useRegisterFormStore((state) => state);
 
-  const photo = member ? URL.createObjectURL(member?.photo) : "";
+  const photo = useMemo(
+    () => (member ? URL.createObjectURL(member?.photo) : ""),
+    [member, member?.photo],
+  );
 
-  let gender: string;
-  switch (member?.gender) {
-    case Gender.Male:
-      gender = "Masculin";
-      break;
+  const gender = useMemo(() => {
+    switch (member?.gender) {
+      case Gender.Male:
+        return "Masculin";
 
-    case Gender.Female:
-      gender = "Féminin";
-      break;
+      case Gender.Female:
+        return "Féminin";
 
-    default:
-      gender = "Non spécifié";
-      break;
-  }
+      default:
+        return "Non spécifié";
+    }
+  }, [member?.gender]);
 
   return (
     <>
@@ -40,7 +42,7 @@ export default function Resume() {
           Résumé
         </Typography>
       </CardHeader>
-      <CardContent className="grid p-0 px-6 h-full gap-4 sm:gap-6">
+      <CardContent className="mx-auto grid h-full w-full gap-4 p-0 px-6 sm:gap-6">
         <div className="flex gap-4">
           <Avatar>
             <AvatarImage
@@ -50,7 +52,7 @@ export default function Resume() {
             <AvatarFallback className="capitalize">{`${member?.lastname.charAt(0)}${member?.firstname.charAt(0)}`}</AvatarFallback>
           </Avatar>
           <div>
-            <Typography variant="large">
+            <Typography variant="large" className="w-full">
               {member?.lastname} {member?.firstname}
             </Typography>
             <Typography variant="muted">
@@ -78,7 +80,9 @@ export default function Resume() {
               Téléphone
             </Typography>
             <Typography variant="small">
-              {member?.phone ?? "Non renseigné"}
+              {member?.phone
+                ? "0" + getPhoneData(member?.phone).nationalNumber
+                : "Non renseigné"}
             </Typography>
           </div>
         </div>
@@ -90,14 +94,14 @@ export default function Resume() {
             Cours
           </Typography>
           <div className="flex flex-wrap gap-2">
-          {Object.keys(courses!).map(
-            (key) =>
-              courses?.[key] && (
-                <Badge variant="secondary" key={key}>
-                  {key}
-                </Badge>
-              ),
-          )}
+            {Object.keys(courses!).map(
+              (key) =>
+                courses?.[key] && (
+                  <Badge variant="secondary" key={key}>
+                    {key}
+                  </Badge>
+                ),
+            )}
           </div>
         </div>
         <div>
@@ -130,22 +134,28 @@ export default function Resume() {
           <div>
             <Typography
               variant="large"
-              className="text-foreground-muted text-base"
+              className="text-foreground-muted pb-2 text-base"
             >
               Responsables légaux
             </Typography>
-            {legalGuardians?.map((legalGuardian) => (
-              <div key={`${legalGuardian.lastname} ${legalGuardian.firstname}`}>
-                <Typography
-                  variant="large"
-                  className="text-foreground-muted"
-                >{`${legalGuardian.lastname} ${legalGuardian.firstname}`}</Typography>
-                <Typography>Tél: {legalGuardian.phone}</Typography>
-                {legalGuardian.mail && (
-                  <Typography>Email: {legalGuardian.mail}</Typography>
-                )}
-              </div>
-            ))}
+            <div className="flex flex-wrap gap-4">
+              {legalGuardians?.map((legalGuardian) => (
+                <div
+                  key={`${legalGuardian.lastname} ${legalGuardian.firstname}`}
+                >
+                  <Typography className=" text-foreground-muted font-medium italic">{`${legalGuardian.lastname} ${legalGuardian.firstname}`}</Typography>
+                  <Typography>
+                    Tél:{" "}
+                    {legalGuardian.phone
+                      ? "0" + getPhoneData(legalGuardian.phone).nationalNumber
+                      : "Non renseigné"}
+                  </Typography>
+                  <Typography>
+                    Email: {legalGuardian.mail ?? "Non renseigné"}
+                  </Typography>
+                </div>
+              ))}
+            </div>
           </div>
         )}
         <Typography variant="large" className="text-foreground-muted text-base">
@@ -180,13 +190,19 @@ export default function Resume() {
         <Typography variant="large" className="text-foreground-muted text-base">
           Signature
         </Typography>
-        <div className="relative w-24 h-24">
-        <Image
-          src={authorization?.signature ?? ""}
-          alt="signature"
-          fill
-          className="justify-center object-contain aspect-square"
-        />
+        <Typography variant="small">
+          Fait à {member?.city} le {new Date().toLocaleDateString()}
+        </Typography>
+        <Typography variant="small">
+          {authorization?.undersigner}
+        </Typography>
+        <div className="relative h-24 w-24">
+          <Image
+            src={authorization?.signature ?? ""}
+            alt="signature"
+            fill
+            className="aspect-square justify-center object-contain"
+          />
         </div>
       </CardContent>
     </>

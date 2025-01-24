@@ -102,11 +102,7 @@ export default function LegalGuardians() {
                 <FormItem className="col-span-2 sm:col-span-1">
                   <FormLabel>Téléphone</FormLabel>
                   <FormControl>
-                    <PhoneInput
-                      defaultCountry="FR"
-                      {...field}
-                      aria-required
-                    />
+                    <PhoneInput defaultCountry="FR" {...field} aria-required />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,7 +116,7 @@ export default function LegalGuardians() {
                   <FormLabel className="flex justify-between">
                     E-mail
                     <span className="translate-y-2 text-xs font-normal text-muted-foreground">
-                      optionnel
+                      {index !== 0 && "optionnel"}
                     </span>
                   </FormLabel>
                   <FormControl>
@@ -138,23 +134,27 @@ export default function LegalGuardians() {
             />
           </div>
         ))}
-        <div className="ml-auto flex gap-2">
-          <Button
-            variant="default"
-            onClick={() =>
-              append({
-                firstname: "",
-                lastname: "",
-                phone: "",
-                mail: "",
-              })
-            }
-            className="flex w-fit gap-2"
-          >
-            <CirclePlus /> <span>Ajouter</span>
-          </Button>
-        </div>
-        <Typography variant="alert" className={cn(!rootError && "hidden")}>{rootError?.message}</Typography>
+        {fields.length < 2 && (
+          <div className="ml-auto flex gap-2">
+            <Button
+              variant="default"
+              onClick={() =>
+                append({
+                  firstname: undefined,
+                  lastname: undefined,
+                  phone: undefined,
+                  mail: undefined,
+                })
+              }
+              className="flex w-fit gap-2"
+            >
+              <CirclePlus /> <span>Ajouter</span>
+            </Button>
+          </div>
+        )}
+        <Typography variant="alert" className={cn(!rootError && "hidden")}>
+          {rootError?.message}
+        </Typography>
       </CardContent>
     </>
   );

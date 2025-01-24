@@ -119,7 +119,7 @@ export default function Authorization() {
       );
     }
 
-    return store.legalGuardians?.map((legalGuardian) => (
+    return store.legalGuardians?.map((legalGuardian, index) => (
       <SelectItem value={legalGuardian.lastname + " " + legalGuardian.firstname}>
         {legalGuardian.lastname + " " + legalGuardian.firstname}
       </SelectItem>

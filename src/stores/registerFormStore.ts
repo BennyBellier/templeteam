@@ -1,5 +1,4 @@
-// import type { z } from "zod";
-import { type Gender } from "@prisma/client";
+import { Gender } from "@prisma/client";
 import { create } from "zustand";
 
 type MemberState = {
@@ -65,5 +64,85 @@ export const useRegisterFormStore = create<RegisterFormStore>((set) => ({
   setMember: (member) => set(() => ({ member })),
   setLegalGuardians: (legalGuardians) => set(() => ({ legalGuardians })),
   setAuthorization: (authorization) => set(() => ({ authorization })),
-  reset: () => set(() => defaultInitState),
+  reset: () => set(defaultInitState),
 }));
+
+export const defaultNotUndefinedState: State = {
+  courses: {},
+  member: {
+    photo: new File([], "placeholder.png"), // Default File
+    firstname: "",
+    lastname: "",
+    birthdate: new Date("Invalid Date"), // Default invalid date
+    gender: Gender.NotSpecified, // Use your Gender enum default
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "",
+  },
+  legalGuardians: [
+    {
+      firstname: "",
+      lastname: "",
+      phone: "",
+    },
+  ],
+  authorization: {
+    emergencyAuthorization: false,
+    travelAuthorization: false,
+    imageRights: false,
+    theftLossLiability: false,
+    refund: false,
+    internalRules: false,
+    undersigner: "",
+    signature: "",
+  },
+};
+
+function createProxy<T extends object>(target: T, defaults: T): T {
+  return new Proxy(target, {
+    get(obj, prop) {
+      // Retourne la valeur si elle existe dans l'objet, sinon retourne la valeur par défaut
+      if (prop in obj) {
+        return obj[prop as keyof T];
+      }
+      return defaults[prop as keyof T];
+    },
+  });
+}
+
+// Function to create a Proxy for the member with fallback defaults
+export function createRegisterFormProxy(store: State): {
+  courses: Record<string, boolean>;
+  member: MemberState;
+  legalGuardians: LegalGuardianState[];
+  authorization: AuthorizationState;
+} {
+  const coursesProxy = createProxy(
+    store.courses!,
+    defaultNotUndefinedState.courses!,
+  );
+
+  const memberProxy = createProxy(
+    store.member!,
+    defaultNotUndefinedState.member!,
+  );
+
+  const legalGuardiansProxy = createProxy(
+    store.legalGuardians!,
+    defaultNotUndefinedState.legalGuardians!,
+  );
+
+  const authorizationProxy = createProxy(
+    store.authorization!,
+    defaultNotUndefinedState.authorization!,
+  );
+
+  return {
+    ...store,
+    courses: coursesProxy,
+    member: memberProxy,
+    legalGuardians: legalGuardiansProxy,
+    authorization: authorizationProxy,
+  };
+}

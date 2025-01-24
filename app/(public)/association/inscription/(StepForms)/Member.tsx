@@ -49,7 +49,7 @@ import {
 import { Typography } from "@/components/ui/typography";
 import { calculateAge, cn } from "@/lib/utils";
 import { ChevronsUpDown, CloudUpload, Check } from "lucide-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { DropzoneOptions } from "react-dropzone";
 import { useFormContext } from "react-hook-form";
 import type { z } from "zod";
@@ -57,7 +57,6 @@ import { type MemberSchema, MAX_UPLOAD_SIZE } from "../page";
 import { Gender } from "@prisma/client";
 import { countries } from "@/components/ui/phone-input/countries";
 import Image from "next/image";
-import * as React from "react";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 
 const inputClass = cn("bg-background object-bottom");
@@ -68,11 +67,50 @@ const inputClass = cn("bg-background object-bottom");
 
 const defaultCountry = "FR";
 
+const FileUploadedItem = memo(function FileUploadedItem({
+  file,
+  index,
+}: {
+  file: File;
+  index: number;
+}) {
+  return (
+    <FileUploaderItem
+      index={index}
+      className="flex h-fit justify-center bg-card"
+    >
+      <div className="flex gap-2">
+        <div className="size-16">
+          <AspectRatio className="size-full">
+            <Image
+              src={URL.createObjectURL(file)}
+              alt={file.name}
+              className="rounded-md object-cover"
+              fill
+            />
+          </AspectRatio>
+        </div>
+        <div className="flex flex-col justify-around">
+          <Typography as="span" className="col-start-2">
+            {file.name}
+          </Typography>
+          <Typography
+            as="span"
+            variant="quote"
+            className="col-start-2 m-0 border-none p-0"
+          >
+            {Math.round(file.size / 1024)}Kb
+          </Typography>
+        </div>
+      </div>
+    </FileUploaderItem>
+  );
+});
+
 export default function Member() {
   const form = useFormContext<z.infer<typeof MemberSchema>>();
   const [countrySelectorOpen, setCountrySelectorOpen] = useState(false);
   const [medicalCommentsLength, setMedicalCommentsLength] = useState(0);
-  const { member } = useRegisterFormStore((state) => state);
 
   const dropZoneConfig = {
     accept: {
@@ -96,7 +134,7 @@ export default function Member() {
           Entrez les informations de l&apos;adhérent.
         </Typography>
       </CardHeader>
-      <CardContent className="grid h-full gap-6">
+      <CardContent className="flex flex-col sm:grid h-full gap-4 sm:gap-6">
         <FormField
           control={form.control}
           name="firstname"
@@ -149,7 +187,7 @@ export default function Member() {
                   className={inputClass}
                   aria-required
                   value={
-                    new Date(field.value).toString() !== 'Invalid Date'
+                    new Date(field.value).toString() !== "Invalid Date"
                       ? new Date(field.value).toISOString().split("T")[0]
                       : ""
                   }
@@ -460,36 +498,7 @@ export default function Member() {
                     {field.value &&
                       field.value.length > 0 &&
                       field.value.map((file: File, i) => (
-                        <FileUploaderItem
-                          key={i}
-                          index={i}
-                          className="flex h-fit justify-center bg-card"
-                        >
-                          <div className="flex gap-2">
-                            <div className="size-16">
-                              <AspectRatio className="size-full">
-                                <Image
-                                  src={URL.createObjectURL(file)}
-                                  alt={file.name}
-                                  className="rounded-md object-cover"
-                                  fill
-                                />
-                              </AspectRatio>
-                            </div>
-                            <div className="flex flex-col justify-around">
-                              <Typography as="span" className="col-start-2">
-                                {file.name}
-                              </Typography>
-                              <Typography
-                                as="span"
-                                variant="quote"
-                                className="col-start-2 m-0 border-none p-0"
-                              >
-                                {Math.round(file.size / 1024)}Kb
-                              </Typography>
-                            </div>
-                          </div>
-                        </FileUploaderItem>
+                        <FileUploadedItem key={i+file.name} file={file} index={i} />
                       ))}
                   </FileUploaderContent>
                 </FileUploader>

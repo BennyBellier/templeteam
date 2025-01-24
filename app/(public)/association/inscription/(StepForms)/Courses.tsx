@@ -48,7 +48,7 @@ function Localisation({
       : false;
 
   return (
-    <div className="col-start-2 row-span-2 row-start-1 flex w-full flex-col items-center justify-center gap-1">
+    <div className="col-start-2 row-span-2 row-start-1 flex w-full flex-col items-center justify-center gap-1 self-end">
       {isMac ? (
         <a
           target="_blank"
@@ -59,7 +59,7 @@ function Localisation({
             alt="Bouton d'actions rapide apple maps"
             width="64"
             height="64"
-            className="w-16 object-contain "
+            className="w-16 object-contain"
           />
         </a>
       ) : (
@@ -73,12 +73,12 @@ function Localisation({
             alt="Bouton d'actions rapide google maps"
             width="64"
             height="64"
-            className="w-16 object-contain "
+            className="w-16 object-contain"
           />
         </a>
       )}
       <div className="flex flex-col justify-start gap-0.5">
-        <Typography as="h3" variant="base" className="text-base font-normal">
+        <Typography as="h3" variant="base" className="text-base font-normal leading-none">
           {location.place}
         </Typography>
         <Typography as="span" variant="base" className="font-light">

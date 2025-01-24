@@ -4,12 +4,13 @@ import type { AppRouter } from "@/server/api/root";
 import type { inferRouterOutputs } from "@trpc/server";
 import Link from "next/link";
 import { ImageWithLoader } from "../features/withLoader/ImageWithLoader";
+import { memo } from "react";
 
 export type ReferenceCardProps = {
   reference: inferRouterOutputs<AppRouter>["references"]["get"]["items"][number];
 };
 
-export const ReferenceCard = (props: ReferenceCardProps) => {
+const ReferenceCard = (props: ReferenceCardProps) => {
 
   return (
     <Link
@@ -35,3 +36,5 @@ export const ReferenceCard = (props: ReferenceCardProps) => {
     </Link>
   );
 };
+
+export default memo(ReferenceCard)

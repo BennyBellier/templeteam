@@ -12,7 +12,7 @@ import {
 } from "../ui/carousel";
 import { Skeleton } from "../ui/skeleton";
 import { Typography } from "../ui/typography";
-import { ReferenceCard } from "./referenceCard";
+import ReferenceCard from "./referenceCard";
 import { useReferences } from '@/providers/ReferencesProvider';
 
 const OPTIONS: EmblaOptionsType = {
