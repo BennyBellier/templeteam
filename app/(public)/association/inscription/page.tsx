@@ -26,7 +26,9 @@ import LegalGuardians from "./(StepForms)/LegalGuardians";
 import Authorization from "./(StepForms)/Authorization";
 import Resume from "./(StepForms)/Resume";
 import { getPhoneData } from "@/components/ui/phone-input";
-import { useEffect } from "react";
+import { useScrollArea } from "@/components/ui/scroll-area";
+import toast from "react-hot-toast";
+import registerMember from "./registerMember";
 
 /* --------------------------------------------------------
                     Dropzones constantes
@@ -76,14 +78,13 @@ export const MemberSchema = z
       .trim()
       .min(1, "La saisie est incorrecte."),
     birthdate: z
-      .date({
-        message: "Ce champs est obligatoire.",
+      .string({
         required_error: "Ce champs est obligatoire.",
-        invalid_type_error: "la date est incorrecte.",
       })
-      .max(new Date(), {
-        message: "La date de naissance ne peux pas être dans le futur.",
-      }),
+      .date()
+      .refine((data) => {
+        return new Date(data).getTime() < Date.now();
+      }, "La date de naissance ne peux pas être dans le futur."),
     gender: z.nativeEnum(Gender, {
       required_error: "Ce champs est obligatoire.",
     }),
@@ -130,7 +131,7 @@ export const MemberSchema = z
       .optional(),
   })
   .superRefine((data, ctx) => {
-    const age = calculateAge(new Date(data.birthdate ?? ""));
+    const age = calculateAge(data.birthdate ?? "");
 
     if (age >= 18 && !data.phone && !data.mail) {
       ctx.addIssue({
@@ -273,28 +274,17 @@ export default function Register() {
   const stepper = useStepper();
   const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
   const store = useRegisterFormStore((state) => state);
-  let scrollComponent: HTMLElement | null = null;
-
-  useEffect(() => {
-    scrollComponent = document.getElementById("main-scrollArea");
-  }, []);
+  const { scrollTo } = useScrollArea();
 
   const form = useForm({
-    mode: "onSubmit",
-    resolver: /* async (data, context, options) => {
-      // you can debug your validation schema here
-      console.log("formData", data);
-      console.log(
-        "validation result",
-        await zodResolver(stepper.current.schema)(data, context, options),
-      );
-      return zodResolver(stepper.current.schema)(data, context, options);
-    } */ zodResolver(stepper.current.schema),
+    mode: "onTouched",
+    resolver: zodResolver(stepper.current.schema),
     defaultValues: {
       courses: coursesQuery.map(
         (course) => store.courses?.[course.name] ?? false,
       ),
       ...store.member,
+      birthdate: store.member?.birthdate ?? undefined,
       photo: null,
       country: store.member?.country ?? "France",
       legalGuardians: store.legalGuardians ?? [
@@ -305,12 +295,12 @@ export default function Register() {
           mail: undefined,
         },
       ],
+      ...store.authorization,
+      undersigner: store.authorization?.undersigner,
     },
-    ...store.authorization,
-    undersigner: store.authorization?.undersigner,
   });
 
-  const onSubmit = (values: z.infer<typeof stepper.current.schema>) => {
+  const onSubmit = async (values: z.infer<typeof stepper.current.schema>) => {
     switch (stepper.current.id) {
       case "courses":
         const data = values as z.infer<typeof CoursesSchema>;
@@ -357,17 +347,19 @@ export default function Register() {
         const legalGuardiansValues = values as z.infer<
           typeof LegalGuardiansSchema
         >;
-        const dataLegalGuardians = legalGuardiansValues.legalGuardians.map((lg) => {
-          const firstname =
-            lg.firstname.trim()[0]?.toUpperCase() +
-            lg.firstname.trim().slice(1);
-          const lastname = lg.lastname.trim().toUpperCase();
-          return {
-            ...lg,
-            firstname,
-            lastname,
-          }
-        });
+        const dataLegalGuardians = legalGuardiansValues.legalGuardians.map(
+          (lg) => {
+            const firstname =
+              lg.firstname.trim()[0]?.toUpperCase() +
+              lg.firstname.trim().slice(1);
+            const lastname = lg.lastname.trim().toUpperCase();
+            return {
+              ...lg,
+              firstname,
+              lastname,
+            };
+          },
+        );
         store.setLegalGuardians(dataLegalGuardians);
         stepper.next();
         break;
@@ -381,28 +373,64 @@ export default function Register() {
         break;
 
       case "resume":
-        store.reset();
-        stepper.reset();
+        let toastId = undefined;
+        try {
+          // Check if all required step are filled
+          if (!(store.courses && store.member && store.authorization)) {
+            toast.error("Une étape n'a pas été remplie...");
+            return;
+          }
+
+          // Check if need to fill the legalGuardians step
+          const isAdult = calculateAge(store.member.birthdate ?? "") >= 18;
+          if (isAdult && !store.legalGuardians) {
+            toast.error("Veuillez renseigner au moins un responsable légale !");
+            return;
+          }
+
+          // Step are correctly fill
+          // Inform user that we treat validation
+          toastId = toast.loading("Traitement de l'inscription...");
+
+          const memberId = await registerMember(store.member);
+
+          if (!memberId) {
+            toast.error("Un problème est survenue. Veuillez réessayer.", {
+              id: toastId,
+            });
+            return;
+          }
+
+          toast.success("Inscription réussie !", { id: toastId });
+          store.reset();
+          stepper.reset();
+        } catch (e) {
+          if (e instanceof Error) {
+            toast.error(e.message, {
+              id: toastId,
+            });
+          } else {
+            toast.error("Un problème est survenu. Veuillez réessayer.", {
+              id: toastId,
+            });
+          }
+        }
         break;
 
       default:
         break;
     }
-    scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
+    scrollTo(0, 190);
   };
 
-  const onPrev = (e: MouseEvent) => {
-    e.preventDefault();
+  const onPrev = () => {
     switch (stepper.current.id) {
       case "authorization":
         if (!store.member?.birthdate) {
-          console.log("stepper go to : informations");
           stepper.goTo("informations");
         } else if (calculateAge(store.member.birthdate) >= 18) {
-          console.log("stepper go to : informations");
           stepper.goTo("informations");
         } else {
-          console.log("stepper previous");
           stepper.prev();
         }
         break;
@@ -411,7 +439,7 @@ export default function Register() {
         stepper.prev();
         break;
     }
-    scrollComponent?.scrollTo({ top: 190, behavior: "smooth" });
+    scrollTo(0, 190);
   };
 
   return (
@@ -425,7 +453,35 @@ export default function Register() {
       <LayoutSection className="gap-6">
         <ol className="flex w-full gap-2 px-2 sm:px-6">
           {stepper.all.map((step, index) => {
-            if (step.id !== "legalGuardians") {
+            if (step.id === "informations") {
+              return (
+                <li
+                  key={step.id}
+                  className="relative flex w-full flex-1 flex-col gap-0.5"
+                >
+                  <div className="relative flex">
+                    <Separator
+                      className={cn(
+                        "h-0.5 w-1/2 bg-border",
+                        index < stepper.current.index && "bg-blue-500",
+                      )}
+                    />
+                    <Separator
+                      className={cn(
+                        "h-0.5 w-1/2 bg-border",
+                        index + 1 < stepper.current.index && "bg-blue-500",
+                      )}
+                    />
+                  </div>
+                  <Typography
+                    as="span"
+                    className="w-fit text-[0.8rem] font-light"
+                  >
+                    {step.label}
+                  </Typography>
+                </li>
+              );
+            } else if (step.id !== "legalGuardians") {
               return (
                 <li
                   key={step.id}
@@ -474,7 +530,10 @@ export default function Register() {
               <CardFooter className={cn("mt-0 h-12 w-full rounded-none p-0")}>
                 {!stepper.isFirst && (
                   <Button
-                    onClick={onPrev}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onPrev();
+                    }}
                     variant="secondary"
                     className="h-full w-full rounded-b-lg rounded-l-none rounded-t-none hover:scale-100 focus-visible:scale-100 disabled:opacity-100"
                   >

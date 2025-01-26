@@ -64,8 +64,9 @@ export function getCountriesNames(lang = "fr") {
 
 export const phoneRegex = new RegExp(/^\+33 [67](?: [0-9]{2}){4}$/);
 
-export const calculateAge = (birthDate: Date): number => {
+export const calculateAge = (input: string): number => {
   const today = new Date();
+  const birthDate = new Date(input);
 
   let age = differenceInYears(today, birthDate);
 

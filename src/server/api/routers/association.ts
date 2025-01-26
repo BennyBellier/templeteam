@@ -3,7 +3,7 @@ import logger from "@/server/logger";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { phoneRegex } from "@/lib/utils";
-import { Gender } from "@prisma/client";
+import { Gender, Prisma } from "@prisma/client";
 
 const loggerMetadata = { type: "trpc", router: "association" };
 
@@ -27,61 +27,55 @@ export const AssociationRouter = createTRPCRouter({
         city: z.string().trim().toUpperCase(),
         postalCode: z.string().trim(),
         country: z.string().trim().toUpperCase(),
-        medicalComment: z.string().trim(),
-        photo: z.string().trim(),
+        medicalComment: z.string().trim().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const {
-        firstname,
-        lastname,
-        birthdate,
-        gender,
-        mail,
-        phone,
-        address,
-        city,
-        postalCode,
-        country,
-        medicalComment,
-        photo,
-      } = input;
-      let member = await ctx.prisma.member.findFirst({
-        where: {
-          OR: [
-            {
-              firstname,
-              lastname,
-              birthdate,
-            },
-            {
-              mail,
-            },
-            {
-              phone,
-            },
-          ],
-        },
-      });
-      if (!member) {
+      try {
+        const { firstname, lastname, birthdate, mail, phone } = input;
+        let member = await ctx.prisma.member.findFirst({
+          where: {
+            OR: [
+              {
+                firstname,
+                lastname,
+                birthdate,
+              },
+              {
+                mail,
+              },
+              {
+                phone,
+              },
+            ],
+          },
+        });
+        if (member) {
+          throw new Error("Un membre avec les mêmes informations existe déjà.");
+        }
         member = await ctx.prisma.member.create({
           data: {
-            firstname,
-            lastname,
-            birthdate,
-            gender,
-            mail,
-            phone,
-            address,
-            city,
-            postalCode,
-            country,
-            medicalComment,
-            photo,
+            ...input,
           },
         });
 
         return member.id;
+      } catch (e) {
+        // Gestion des erreurs Prisma et autres erreurs
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === "P2002"
+        ) {
+          throw new Error(
+            "Un membre avec cette adresse e-mail ou ce numéro de téléphone existe déjà.",
+          );
+        } else if (e instanceof Error) {
+          throw new Error(e.message); // Autres erreurs personnalisées
+        } else {
+          throw new Error(
+            "Une erreur inconnue est survenue lors de la création du membre.",
+          );
+        }
       }
     }),
   addMemberPhoto: publicProcedure
@@ -230,37 +224,65 @@ export const AssociationRouter = createTRPCRouter({
           .trim()
           .transform((value) => value.charAt(0).toUpperCase()),
         lastname: z.string().trim().toUpperCase(),
-        phone: z.string().trim().regex(phoneRegex),
-        mail: z.string().email(),
-        memberId: z.string().uuid(),
+        phone: z
+          .string()
+          .trim()
+          .regex(phoneRegex, "Numéro de téléphone invalide."),
+        mail: z.string().email("Adresse e-mail invalide.").optional(),
+        memberId: z.string().uuid("Identifiant de membre invalide."),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { memberId } = input;
-      let legalGuardian = await ctx.prisma.legalGuardian.findFirst({
-        where: {
-          OR: [
-            {
-              firstname: input.firstname,
-              lastname: input.lastname,
-            },
-            {
-              phone: input.phone,
-            },
-            {
-              mail: input.mail,
-            },
-          ],
-        },
-      });
+      try {
+        const { memberId, firstname, lastname, phone, mail } = input;
 
-      if (legalGuardian) {
-        legalGuardian = await ctx.prisma.legalGuardian.create({
+        // Search if member to connect exist
+        const member = await ctx.prisma.member.findUnique({
+          where: {
+            id: memberId,
+          },
+        });
+
+        if (!member) {
+          throw new Error("Le membre spécifié n'existe pas.");
+        }
+
+        // Search existing legal guardians with phone or mail
+        const existingLegalGuardian = await ctx.prisma.legalGuardian.findFirst({
+          where: {
+            OR: [
+              { phone: input.phone }, // Vérifie le numéro de téléphone
+              { mail: input.mail }, // Vérifie l'email
+            ],
+          },
+        });
+
+        if (!existingLegalGuardian) {
+          // Create new legal guardians and link to member
+          const newLegalGuardian = await ctx.prisma.legalGuardian.create({
+            data: {
+              firstname,
+              lastname,
+              phone,
+              mail,
+              members: {
+                connect: {
+                  id: memberId,
+                },
+              },
+            },
+          });
+
+          return newLegalGuardian.id; // Return ID of new legal guardians
+        }
+
+        // Update link if legal guardian already exist
+        await ctx.prisma.legalGuardian.update({
+          where: {
+            id: existingLegalGuardian.id,
+          },
           data: {
-            firstname: input.firstname,
-            lastname: input.lastname,
-            phone: input.phone,
-            mail: input.mail,
+            mail: mail ?? existingLegalGuardian.mail,
             members: {
               connect: {
                 id: memberId,
@@ -268,11 +290,25 @@ export const AssociationRouter = createTRPCRouter({
             },
           },
         });
-      }
 
-      return {
-        legalGuardian,
-      };
+        return existingLegalGuardian.id; // return ID of existing legalGuardian
+      } catch (e) {
+        // Gestion des erreurs Prisma et autres erreurs
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === "P2002"
+        ) {
+          throw new Error(
+            "Un responsable légal avec ce numéro de téléphone existe déjà.",
+          );
+        } else if (e instanceof Error) {
+          throw new Error(e.message); // Autres erreurs personnalisées
+        } else {
+          throw new Error(
+            "Une erreur inconnue est survenue lors de l'ajout du responsable légal.",
+          );
+        }
+      }
     }),
   getMemberAllinformations: publicProcedure
     .input(z.object({ memberId: z.string().uuid(), year: z.string().trim() }))

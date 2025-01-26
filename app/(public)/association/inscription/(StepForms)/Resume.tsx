@@ -12,14 +12,13 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { useMemo } from "react";
 import { getPhoneData } from "@/components/ui/phone-input";
-import { createRegisterFormProxy } from "@/stores/registerFormStore";
 
 export default function Resume() {
   const { courses, member, legalGuardians, authorization } = useRegisterFormStore((state) => state);
 
   const photo = useMemo(
     () => (member ? URL.createObjectURL(member?.photo) : ""),
-    [member, member?.photo],
+    [member],
   );
 
   const gender = useMemo(() => {
@@ -56,7 +55,7 @@ export default function Resume() {
               {member?.lastname} {member?.firstname}
             </Typography>
             <Typography variant="muted">
-              Né(e) le {member?.birthdate.toLocaleDateString()} - {gender}
+              Né(e) le {new Date(member?.birthdate).toLocaleDateString()} - {gender}
             </Typography>
           </div>
         </div>
@@ -158,51 +157,63 @@ export default function Resume() {
             </div>
           </div>
         )}
-        <Typography variant="large" className="text-foreground-muted text-base">
-          Autorisations
-        </Typography>
-        <div className="grid gap-x-4 space-y-2 *:gap-2 sm:grid-cols-2">
-          <div className="flex items-center">
-            <Checkbox checked />
-            <Typography variant="small">Urgence médicale</Typography>
+        <div className="flex flex-wrap gap-2">
+          <div>
+            <Typography
+              variant="large"
+              className="text-foreground-muted text-base"
+            >
+              Autorisations
+            </Typography>
+            <div className="grid gap-x-4 space-y-2 *:gap-2 sm:grid-cols-2">
+              <div className="flex items-center">
+                <Checkbox checked />
+                <Typography variant="small">Urgence médicale</Typography>
+              </div>
+              <div className="flex items-center">
+                <Checkbox checked />
+                <Typography variant="small">Transport</Typography>
+              </div>
+              <div className="flex items-center">
+                <Checkbox checked />
+                <Typography variant="small">Droit à l&apos;image</Typography>
+              </div>
+              <div className="flex items-center">
+                <Checkbox checked />
+                <Typography variant="small">Non-responsabilité</Typography>
+              </div>
+              <div className="flex items-center">
+                <Checkbox checked />
+                <Typography variant="small">Non remboursement</Typography>
+              </div>
+              <div className="flex items-center">
+                <Checkbox checked />
+                <Typography variant="small">Réglement intérieur</Typography>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center">
-            <Checkbox checked />
-            <Typography variant="small">Transport</Typography>
+          <div>
+            <Typography
+              variant="large"
+              className="text-foreground-muted text-base"
+            >
+              Signature
+            </Typography>
+            <Typography variant="small">
+              Fait à {member?.city} le {new Date().toLocaleDateString()}
+            </Typography>
+            <Typography variant="small">
+              {authorization?.undersigner}
+            </Typography>
+            <div className="relative h-24 w-24">
+              <Image
+                src={authorization?.signature ?? ""}
+                alt="signature"
+                fill
+                className="aspect-square justify-center object-contain"
+              />
+            </div>
           </div>
-          <div className="flex items-center">
-            <Checkbox checked />
-            <Typography variant="small">Droit à l&apos;image</Typography>
-          </div>
-          <div className="flex items-center">
-            <Checkbox checked />
-            <Typography variant="small">Non-responsabilité</Typography>
-          </div>
-          <div className="flex items-center">
-            <Checkbox checked />
-            <Typography variant="small">Non remboursement</Typography>
-          </div>
-          <div className="flex items-center">
-            <Checkbox checked />
-            <Typography variant="small">Réglement intérieur</Typography>
-          </div>
-        </div>
-        <Typography variant="large" className="text-foreground-muted text-base">
-          Signature
-        </Typography>
-        <Typography variant="small">
-          Fait à {member?.city} le {new Date().toLocaleDateString()}
-        </Typography>
-        <Typography variant="small">
-          {authorization?.undersigner}
-        </Typography>
-        <div className="relative h-24 w-24">
-          <Image
-            src={authorization?.signature ?? ""}
-            alt="signature"
-            fill
-            className="aspect-square justify-center object-contain"
-          />
         </div>
       </CardContent>
     </>

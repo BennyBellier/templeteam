@@ -9,8 +9,6 @@ import { Typography } from "@/components/ui/typography";
 import ContactForm from "./contactForm";
 import { env } from "@/env.mjs";
 
-export const revalidate = env.REVALIDATE_TIME ?? 3600;
-
 export default function Page() {
   return (
     <Layout noContact>

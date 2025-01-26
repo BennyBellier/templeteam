@@ -49,7 +49,7 @@ import {
 import { Typography } from "@/components/ui/typography";
 import { calculateAge, cn } from "@/lib/utils";
 import { ChevronsUpDown, CloudUpload, Check } from "lucide-react";
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import type { DropzoneOptions } from "react-dropzone";
 import { useFormContext } from "react-hook-form";
 import type { z } from "zod";
@@ -57,7 +57,6 @@ import { type MemberSchema, MAX_UPLOAD_SIZE } from "../page";
 import { Gender } from "@prisma/client";
 import { countries } from "@/components/ui/phone-input/countries";
 import Image from "next/image";
-import { useRegisterFormStore } from "@/stores/registerFormStore";
 
 const inputClass = cn("bg-background object-bottom");
 
@@ -74,10 +73,20 @@ const FileUploadedItem = memo(function FileUploadedItem({
   file: File;
   index: number;
 }) {
+  const fileNameParts = file.name.split(".");
+  const extension = fileNameParts.pop(); // Récupère l'extension
+  const baseName = fileNameParts.join("."); // Récupère le nom sans l'extension
+
+  const truncatedBaseName =
+    baseName.length > 20 ? baseName.slice(0, 20) + "..." : baseName;
+
+  const truncatedName = extension
+    ? `${truncatedBaseName}.${extension}` // Conserve l'extension
+    : truncatedBaseName;
   return (
     <FileUploaderItem
       index={index}
-      className="flex h-fit justify-center bg-card"
+      className="flex h-fit justify-center bg-card px-0"
     >
       <div className="flex gap-2">
         <div className="size-16">
@@ -91,15 +100,15 @@ const FileUploadedItem = memo(function FileUploadedItem({
           </AspectRatio>
         </div>
         <div className="flex flex-col justify-around">
-          <Typography as="span" className="col-start-2">
-            {file.name}
+          <Typography as="span" className="max-w-3/4 col-start-2 font-normal">
+            {truncatedName}
           </Typography>
           <Typography
             as="span"
             variant="quote"
-            className="col-start-2 m-0 border-none p-0"
+            className="col-start-2 m-0 border-none p-0 font-light"
           >
-            {Math.round(file.size / 1024)}Kb
+            {Math.round(file.size / 1024)} Kb
           </Typography>
         </div>
       </div>
@@ -108,9 +117,15 @@ const FileUploadedItem = memo(function FileUploadedItem({
 });
 
 export default function Member() {
-  const form = useFormContext<z.infer<typeof MemberSchema>>();
+  const { control, watch, getFieldState } =
+    useFormContext<z.infer<typeof MemberSchema>>();
   const [countrySelectorOpen, setCountrySelectorOpen] = useState(false);
   const [medicalCommentsLength, setMedicalCommentsLength] = useState(0);
+  const birthdate = watch("birthdate");
+  const isAdult = useMemo(
+    () => (birthdate ? calculateAge(birthdate) >= 18 : false),
+    [birthdate],
+  );
 
   const dropZoneConfig = {
     accept: {
@@ -121,8 +136,8 @@ export default function Member() {
     multiple: false,
   } satisfies DropzoneOptions;
 
-  const birthdate = form.watch("birthdate");
-  const isAdult = calculateAge(new Date(birthdate)) >= 18;
+  /* const birthdate = form.watch("birthdate");
+  const isAdult = birthdate ? calculateAge(birthdate) >= 18 : false; */
 
   return (
     <>
@@ -134,9 +149,9 @@ export default function Member() {
           Entrez les informations de l&apos;adhérent.
         </Typography>
       </CardHeader>
-      <CardContent className="flex flex-col sm:grid h-full gap-4 sm:gap-6">
+      <CardContent className="flex h-full flex-col gap-4 sm:grid sm:gap-6">
         <FormField
-          control={form.control}
+          control={control}
           name="firstname"
           render={({ field }) => (
             <FormItem>
@@ -155,7 +170,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="lastname"
           render={({ field }) => (
             <FormItem className="col-start-2 row-start-1">
@@ -174,28 +189,16 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="birthdate"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Date de naissance</FormLabel>
               <FormControl>
                 <Input
-                  {...field}
-                  {...form.register("birthdate", { valueAsDate: true })}
                   type="date"
+                  {...field}
                   className={inputClass}
-                  aria-required
-                  value={
-                    new Date(field.value).toString() !== "Invalid Date"
-                      ? new Date(field.value).toISOString().split("T")[0]
-                      : ""
-                  }
-                  onChange={(e) =>
-                    field.onChange(
-                      e.target.value ? new Date(e.target.value) : "",
-                    )
-                  }
                 />
               </FormControl>
               <FormMessage />
@@ -203,7 +206,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="gender"
           render={({ field }) => (
             <FormItem>
@@ -220,7 +223,7 @@ export default function Member() {
                       !field.value && "text-muted-foreground",
                     )}
                     aria-invalid={
-                      form.getFieldState("gender").invalid ? "true" : "false"
+                      getFieldState("gender").invalid ? "true" : "false"
                     }
                   >
                     <SelectValue placeholder="Sélectionner" />
@@ -237,7 +240,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="mail"
           render={({ field }) => (
             <FormItem className="col-span-2">
@@ -263,7 +266,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="phone"
           render={({ field }) => (
             <FormItem>
@@ -287,7 +290,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="address"
           render={({ field }) => (
             <FormItem className="col-span-2">
@@ -306,7 +309,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="city"
           render={({ field }) => (
             <FormItem>
@@ -325,7 +328,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="postalCode"
           render={({ field }) => (
             <FormItem>
@@ -344,7 +347,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="country"
           render={({ field }) => (
             <FormItem>
@@ -423,7 +426,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="medicalComment"
           render={({ field }) => (
             <FormItem className="col-span-2">
@@ -460,7 +463,7 @@ export default function Member() {
           )}
         />
         <FormField
-          control={form.control}
+          control={control}
           name="photo"
           render={({ field }) => (
             <FormItem className="col-span-2">
@@ -477,7 +480,7 @@ export default function Member() {
                   <FileInput
                     className={cn(
                       "group h-24 w-full outline-dashed outline-1 outline-foreground data-disabled:opacity-50",
-                      form.control.getFieldState("photo").error &&
+                      control.getFieldState("photo").error &&
                         "outline-destructive",
                     )}
                   >
@@ -498,7 +501,11 @@ export default function Member() {
                     {field.value &&
                       field.value.length > 0 &&
                       field.value.map((file: File, i) => (
-                        <FileUploadedItem key={i+file.name} file={file} index={i} />
+                        <FileUploadedItem
+                          key={i + file.name}
+                          file={file}
+                          index={i}
+                        />
                       ))}
                   </FileUploaderContent>
                 </FileUploader>

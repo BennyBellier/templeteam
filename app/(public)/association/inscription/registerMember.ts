@@ -7,81 +7,61 @@ import { render } from "@react-email/components";
 import nodemailer from "nodemailer";
 import RegistrationTemplate from "emails/AssociationRegistration";
 import { prisma } from "@/trpc/server";
-import type { Gender } from "@prisma/client";
+import type {
+  AuthorizationState,
+  LegalGuardianState,
+  MemberState,
+} from "@/stores/registerFormStore";
+import { string } from "zod";
+import LegalGuardians from "./(StepForms)/LegalGuardians";
 
-type State = {
-  membership: {
-    templeRun?: boolean | undefined;
-    templeGym?: boolean | undefined;
-    templeBreak?: boolean | undefined;
-    templeGymJunior?: boolean | undefined;
-  };
-  member: {
-    picture: string;
-    firstname: string;
-    lastname: string;
-    birthdate: string;
-    gender: Gender;
-    address: string;
-    city: string;
-    postalCode: string;
-    country: string;
-    mail?: string | undefined;
-    phoneNumber?: string | undefined;
-  };
-  legalGuardian: {
-    legalGuardianName1: string;
-    legalGuardianPhone1: string;
-    legalGuardianName2?: string | undefined;
-    legalGuardianPhone2?: string | undefined;
-  } | null;
-  authorization: {
-    undersigned: string;
-    emergencyAuthorization: boolean;
-    travelAuthorization: boolean;
-    imageRights: boolean;
-    theftLossLiability: boolean;
-    refund: boolean;
-    internalRules: boolean;
-    signature: string;
-  };
-  medic: {
-    medicalCertificate: boolean;
-    medicalComments?: string | undefined;
-  };
-  isAdult: boolean;
+const registerMember = async (
+  member: MemberState,
+): Promise<string | undefined> => {
+  try {
+    const memberId = await prisma.association.createMember({
+      ...member,
+      birthdate: new Date(member.birthdate),
+    });
+
+    return memberId;
+  } catch (e) {
+    throw e;
+  }
 };
 
-export default async function registerMember({
-  membership,
-  member,
-  legalGuardian,
-  authorization,
-  medic,
-  isAdult,
-}: State) {
+const registerLegalGuardians = async (
+  memberId: string,
+  legalGuardians: LegalGuardianState[],
+) => {
+  try {
+    for(const lg of legalGuardians ) {
+      await prisma.association.createLegalGuardian({memberId, ...lg})
+    }
+  } catch (e) {
+    throw e;
+  }
+};
+
+const registerFile = async (
+  memberId: string,
+  courses: Record<string, boolean>,
+  autohrization: AuthorizationState
+) => {
+  try {
+
+  } catch (e) {
+    throw e;
+  }
+}
+
+/* export default async function registerMember(store: RegisterFormStore) {
   const membershipArray = [];
   if (membership.templeRun) membershipArray.push("templeRun");
   if (membership.templeGym) membershipArray.push("templeGym");
   if (membership.templeGymJunior) membershipArray.push("templeGymJunior");
   if (membership.templeBreak) membershipArray.push("templeBreak");
 
-  const createMemberData = {
-    firstname: member?.firstname,
-    lastname: member?.lastname,
-    birthdate: new Date(member?.birthdate),
-    gender: member?.gender,
-    mail: member?.mail,
-    phoneNumber: member?.phoneNumber,
-    address: member?.address,
-    city: member?.city,
-    postalCode: member?.postalCode,
-    country: member?.country,
-    picture: member?.picture,
-    medicalComment: medic?.medicalComments,
-    undersigner: authorization.undersigned,
-    signature: authorization.signature,
-  };
 
   logger.info(createMemberData);
 
@@ -109,7 +89,7 @@ export default async function registerMember({
     }
   }
 
-  /* Envoie du mail récapitulatif */
+  // Envoie du mail récapitulatif
   if (memberId) {
     const mailData = {
       firstname: member.firstname,
@@ -136,7 +116,7 @@ export default async function registerMember({
       templeRun: membership.templeRun ?? false,
     };
 
-    /* Mail à l'adhérent */
+    //Mail à l'adhérent
     const transporter = nodemailer.createTransport({ ...smtpOptions });
 
     const sended = await transporter.sendMail({
@@ -154,7 +134,7 @@ export default async function registerMember({
 
     logger.info({ type: "mail", page: "inscription", message: sended });
 
-    /* Mail de sauvegarder */
+    // Mail de sauvegarde
     await transporter.sendMail({
       from: env.REGISTER_MAIL,
       to: env.REGISTER_MAIL,
@@ -172,4 +152,4 @@ export default async function registerMember({
 
     return sended;
   }
-}
+} */
