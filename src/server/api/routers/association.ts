@@ -1,9 +1,9 @@
 import { env } from "@/env.mjs";
+import { calculateAge, phoneRegex } from "@/lib/utils";
 import logger from "@/server/logger";
+import { Gender, Prisma } from "@prisma/client";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { phoneRegex } from "@/lib/utils";
-import { Gender, Prisma } from "@prisma/client";
 
 const loggerMetadata = { type: "trpc", router: "association" };
 
@@ -54,7 +54,7 @@ export const AssociationRouter = createTRPCRouter({
           logger.warn({
             ...loggerMetadata,
             endpoint: "createMember",
-            action:"error",
+            action: "error",
             input: {
               firstname,
               lastname,
@@ -62,7 +62,7 @@ export const AssociationRouter = createTRPCRouter({
               mail,
               phone,
             },
-            message: `Un membre avec les mêmes informations existe déjà.`
+            message: `Un membre avec les mêmes informations existe déjà.`,
           });
           throw new Error("Un membre avec les mêmes informations existe déjà.");
         }
@@ -165,9 +165,9 @@ export const AssociationRouter = createTRPCRouter({
           logger.warn({
             ...loggerMetadata,
             endpoint: "createLegalGuardian",
-            action:"error",
-             message: `Impossible de créer un responsables légale pour l'identifiant : ${memberId} associé à aucun membre.`
-          })
+            action: "error",
+            message: `Impossible de créer un responsables légale pour l'identifiant : ${memberId} associé à aucun membre.`,
+          });
           throw new Error("Le membre spécifié n'existe pas.");
         }
 
@@ -200,16 +200,16 @@ export const AssociationRouter = createTRPCRouter({
           logger.info({
             ...loggerMetadata,
             endpoint: "createLegalGuardian",
-            action:"create",
+            action: "create",
             input: {
               firstname,
               lastname,
               phone,
               mail,
-              memberId
+              memberId,
             },
-            message: `Création du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`
-          })
+            message: `Création du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`,
+          });
           return newLegalGuardian.id; // Return ID of new legal guardians
         }
 
@@ -227,21 +227,21 @@ export const AssociationRouter = createTRPCRouter({
             },
           },
         });
-        
+
         logger.info({
           ...loggerMetadata,
           endpoint: "createLegalGuardian",
-          action:"update",
+          action: "update",
           input: {
             firstname,
             lastname,
             phone,
             oldmail: existingLegalGuardian.mail,
             mail,
-            memberId
+            memberId,
           },
-          message: `Ajout du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`
-        })
+          message: `Ajout du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`,
+        });
         return existingLegalGuardian.id; // return ID of existing legalGuardian
       } catch (e) {
         // Gestion des erreurs Prisma et autres erreurs
@@ -261,7 +261,7 @@ export const AssociationRouter = createTRPCRouter({
         }
       }
     }),
-    createFileForMember: publicProcedure
+  createFileForMember: publicProcedure
     .input(
       z.object({
         memberId: z.string().uuid("Identifiant de membre invalide."),
@@ -286,12 +286,12 @@ export const AssociationRouter = createTRPCRouter({
           logger.warn({
             ...loggerMetadata,
             endpoint: "createFileForMember",
-            action:"error",
+            action: "error",
             input: {
-              memberId
+              memberId,
             },
-            message: `Impossible de créer un fichier pour l'identifiant : ${memberId} associé à aucun membre.`
-          })
+            message: `Impossible de créer un fichier pour l'identifiant : ${memberId} associé à aucun membre.`,
+          });
           throw new Error("Le membre spécifié n'existe pas.");
         }
 
@@ -310,19 +310,17 @@ export const AssociationRouter = createTRPCRouter({
           logger.warn({
             ...loggerMetadata,
             endpoint: "createFileForMember",
-            action:"error",
+            action: "error",
             input: {
               memberId,
               year,
             },
-            message: `Impossible de créer un dossier pour ${member.lastname} ${member.firstname}, car un dossier pour l'année ${yearString} existe déjà.`
-          })
+            message: `Impossible de créer un dossier pour ${member.lastname} ${member.firstname}, car un dossier pour l'année ${yearString} existe déjà.`,
+          });
           throw new Error(
             `Un dossier pour l'année ${yearString} existe déjà pour le membre ${member.firstname} ${member.lastname}.`,
           );
         }
-
-        
 
         // Search if all courses exists
         const coursesCheck = await ctx.prisma.course.findMany({
@@ -334,20 +332,22 @@ export const AssociationRouter = createTRPCRouter({
         });
 
         if (coursesCheck.length !== courses.length) {
-          const coursesFind = new Set(coursesCheck.map((course) => course.name));
+          const coursesFind = new Set(
+            coursesCheck.map((course) => course.name),
+          );
           const coursesNotFound: string[] = courses.filter(
             (course) => !coursesFind.has(course),
           );
           logger.warn({
             ...loggerMetadata,
             endpoint: "createFileForMember",
-            action:"error",
+            action: "error",
             input: {
               memberId,
-              courses
+              courses,
             },
-            message: `Impossible de créer un dossier pour l'identifiant : ${memberId} car les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}.`
-          })
+            message: `Impossible de créer un dossier pour l'identifiant : ${memberId} car les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}.`,
+          });
           throw new Error(
             `Les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}`,
           );
@@ -376,16 +376,16 @@ export const AssociationRouter = createTRPCRouter({
         logger.info({
           ...loggerMetadata,
           endpoint: "createFileForMember",
-          action:"create",
+          action: "create",
           input: {
             memberId,
             year,
             courses,
             undersigner,
-            signature
+            signature,
           },
-          message: `Dossier créé pour le membre ${member.firstname} ${member.lastname}.`
-        })
+          message: `Dossier créé pour le membre ${member.firstname} ${member.lastname}.`,
+        });
         return file.id;
       } catch (e) {
         // Gestion des erreurs Prisma et autres erreurs
@@ -404,6 +404,124 @@ export const AssociationRouter = createTRPCRouter({
           );
         }
       }
+    }),
+  getConfirmationMailInformations: publicProcedure
+    .input(z.object({ memberId: z.string().uuid(), fileId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      // Get all informations about registration with memberId and fileId
+      const member = await ctx.prisma.member.findFirst({
+        select: {
+          firstname: true,
+          lastname: true,
+          birthdate: true,
+          gender: true,
+          mail: true,
+          phone: true,
+          address: true,
+          city: true,
+          postalCode: true,
+          medicalComment: true,
+          photo: true,
+          files: {
+            where: {
+              id: input.fileId,
+            },
+            select: {
+              signature: true,
+              undersigner: true,
+              courses: {
+                select: {
+                  name: true,
+                  price: true,
+                },
+              },
+            },
+          },
+          legalGuardians: {
+            select: {
+              firstname: true,
+              lastname: true,
+              phone: true,
+              mail: true,
+            },
+          },
+        },
+        where: { id: input.memberId },
+      });
+
+      // Member doesn't exist
+      if (!member) {
+        throw new Error("Le membre n'a pas pu être inscrit.");
+      }
+
+      // Check if member is Adult or not
+      const isAdult = calculateAge(member.birthdate);
+
+      // Informations about the members
+      const memberInfo = {
+        firstname: member.firstname,
+        lastname: member.lastname,
+        birthdate: member.birthdate,
+        gender: member.gender,
+        phone: member.phone,
+        mail: member.mail,
+        address: member.address,
+        city: member.city,
+        postalCode: member.postalCode,
+        medicalComment: member.medicalComment,
+        photo: member.photo,
+      };
+
+      // informations about legalGuardians
+      const legalGuardians = member.legalGuardians.map((legalGuardian) => ({
+        firstname: legalGuardian.firstname,
+        lastname: legalGuardian.lastname,
+        phone: legalGuardian.phone,
+        mail: legalGuardian.mail,
+      }));
+
+      // Email for send registration confirmation
+      let mailTo = "";
+      // If member is adult, use member.mail
+      if (isAdult && member.mail) {
+        mailTo = member.mail;
+      } else if (!isAdult) {
+        // member not adult, search for legals guardians mail
+        const legalGuardianWithMail = legalGuardians.find((val) => val.mail);
+
+        // if legal guardians don't have email, using member email
+        mailTo =
+          legalGuardianWithMail?.mail ??
+          member.mail ??
+          (() => {
+            throw new Error(
+              "Aucun mail n'est renseigné, impossible d'envoyer la confirmation.",
+            );
+          })();
+      } else {
+        throw new Error(
+          "Aucun mail n'est renseigné, impossible d'envoyer la confirmation.",
+        );
+      }
+
+      // Member doesn't have file with this fileId
+      if (!member.files[0]) {
+        throw new Error("Aucun dossier n'a été généré pour ce membre.");
+      }
+
+      const file = member.files[0];
+
+      // Calcul rate of his membership
+      const price = file.courses.reduce((sum, course) => sum + course.price, 0);
+
+      return {
+        mailTo,
+        price,
+        ...memberInfo,
+        LegalGuardians: legalGuardians,
+        ...file,
+        courses: file.courses.map((course) => course.name),
+      };
     }),
   getMemberAllinformations: publicProcedure
     .input(z.object({ memberId: z.string().uuid(), year: z.string().trim() }))

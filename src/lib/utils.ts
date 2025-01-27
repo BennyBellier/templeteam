@@ -3,6 +3,7 @@ import { BlogCategory } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { differenceInYears, isBefore } from "date-fns";
 import { twMerge } from "tailwind-merge";
+import { env } from "@/env.mjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -64,7 +65,7 @@ export function getCountriesNames(lang = "fr") {
 
 export const phoneRegex = new RegExp(/^\+33 [67](?: [0-9]{2}){4}$/);
 
-export const calculateAge = (input: string): number => {
+export const calculateAge = (input: string | Date): number => {
   const today = new Date();
   const birthDate = new Date(input);
 
@@ -101,4 +102,14 @@ export function fileToBase64(file: File): Promise<string> {
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = (error) => reject(error);
   });
+}
+
+export const calculateMembershipPrice = (oldMember: boolean, courses: number[]) => {
+  if (oldMember) {
+    return courses.reduce((sum, price) => sum + price, 0);
+  }
+  return (
+    env.INSURANCE_MEMBERSHIP_PRICE +
+    courses.reduce((sum, price) => sum + price, 0)
+  );
 }

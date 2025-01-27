@@ -59,7 +59,8 @@ export const env = createEnv({
     ASSOCIATION_MEMBERS_FOLDER: z.string().default("members"),
     ASSOCIATION_MEMBERS_PHOTOS_FOLDER: z.string().default("photos"),
     ASSOCIATION_MEMBERS_MEDICS_FOLDER: z.string().default("medical"),
-    ASSOCIATION_MEMBERS_FILES_FOLDER: z.string().default("files")
+    ASSOCIATION_MEMBERS_FILES_FOLDER: z.string().default("files"),
+    INSURANCE_MEMBERSHIP_PRICE: z.coerce.number().default(20),
   },
 
   /**
@@ -95,9 +96,13 @@ export const env = createEnv({
     MEMBER_PAGINATION_SIZE: process.env.MEMBER_PAGINATION_SIZE,
     FILE_PAGINATION_SIZE: process.env.FILE_PAGINATION_SIZE,
     FILE_YEAR: process.env.FILE_YEAR,
-    STATIC_PATH: process.env.STATIC_PATH,
+    STATIC_FOLDER: process.env.STATIC_FOLDER,
     ASSOCIATION_FOLDER: process.env.ASSOCIATION_FOLDER,
     ASSOCIATION_MEMBERS_FOLDER: process.env.ASSOCIATION_MEMBERS_FOLDER,
+    ASSOCIATION_MEMBERS_PHOTOS_FOLDER: process.env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER,
+    ASSOCIATION_MEMBERS_MEDICS_FOLDER: process.env.ASSOCIATION_MEMBERS_MEDICS_FOLDER,
+    ASSOCIATION_MEMBERS_FILES_FOLDER: process.env.ASSOCIATION_MEMBERS_FILES_FOLDER,
+    INSURANCE_MEMBERSHIP_PRICE: process.env.INSURANCE_MEMBERSHIP_PRICE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

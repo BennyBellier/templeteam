@@ -45,7 +45,7 @@ const registerLegalGuardians = async (
 const registerFile = async (
   memberId: string,
   courses: Record<string, boolean>,
-  autohrization: AuthorizationState,
+  authorization: AuthorizationState,
 ) => {
   try {
     const coursesArray = Object.keys(courses)
@@ -55,7 +55,8 @@ const registerFile = async (
     const file = await prisma.association.createFileForMember({
       memberId,
       courses: coursesArray,
-      ...autohrization,
+      undersigner: authorization.undersigner,
+      signature: authorization.signature,
     });
 
     return file;
@@ -73,8 +74,8 @@ const sendConfirmationMail = async (
     const transporter = nodemailer.createTransport({ ...smtpOptions });
 
     //TODO memberFile.mail = member.mail ?? legalGuardian.mail
-    // const memberFile = ;
-    
+    const memberFile = await prisma.association.getConfirmationMailInformations({memberId, fileId});
+
     const payload = {
       from: env.REGISTER_MAIL,
       subject: `Confirmation de la pré-inscription de ${memberFile.lastname} ${memberFile.firstname}`,
