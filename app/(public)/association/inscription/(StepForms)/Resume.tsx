@@ -55,7 +55,7 @@ export default function Resume() {
               {member?.lastname} {member?.firstname}
             </Typography>
             <Typography variant="muted">
-              Né(e) le {new Date(member?.birthdate).toLocaleDateString()} - {gender}
+              Né(e) le {new Date(member?.birthdate ?? "").toLocaleDateString()} - {gender}
             </Typography>
           </div>
         </div>

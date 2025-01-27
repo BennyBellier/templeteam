@@ -203,8 +203,8 @@ model File {
   paymentAmout       Float?
   undersigner        String
   signature          String
-  memberId           String
   medicalCertificate String?
+  memberId           String
   member             Member         @relation(fields: [memberId], references: [id], onDelete: Cascade)
   history            History[]
   courses            Course[]       @relation("FileCourses")

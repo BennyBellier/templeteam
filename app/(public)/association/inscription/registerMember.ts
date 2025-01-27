@@ -12,8 +12,7 @@ import type {
   LegalGuardianState,
   MemberState,
 } from "@/stores/registerFormStore";
-import { string } from "zod";
-import LegalGuardians from "./(StepForms)/LegalGuardians";
+import { associationPath, serverPath } from "@/server/file-manipulations";
 
 const registerMember = async (
   member: MemberState,
@@ -35,8 +34,8 @@ const registerLegalGuardians = async (
   legalGuardians: LegalGuardianState[],
 ) => {
   try {
-    for(const lg of legalGuardians ) {
-      await prisma.association.createLegalGuardian({memberId, ...lg})
+    for (const lg of legalGuardians) {
+      await prisma.association.createLegalGuardian({ memberId, ...lg });
     }
   } catch (e) {
     throw e;
@@ -46,110 +45,62 @@ const registerLegalGuardians = async (
 const registerFile = async (
   memberId: string,
   courses: Record<string, boolean>,
-  autohrization: AuthorizationState
+  autohrization: AuthorizationState,
 ) => {
   try {
+    const coursesArray = Object.keys(courses)
+      .map((key) => (courses[key] ? key : null))
+      .filter((key): key is string => key !== null);
+
+    const file = await prisma.association.createFileForMember({
+      memberId,
+      courses: coursesArray,
+      ...autohrization,
+    });
+
+    return file;
+  } catch (e) {
+    throw e;
+  }
+};
+
+const sendConfirmationMail = async (
+  memberId: string,
+  fileId: string
+) => {
+  try {
+    // Initialize nodemailer
+    const transporter = nodemailer.createTransport({ ...smtpOptions });
+
+    //TODO memberFile.mail = member.mail ?? legalGuardian.mail
+    // const memberFile = ;
+    
+    const payload = {
+      from: env.REGISTER_MAIL,
+      subject: `Confirmation de la pré-inscription de ${memberFile.lastname} ${memberFile.firstname}`,
+      replyTo: env.NOREPLY_MAIL,
+      html: render(RegistrationTemplate(memberFile)),
+      attachments: [
+        {
+          path: serverPath(associationPath, "certificat_medical.pdf"),
+        },
+      ],
+    };
+
+    // Mail to member
+    const sended = await transporter.sendMail({
+      ...payload,
+      to: memberFile.mail,
+    });
 
   } catch (e) {
     throw e;
   }
-}
+};
 
-/* export default async function registerMember(store: RegisterFormStore) {
-  const membershipArray = [];
-  if (membership.templeRun) membershipArray.push("templeRun");
-  if (membership.templeGym) membershipArray.push("templeGym");
-  if (membership.templeGymJunior) membershipArray.push("templeGymJunior");
-  if (membership.templeBreak) membershipArray.push("templeBreak");
-
-
-  logger.info(createMemberData);
-
-  const memberId = await prisma.association.createMember(createMemberData);
-
-  if (!isAdult) {
-    const emergencydata1 = {
-      name: legalGuardian?.legalGuardianName1 ?? "inconu",
-      phone: legalGuardian?.legalGuardianPhone1 ?? "000",
-      memberId: memberId,
-      level: 1,
-    };
-
-    await prisma.association.createLegalGuardian(emergencydata1);
-
-    if (legalGuardian?.legalGuardianName2 !== undefined) {
-      const emergencydata2 = {
-        name: legalGuardian?.legalGuardianName2,
-        phone: legalGuardian?.legalGuardianPhone2 ?? "000",
-        memberId: memberId,
-        level: 2,
-      };
-
-      await prisma.association.createLegalGuardian(emergencydata2);
-    }
-  }
-
-  // Envoie du mail récapitulatif
-  if (memberId) {
-    const mailData = {
-      firstname: member.firstname,
-      lastname: member.lastname,
-      birthdate: new Date(member.birthdate),
-      mail: member.mail ?? "inconnu",
-      Phone: member.phoneNumber ?? "",
-      gender: member.gender,
-      Address: member.address,
-      City: member.city,
-      CodePostal: member.postalCode,
-      Country: member.country,
-      PictureFile: member.picture?.at(0) ?? "",
-      legalGuardianName1:
-        legalGuardian?.legalGuardianName1 ?? "inconu",
-      legalGuardianPhone1: legalGuardian?.legalGuardianPhone1 ?? "000",
-      legalGuardianName2:
-        legalGuardian?.legalGuardianName2 ?? "inconu",
-      legalGuardianPhone2: legalGuardian?.legalGuardianPhone2 ?? "000",
-      MedicalComment: medic.medicalComments ?? "",
-      templeBreak: membership.templeBreak ?? false,
-      templeGym: membership.templeGym ?? false,
-      templeGymJunior: membership.templeGymJunior ?? false,
-      templeRun: membership.templeRun ?? false,
-    };
-
-    //Mail à l'adhérent
-    const transporter = nodemailer.createTransport({ ...smtpOptions });
-
-    const sended = await transporter.sendMail({
-      from: env.REGISTER_MAIL,
-      to: member.mail,
-      subject: `Confirmation de la pré-inscription de ${mailData.lastname} ${mailData.firstname}`,
-      replyTo: env.NOREPLY_MAIL,
-      html: render(RegistrationTemplate(mailData)),
-      attachments: [
-        {
-          path: `${process.cwd()}/public/association/certificat_medical.pdf`,
-        },
-      ],
-    });
-
-    logger.info({ type: "mail", page: "inscription", message: sended });
-
-    // Mail de sauvegarde
-    await transporter.sendMail({
-      from: env.REGISTER_MAIL,
-      to: env.REGISTER_MAIL,
-      subject: `Confirmation de la pré-inscription de ${mailData.lastname} ${mailData.firstname}`,
-      replyTo: env.NOREPLY_MAIL,
-      text: JSON.stringify({
-        membership,
-        member,
-        legalGuardian,
-        authorization,
-        medic,
-        isAdult,
-      }),
-    });
-
-    return sended;
-  }
-} */
+export {
+  registerMember,
+  registerLegalGuardians,
+  registerFile,
+  sendConfirmationMail,
+};

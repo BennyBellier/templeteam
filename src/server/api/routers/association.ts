@@ -51,6 +51,19 @@ export const AssociationRouter = createTRPCRouter({
           },
         });
         if (member) {
+          logger.warn({
+            ...loggerMetadata,
+            endpoint: "createMember",
+            action:"error",
+            input: {
+              firstname,
+              lastname,
+              birthdate,
+              mail,
+              phone,
+            },
+            message: `Un membre avec les mêmes informations existe déjà.`
+          });
           throw new Error("Un membre avec les mêmes informations existe déjà.");
         }
         member = await ctx.prisma.member.create({
@@ -121,101 +134,6 @@ export const AssociationRouter = createTRPCRouter({
     });
     return courses;
   }),
-  /* createLegalGuardians:
-  createMemberAndFile: publicProcedure
-    .input(
-      z.object({
-        firstname: z
-          .string()
-          .trim()
-          .transform((value) => value.charAt(0).toUpperCase()),
-        lastname: z.string().trim().toUpperCase(),
-        birthdate: z.date().min(new Date(1970, 1, 1)),
-        gender: z.string().trim(),
-        mail: z.string().trim().optional(),
-        phone: z.string().trim().optional(),
-        address: z.string().trim(),
-        city: z.string().trim().toUpperCase(),
-        postalCode: z.string().trim(),
-        country: z.string().trim().toUpperCase(),
-        photo: z.string().trim(),
-        medicalComment: z.string().trim().optional(),
-
-        undersigner: z.string().trim(),
-        signature: z.string(),
-
-        courses: z.array(z.string().trim()),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      const {
-        firstname,
-        lastname,
-        birthdate,
-        gender,
-        mail,
-        phone,
-        address,
-        city,
-        postalCode,
-        country,
-        photo,
-        medicalComment,
-        undersigner,
-        signature,
-        courses,
-      } = input;
-      let member = await ctx.prisma.member.findUnique({
-        where: {
-          OR: [
-            {
-              lastnam
-              firstname,
-              lastname,
-              birthdate,
-            },
-            {
-              mail,
-            },
-            {
-              phone,
-            },
-          ],
-        },
-      });
-      if (!member) {
-        member = await ctx.prisma.member.create({
-          data: {
-            firstname,
-            lastname,
-            birthdate,
-            gender,
-            mail,
-            phone,
-            address,
-            city,
-            postalCode,
-            country,
-            photo,
-            medicalComment,
-          },
-        });
-      }
-
-      await ctx.prisma.file.create({
-        data: {
-          year: env.FILE_YEAR,
-          undersigner,
-          signature,
-          memberId: member.id,
-          courses: {
-            connect: [...courses.map((course) => ({ name: course }))],
-          },
-        },
-      });
-
-      return member.id;
-    }), */
   createLegalGuardian: publicProcedure
     .input(
       z.object({
@@ -244,6 +162,12 @@ export const AssociationRouter = createTRPCRouter({
         });
 
         if (!member) {
+          logger.warn({
+            ...loggerMetadata,
+            endpoint: "createLegalGuardian",
+            action:"error",
+             message: `Impossible de créer un responsables légale pour l'identifiant : ${memberId} associé à aucun membre.`
+          })
           throw new Error("Le membre spécifié n'existe pas.");
         }
 
@@ -273,6 +197,19 @@ export const AssociationRouter = createTRPCRouter({
             },
           });
 
+          logger.info({
+            ...loggerMetadata,
+            endpoint: "createLegalGuardian",
+            action:"create",
+            input: {
+              firstname,
+              lastname,
+              phone,
+              mail,
+              memberId
+            },
+            message: `Création du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`
+          })
           return newLegalGuardian.id; // Return ID of new legal guardians
         }
 
@@ -290,7 +227,21 @@ export const AssociationRouter = createTRPCRouter({
             },
           },
         });
-
+        
+        logger.info({
+          ...loggerMetadata,
+          endpoint: "createLegalGuardian",
+          action:"update",
+          input: {
+            firstname,
+            lastname,
+            phone,
+            oldmail: existingLegalGuardian.mail,
+            mail,
+            memberId
+          },
+          message: `Ajout du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`
+        })
         return existingLegalGuardian.id; // return ID of existing legalGuardian
       } catch (e) {
         // Gestion des erreurs Prisma et autres erreurs
@@ -306,6 +257,150 @@ export const AssociationRouter = createTRPCRouter({
         } else {
           throw new Error(
             "Une erreur inconnue est survenue lors de l'ajout du responsable légal.",
+          );
+        }
+      }
+    }),
+    createFileForMember: publicProcedure
+    .input(
+      z.object({
+        memberId: z.string().uuid("Identifiant de membre invalide."),
+        year: z.date().optional(),
+        courses: z.array(z.string()),
+        undersigner: z.string().trim(),
+        signature: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const { memberId, year, courses, undersigner, signature } = input;
+
+        // Search if member to connect exist
+        const member = await ctx.prisma.member.findUnique({
+          where: {
+            id: memberId,
+          },
+        });
+
+        if (!member) {
+          logger.warn({
+            ...loggerMetadata,
+            endpoint: "createFileForMember",
+            action:"error",
+            input: {
+              memberId
+            },
+            message: `Impossible de créer un fichier pour l'identifiant : ${memberId} associé à aucun membre.`
+          })
+          throw new Error("Le membre spécifié n'existe pas.");
+        }
+
+        const fileExists = await ctx.prisma.file.findUnique({
+          where: {
+            year_memberId: {
+              year: year ?? env.FILE_YEAR,
+              memberId,
+            },
+          },
+        });
+
+        if (fileExists) {
+          const yearString = `${(year ?? env.FILE_YEAR).getFullYear()}/${(year ?? env.FILE_YEAR).getFullYear() + 1}`;
+
+          logger.warn({
+            ...loggerMetadata,
+            endpoint: "createFileForMember",
+            action:"error",
+            input: {
+              memberId,
+              year,
+            },
+            message: `Impossible de créer un dossier pour ${member.lastname} ${member.firstname}, car un dossier pour l'année ${yearString} existe déjà.`
+          })
+          throw new Error(
+            `Un dossier pour l'année ${yearString} existe déjà pour le membre ${member.firstname} ${member.lastname}.`,
+          );
+        }
+
+        
+
+        // Search if all courses exists
+        const coursesCheck = await ctx.prisma.course.findMany({
+          where: {
+            name: {
+              in: courses,
+            },
+          },
+        });
+
+        if (coursesCheck.length !== courses.length) {
+          const coursesFind = new Set(coursesCheck.map((course) => course.name));
+          const coursesNotFound: string[] = courses.filter(
+            (course) => !coursesFind.has(course),
+          );
+          logger.warn({
+            ...loggerMetadata,
+            endpoint: "createFileForMember",
+            action:"error",
+            input: {
+              memberId,
+              courses
+            },
+            message: `Impossible de créer un dossier pour l'identifiant : ${memberId} car les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}.`
+          })
+          throw new Error(
+            `Les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}`,
+          );
+        }
+
+        // File creation
+        const file = await ctx.prisma.file.create({
+          data: {
+            year: year ?? env.FILE_YEAR,
+            courses: {
+              connect: Object.keys(courses).map((key) => ({
+                name: key,
+              })),
+            },
+            undersigner,
+            signature,
+            member: {
+              connect: {
+                id: memberId,
+              },
+            },
+          },
+        });
+
+        // File creation successfull
+        logger.info({
+          ...loggerMetadata,
+          endpoint: "createFileForMember",
+          action:"create",
+          input: {
+            memberId,
+            year,
+            courses,
+            undersigner,
+            signature
+          },
+          message: `Dossier créé pour le membre ${member.firstname} ${member.lastname}.`
+        })
+        return file.id;
+      } catch (e) {
+        // Gestion des erreurs Prisma et autres erreurs
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === "P2002"
+        ) {
+          throw new Error(
+            `Il existe déjà un dossier pour ce membre et cette année.`,
+          );
+        } else if (e instanceof Error) {
+          throw new Error(e.message); // Autres erreurs personnalisées
+        } else {
+          throw new Error(
+            "Une erreur inconnue est survenue lors de la création du dossier.",
           );
         }
       }
