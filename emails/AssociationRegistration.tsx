@@ -15,29 +15,28 @@ import {
 } from "@react-email/components";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import { type RegistrationProps } from "./utils";
+import { Gender } from "@prisma/client";
+import type { RouterOutputs } from "@/server/api/root";
+import { getPhoneData } from "@/components/ui/phone-input";
+
+type Props = RouterOutputs["association"]["getConfirmationMailInformations"];
 
 export default function RegistrationTemplate({
+  photo,
   firstname,
   lastname,
   birthdate,
+  phone,
   mail,
-  Phone,
   gender,
-  Address,
-  City,
-  CodePostal,
-  Country,
-  PictureFile,
-  EmergencyContactName1,
-  EmergencyContactPhone1,
-  EmergencyContactName2,
-  EmergencyContactPhone2,
-  MedicalComment,
-  templeRun,
-  templeGym,
-  templeBreak,
-  templeGymJunior,
-}: RegistrationProps) {
+  address,
+  postalCode,
+  city,
+  country,
+  medicalComment,
+  legalGuardians,
+  courses,
+}: Props) {
   const previewText = `Nouvelle inscription : ${firstname} ${lastname}`;
 
   const baseUrl = "https://templeteam.fr";
@@ -51,12 +50,12 @@ export default function RegistrationTemplate({
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mx-auto flex justify-center">
               <Img
-                src={`${baseUrl}/static/img/logo-light.png`}
+                src={`${baseUrl}/static/img/logo/templeteam/header70-light.png`}
                 alt="Temple Team"
-                width={100}
+                width={70}
                 className="mx-0 my-0 inline-block"
               />
-              <Text className="mx-0 inline-block -translate-x-4 text-center text-3xl font-bold">
+              <Text className="mx-0 ml-0.5 inline-block -translate-x-4 text-center text-3xl font-bold">
                 emple Team
               </Text>
             </Section>
@@ -68,11 +67,11 @@ export default function RegistrationTemplate({
               <Text className="mb-2 font-bold">Informations du membre :</Text>
               <Row className="mb-2">
                 <Img
-                  src={PictureFile}
-                  alt="Photo adhérent"
-                  width="150"
-                  height="150"
-                  className="object-contain"
+                  src="cid:memberPhoto"
+                  alt={`${lastname} ${firstname}`}
+                  width="100"
+                  height="100"
+                  className="rounded-full object-contain text-sm leading-[100px] bg-neutral-100"
                 />
               </Row>
               <Row className="mb-2">
@@ -92,12 +91,16 @@ export default function RegistrationTemplate({
                 </Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">Téléphone : {Phone}</Text>
+                <Text className="m-0">Téléphone : {phone}</Text>
               </Row>
               <Row className="mb-2">
                 <Text className="m-0">
                   Sexe :{" "}
-                  {gender === "men" ? "M" : gender === "woman" ? "F" : "Autres"}
+                  {gender === Gender.Male
+                    ? "Masculin"
+                    : gender === Gender.Female
+                      ? "Féminin"
+                      : "Non spécifié"}
                 </Text>
               </Row>
               <Row className="mb-2">
@@ -110,7 +113,7 @@ export default function RegistrationTemplate({
               </Row>
               <Row className="mb-2">
                 <Text className="m-0">
-                  Adresse : {Address}, {CodePostal} {City}, {Country}
+                  Adresse : {address}, {postalCode} {city}, {country}
                 </Text>
               </Row>
             </Section>
@@ -118,49 +121,33 @@ export default function RegistrationTemplate({
             {/* Cours */}
             <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
               <Text className="mb-2 font-bold">Cours :</Text>
-              {templeBreak && (
-                <Row className="mb-2">
-                  <Text className="m-0">Temple Break</Text>
+              {courses.map((course) => (
+                <Row key={course} className="mb-2">
+                  <Text className="m-0">{course}</Text>
                 </Row>
-              )}
-              {templeRun && (
-                <Row className="mb-2">
-                  <Text className="m-0">Temple Run</Text>
-                </Row>
-              )}
-              {templeGymJunior && (
-                <Row className="mb-2">
-                  <Text className="m-0">Temple Gym Junior</Text>
-                </Row>
-              )}
-              {templeGym && (
-                <Row className="mb-2">
-                  <Text className="m-0">Temple Gym</Text>
-                </Row>
-              )}
+              ))}
             </Section>
 
             {/* Informations médicales */}
-            {MedicalComment && (
+            {medicalComment && (
               <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
                 <Text className="mb-2 font-bold">Informations médicales :</Text>
-                <Text className="m-0">{MedicalComment}</Text>
+                <Text className="m-0">{medicalComment}</Text>
               </Section>
             )}
 
             {/* Contacts d'urgence */}
             <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
               <Text className="mb-2 font-bold">Contacts d'urgence :</Text>
-              <Row className="mb-2">
-                <Text className="m-0">
-                  Contact 1 : {EmergencyContactName1} - {EmergencyContactPhone1}
-                </Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">
-                  Contact 2 : {EmergencyContactName2} - {EmergencyContactPhone2}
-                </Text>
-              </Row>
+              {legalGuardians.map((lg) => {
+                return (
+                  <Row key={lg.phone} className="mb-2">
+                    <Text className="m-0">
+                      Contact 1 : {lg.lastname} {lg.firstname} - {"0" + lg.phone.substring(3)}
+                    </Text>
+                  </Row>
+                );
+              })}
             </Section>
 
             {/* Pied de page */}
@@ -244,20 +231,31 @@ export default function RegistrationTemplate({
 
 RegistrationTemplate.PreviewProps = {
   firstname: "Alan",
-  lastname: "Turing",
-  birthdate: Date.now(),
+  lastname: "TURING",
+  birthdate: new Date("2002-01-01"),
   mail: "alan@example.com",
-  Phone: "0600000000",
-  Sexe: "M",
-  Address: "Cette rue",
-  City: "Grenoble",
-  CodePostal: "38000",
-  Country: "France",
-  PictureFile: null,
-  EmergencyContactName1: "Emergency 1",
-  EmergencyContactPhone1: "0600000000",
-  EmergencyContactName2: "Emergency 2",
-  EmergencyContactPhone2: "0600000000",
-  MedicalComment:
-    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus voluptate eum nam dolor, libero sit dolores dolorem. Alias ullam dolorem perspiciatis placeat minus voluptates dicta pariatur enim qui, ducimus cumque.",
+  phone: "+33612345678",
+  gender: Gender.Male,
+  address: "4 RUE WILFRID ET CONRAD KILIAN",
+  city: "GRENOBLE",
+  postalCode: "38000",
+  country: "FRANCE",
+  photo: null,
+  medicalComment: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus voluptate eum nam dolor, libero sit dolores dolorem. Alias ullam dolorem perspiciatis placeat minus voluptates dicta pariatur enim qui, ducimus cumque.",
+  courses: ["Temple Run", "Temple Gym"],
+  legalGuardians: [
+    {
+      firstname: "Billy",
+      lastname: "JONES",
+      mail: "billy.jones@example.com",
+      phone: "+33687654321",
+    },
+    {
+      firstname: "Charlie",
+      lastname: "BROWN",
+      mail: "charlie.brown@example.com",
+      phone: "+33698765432",
+    },
+  ],
+  price: 200,
 };

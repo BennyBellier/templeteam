@@ -1,4 +1,3 @@
-import "server-only";
 import {
   Body,
   Column,
@@ -16,22 +15,34 @@ import {
   Text,
 } from "@react-email/components";
 import { Facebook, Instagram, Youtube } from "lucide-react";
-import { baseUrl, type RegistrationProps } from "./utils";
-import type { RouterDefinition } from "@/server/api/root";
 import { Gender } from "@prisma/client";
 import type { RouterOutputs } from "@/server/api/root";
+import { getPhoneData } from "@/components/ui/phone-input";
 
 type Props = RouterOutputs["association"]["getConfirmationMailInformations"];
 
-export default function RegistrationTemplate({firstname, lastname, birthdate, phone, mail, gender, address, postalCode, city, country, legalGuardians}: Props) {
-  const formatedDate = new Intl.DateTimeFormat('fr', {
-    dateStyle: 'full',
-    timeStyle: 'short',
+export default function RegistrationTemplate({
+  photo,
+  firstname,
+  lastname,
+  birthdate,
+  phone,
+  mail,
+  gender,
+  address,
+  postalCode,
+  city,
+  country,
+  legalGuardians,
+}: Props) {
+  const formatedDate = new Intl.DateTimeFormat("fr", {
+    dateStyle: "full",
+    timeStyle: "short",
   }).format(new Date());
 
   const previewText = `Confirmation de l'inscription de ${firstname} ${lastname}`;
-  
-  const baseUrl = 'https://templeteam.fr';
+
+  const baseUrl = "https://templeteam.fr";
 
   return (
     <Html lang="fr">
@@ -42,7 +53,7 @@ export default function RegistrationTemplate({firstname, lastname, birthdate, ph
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mx-auto flex justify-center">
               <Img
-                src={`${baseUrl}static/img/logo/templeteam/logo-light.svg`}
+                src={`${baseUrl}/static/img/logo/templeteam/logo-light.svg`}
                 alt="Temple Team"
                 width={100}
                 className="mx-0 my-0 inline-block"
@@ -55,13 +66,23 @@ export default function RegistrationTemplate({firstname, lastname, birthdate, ph
             <Hr />
 
             {/* Informations du membre */}
-            <Section className="border border-solid border-gray-300 rounded-lg p-4 mb-4">
-              <Text className="font-bold mb-2">Informations du membre :</Text>
+            <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
+              <Text className="mb-2 font-bold">Informations du membre :</Text>
               <Row className="mb-2">
-                <Text className="m-0">Nom : {firstname} {lastname}</Text>
+                <Text className="m-0">
+                  Nom : {firstname} {lastname}
+                </Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">Email : <Link href={`mailto:${mail}`} className="text-blue-500 underline">{mail}</Link></Text>
+                <Text className="m-0">
+                  Email :{" "}
+                  <Link
+                    href={`mailto:${mail}`}
+                    className="text-blue-500 underline"
+                  >
+                    {mail}
+                  </Link>
+                </Text>
               </Row>
               <Row className="mb-2">
                 <Text className="m-0">Téléphone : {phone}</Text>
@@ -70,25 +91,39 @@ export default function RegistrationTemplate({firstname, lastname, birthdate, ph
                 <Text className="m-0">Sexe : {gender}</Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">Date de naissance : {new Intl.DateTimeFormat('fr', { dateStyle: 'long' }).format(birthdate)}</Text>
+                <Text className="m-0">
+                  Date de naissance :{" "}
+                  {birthdate.toLocaleDateString("fr-FR", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">Adresse : {address}, {postalCode} {city}, {country}</Text>
+                <Text className="m-0">
+                  Adresse : {address}, {postalCode} {city}, {country}
+                </Text>
               </Row>
             </Section>
 
             {/* Contacts d'urgence */}
-            <Section className="border border-solid border-gray-300 rounded-lg p-4 mb-4">
-              <Text className="font-bold mb-2">Contacts d'urgence :</Text>
-              {legalGuardians.map((lg) => (
-                 <Row className="mb-2">
-                 <Text className="m-0">Contact 1 : {lg.lastname} {lg.firstname} - {EmergencyContactPhone1}</Text>
-               </Row>
-              ))}
+            <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
+              <Text className="mb-2 font-bold">Contacts d'urgence :</Text>
+              {legalGuardians.map((lg) => {
+                const lgPhone = getPhoneData(lg.phone);
+                return (
+                  <Row key={lg.phone} className="mb-2">
+                    <Text className="m-0">
+                      Contact 1 : {lg.lastname} {lg.firstname} -
+                    </Text>
+                  </Row>
+                );
+              })}
             </Section>
 
             {/* Pied de page */}
-            <Section className="mt-16 rounded bg-neutral-100 px-6 py-4 border border-solid border-gray-300">
+            <Section className="mt-16 rounded border border-solid border-gray-300 bg-neutral-100 px-6 py-4">
               <Row className="h-12">
                 <Column>
                   <Link href="https://templeteam.fr" className="">
@@ -155,7 +190,8 @@ export default function RegistrationTemplate({firstname, lastname, birthdate, ph
               </Row>
               <Hr />
               <Text className="mx-auto mb-0 text-center text-xs text-neutral-500">
-                Temple Team © 2024 • association sportive loi 1901 <br /> 24 Rue de Criel • Voiron 38500
+                Temple Team © 2024 • association sportive loi 1901 <br /> 24
+                Rue de Criel • Voiron 38500
               </Text>
             </Section>
           </Container>
@@ -192,7 +228,7 @@ RegistrationTemplate.PreviewProps = {
       lastname: "BROWN",
       mail: "charlie.brown@example.com",
       phone: "+33698765432",
-    }
+    },
   ],
   price: 200,
 };
