@@ -4,6 +4,7 @@ import logger from "@/server/logger";
 import { Gender, Prisma } from "@prisma/client";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { RouterLike, UtilsLike } from '@trpc/react-query/shared';
 
 const loggerMetadata = { type: "trpc", router: "association" };
 
@@ -427,8 +428,6 @@ export const AssociationRouter = createTRPCRouter({
               id: input.fileId,
             },
             select: {
-              signature: true,
-              undersigner: true,
               courses: {
                 select: {
                   name: true,
@@ -519,7 +518,6 @@ export const AssociationRouter = createTRPCRouter({
         price,
         ...memberInfo,
         LegalGuardians: legalGuardians,
-        ...file,
         courses: file.courses.map((course) => course.name),
       };
     }),

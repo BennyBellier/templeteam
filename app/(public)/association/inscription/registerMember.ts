@@ -91,7 +91,7 @@ const sendConfirmationMail = async (
     // Mail to member
     const sended = await transporter.sendMail({
       ...payload,
-      to: memberFile.mail,
+      to: memberFile.mailTo,
     });
 
   } catch (e) {

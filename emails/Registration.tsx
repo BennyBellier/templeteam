@@ -1,3 +1,4 @@
+import "server-only";
 import {
   Body,
   Column,
@@ -16,30 +17,19 @@ import {
 } from "@react-email/components";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 import { baseUrl, type RegistrationProps } from "./utils";
+import type { RouterDefinition } from "@/server/api/root";
+import { Gender } from "@prisma/client";
+import type { RouterOutputs } from "@/server/api/root";
 
-export default function RegistrationTemplate({
-  firstname,
-  lastname,
-  birthdate,
-  mail,
-  Phone,
-  Sexe,
-  Address,
-  City,
-  CodePostal,
-  Country,
-  PictureFile,
-  EmergencyContactName1,
-  EmergencyContactPhone1,
-  EmergencyContactName2,
-  EmergencyContactPhone2
-}: RegistrationProps) {
+type Props = RouterOutputs["association"]["getConfirmationMailInformations"];
+
+export default function RegistrationTemplate({firstname, lastname, birthdate, phone, mail, gender, address, postalCode, city, country, legalGuardians}: Props) {
   const formatedDate = new Intl.DateTimeFormat('fr', {
     dateStyle: 'full',
     timeStyle: 'short',
   }).format(new Date());
 
-  const previewText = `Nouvelle inscription : ${firstname} ${lastname}`;
+  const previewText = `Confirmation de l'inscription de ${firstname} ${lastname}`;
   
   const baseUrl = 'https://templeteam.fr';
 
@@ -74,28 +64,27 @@ export default function RegistrationTemplate({
                 <Text className="m-0">Email : <Link href={`mailto:${mail}`} className="text-blue-500 underline">{mail}</Link></Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">Téléphone : {Phone}</Text>
+                <Text className="m-0">Téléphone : {phone}</Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">Sexe : {Sexe}</Text>
+                <Text className="m-0">Sexe : {gender}</Text>
               </Row>
               <Row className="mb-2">
                 <Text className="m-0">Date de naissance : {new Intl.DateTimeFormat('fr', { dateStyle: 'long' }).format(birthdate)}</Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">Adresse : {Address}, {CodePostal} {City}, {Country}</Text>
+                <Text className="m-0">Adresse : {address}, {postalCode} {city}, {country}</Text>
               </Row>
             </Section>
 
             {/* Contacts d'urgence */}
             <Section className="border border-solid border-gray-300 rounded-lg p-4 mb-4">
               <Text className="font-bold mb-2">Contacts d'urgence :</Text>
-              <Row className="mb-2">
-                <Text className="m-0">Contact 1 : {EmergencyContactName1} - {EmergencyContactPhone1}</Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Contact 2 : {EmergencyContactName2} - {EmergencyContactPhone2}</Text>
-              </Row>
+              {legalGuardians.map((lg) => (
+                 <Row className="mb-2">
+                 <Text className="m-0">Contact 1 : {lg.lastname} {lg.firstname} - {EmergencyContactPhone1}</Text>
+               </Row>
+              ))}
             </Section>
 
             {/* Pied de page */}
@@ -178,20 +167,32 @@ export default function RegistrationTemplate({
 
 RegistrationTemplate.PreviewProps = {
   firstname: "Alan",
-  lastname: "Turing",
-  birthdate: Date.now(),
+  lastname: "TURING",
+  birthdate: new Date("2002-01-01"),
   mail: "alan@example.com",
-  Phone: "0600000000",
-  Sexe: "M",
-  Address: "Cette rue",
-  City: "Grenoble",
+  Phone: "+33612345678",
+  Sexe: Gender.Male,
+  Address: "4 RUE WILFRID ET CONRAD KILIAN",
+  City: "GRENOBLE",
   CodePostal: "38000",
-  Country: "France",
-  PictureFile: null,
-  EmergencyContactName1: "Emergency 1",
-  EmergencyContactPhone1: "0600000000",
-  EmergencyContactName2: "Emergency 2",
-  EmergencyContactPhone2: "0600000000",
+  Country: "FRANCE",
+  photo: null,
   MedicalComment:
     "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus voluptate eum nam dolor, libero sit dolores dolorem. Alias ullam dolorem perspiciatis placeat minus voluptates dicta pariatur enim qui, ducimus cumque.",
+  courses: ["Temple Run", "Temple Gym"],
+  legalGuardians: [
+    {
+      firstname: "Billy",
+      lastname: "JONES",
+      mail: "billy.jones@example.com",
+      phone: "+33687654321",
+    },
+    {
+      firstname: "Charlie",
+      lastname: "BROWN",
+      mail: "charlie.brown@example.com",
+      phone: "+33698765432",
+    }
+  ],
+  price: 200,
 };
