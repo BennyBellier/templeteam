@@ -16,7 +16,7 @@ export const AssociationRouter = createTRPCRouter({
         firstname: z
           .string()
           .trim()
-          .transform((value) => value.charAt(0).toUpperCase()),
+          .transform((value) => value[0]?.toUpperCase() + value.slice(1)),
         birthdate: z
           .date()
           .min(new Date(1970, 1, 1))
@@ -141,7 +141,7 @@ export const AssociationRouter = createTRPCRouter({
         firstname: z
           .string()
           .trim()
-          .transform((value) => value.charAt(0).toUpperCase()),
+          .transform((value) => value[0]?.toUpperCase() + value.slice(1)),
         lastname: z.string().trim().toUpperCase(),
         phone: z
           .string()
@@ -354,13 +354,30 @@ export const AssociationRouter = createTRPCRouter({
           );
         }
 
+        logger.debug({...loggerMetadata, data: {
+            year: year ?? env.FILE_YEAR,
+            courses: {
+              connect: Object.keys(courses).map((key) => ({
+                name: key,
+              })),
+            },
+            undersigner,
+            signature: signature ? signature.substring(0, 15) : "no",
+            member: {
+              connect: {
+                id: memberId,
+              },
+            },
+          },
+        });
+
         // File creation
         const file = await ctx.prisma.file.create({
           data: {
             year: year ?? env.FILE_YEAR,
             courses: {
-              connect: Object.keys(courses).map((key) => ({
-                name: key,
+              connect: courses.map((course) => ({
+                name: course,
               })),
             },
             undersigner,

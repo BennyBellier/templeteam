@@ -15,8 +15,7 @@ export function serverPath(...paths: string[]): string {
  * @param name - Name of the directory to create.
  * @param recursive - If true, creates parent folder if necessary.
  */
-export function mkdir(folderPath: string, recursive: boolean): void {
-  const path = serverPath(folderPath);
+export function mkdir(path: string, recursive: boolean): void {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive });
     logger.info(`Directory created: ${path}`);
@@ -30,8 +29,7 @@ export function mkdir(folderPath: string, recursive: boolean): void {
  * @param name - Name of the directory to remove.
  * @param recursive - If true, removes subfolders recursively.
  */
-export function rmdir(folderPath: string, recursive: boolean): void {
-  const path = serverPath(folderPath);
+export function rmdir(path: string, recursive: boolean): void {
   if (fs.existsSync(path)) {
     if (recursive) {
       fs.rmSync(path, { recursive: true, force: true });
@@ -101,3 +99,11 @@ export async function writeMemberPhoto(id: string, file: File): Promise<string> 
 
   return filename;
 }
+
+export const getMemberPhotoPath = (memberId: string, photoFileName: string) =>
+  serverPath(
+    membersPath,
+    memberId,
+    env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER,
+    photoFileName,
+  );

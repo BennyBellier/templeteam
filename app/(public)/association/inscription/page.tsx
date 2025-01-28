@@ -28,7 +28,8 @@ import Resume from "./(StepForms)/Resume";
 import { getPhoneData } from "@/components/ui/phone-input";
 import { useScrollArea } from "@/components/ui/scroll-area";
 import toast from "react-hot-toast";
-import registerMember from "./registerMember";
+import {registerFile, registerLegalGuardians, registerMember, sendConfirmationMail} from "./registerMember";
+import { formData } from "zod-form-data";
 
 /* --------------------------------------------------------
                     Dropzones constantes
@@ -394,12 +395,57 @@ export default function Register() {
 
           const memberId = await registerMember(store.member);
 
+          console.log(memberId);
+
           if (!memberId) {
-            toast.error("Un problème est survenue. Veuillez réessayer.", {
+            toast.error("Erreur lors de l'enregistrement de l'adhérent. Veuillez réessayer.", {
               id: toastId,
+              duration: 3000,
             });
             return;
           }
+
+          // Adding photo
+          const formData = new FormData();
+
+          formData.append("memberId", memberId);
+          formData.append("photo", store.member.photo);
+
+          // Call API endpoint to store files
+          const response = await fetch("/api/association.uploadPhoto", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            toast.error("Erreur lors de la sauvegarde la photo. Veuillez réessayer.", {
+              id: toastId,
+              duration: 3000,
+            });
+            return;
+          }
+
+          if (store.legalGuardians) {
+            await registerLegalGuardians(memberId, store.legalGuardians);
+          }
+
+          const fileId = await registerFile(
+            memberId,
+            store.courses,
+            store.authorization,
+          );
+
+          if (!fileId) {
+            toast.error("Erreur lors de la création du dossier. Veuillez réessayer.", {
+              id: toastId,
+              duration: 3000,
+            });
+            return;
+          }
+
+          const mailResponse = await sendConfirmationMail(memberId, fileId);
+
+          console.log(mailResponse);
 
           toast.success("Inscription réussie !", { id: toastId });
           store.reset();
@@ -408,10 +454,12 @@ export default function Register() {
           if (e instanceof Error) {
             toast.error(e.message, {
               id: toastId,
+              duration: 3000,
             });
           } else {
             toast.error("Un problème est survenu. Veuillez réessayer.", {
               id: toastId,
+              duration: 3000,
             });
           }
         }

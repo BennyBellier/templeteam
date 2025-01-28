@@ -12,45 +12,75 @@ import {
   Section,
   Tailwind,
   Text,
+  Font,
 } from "@react-email/components";
 import { Facebook, Instagram, Youtube } from "lucide-react";
-import { type RegistrationProps } from "./utils";
-import { Gender } from "@prisma/client";
-import type { RouterOutputs } from "@/server/api/root";
-import { getPhoneData } from "@/components/ui/phone-input";
 
-type Props = RouterOutputs["association"]["getConfirmationMailInformations"];
+const sectionClassName =
+  "mb-4 rounded-lg border border-solid border-gray-300 p-2";
+const sectionTitleClassName = "m-0 mb-1 font-bold";
+
+interface RegistrationProps {
+  firstname: string;
+  lastname: string;
+  birthdate: Date;
+  gender: "Male" | "Female" | "NotSpecified";
+  mail: string | null;
+  phone: string | null;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  medicalComment: string | null;
+  legalGuardians: {
+    firstname: string;
+    lastname: string;
+    phone: string;
+    mail: string | null;
+  }[];
+  courses: string[];
+}
 
 export default function RegistrationTemplate({
-  photo,
   firstname,
   lastname,
   birthdate,
-  phone,
-  mail,
   gender,
+  mail,
+  phone,
   address,
-  postalCode,
   city,
+  postalCode,
   country,
   medicalComment,
   legalGuardians,
   courses,
-}: Props) {
-  const previewText = `Nouvelle inscription : ${firstname} ${lastname}`;
+}: RegistrationProps) {
+  const phoneParser = (phone: string) => "0" + phone.substring(3);
 
-  const baseUrl = "https://templeteam.fr";
+  const previewText = `Confirmation de l'inscription de ${firstname} ${lastname}`;
 
   return (
     <Html lang="fr">
-      <Head />
+      <Head>
+        <Font
+          fontFamily="Rubik"
+          fallbackFontFamily={["Arial", "serif"]}
+          webFont={{
+            url: "https://fonts.gstatic.com/s/rubik/v28/iJWKBXyIfDnIV7nBrXw.woff2",
+            format: "woff2",
+          }}
+          fontWeight={400}
+          fontStyle="normal"
+        />
+      </Head>
       <Preview>{previewText}</Preview>
       <Tailwind>
         <Body className="mx-auto my-auto bg-white px-2 font-sans">
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mx-auto flex justify-center">
               <Img
-                src={`${baseUrl}/static/img/logo/templeteam/header70-light.png`}
+                src={`https://templeteam.fr/static/img/logo/templeteam/header70-light.png`}
                 alt="Temple Team"
                 width={70}
                 className="mx-0 my-0 inline-block"
@@ -63,91 +93,104 @@ export default function RegistrationTemplate({
             <Hr />
 
             {/* Informations du membre */}
-            <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
-              <Text className="mb-2 font-bold">Informations du membre :</Text>
+            <Section className={sectionClassName}>
+              <Text className={sectionTitleClassName}>
+                Informations du membre :
+              </Text>
               <Row className="mb-2">
-                <Img
-                  src="cid:memberPhoto"
-                  alt={`${lastname} ${firstname}`}
-                  width="100"
-                  height="100"
-                  className="rounded-full object-contain text-sm leading-[100px] bg-neutral-100"
-                />
+                <Column className="w-[70px]">
+                  <Img
+                    src="cid:photo"
+                    alt={`${lastname[0]}${firstname[0]}`}
+                    width="70"
+                    height="70"
+                    className="rounded-full bg-neutral-100 object-contain pr-2 text-center text-sm leading-[70px]"
+                  />
+                </Column>
+                <Column className="m-0 ml-1.5">
+                  <Text className="m-0 mb-0.5 text-base font-semibold">
+                    {lastname} {firstname}
+                  </Text>
+                  <Text className="m-0 text-xs text-neutral-500">
+                    Né(e) le{" "}
+                    {new Intl.DateTimeFormat("fr", {
+                      dateStyle: "long",
+                    }).format(birthdate)}{" "}
+                    -{" "}
+                    {gender === "Male"
+                      ? "Masculin"
+                      : gender === "Female"
+                        ? "Féminin"
+                        : "Non spécifié"}
+                  </Text>
+                </Column>
               </Row>
               <Row className="mb-2">
+                <Text className="m-0 font-semibold">Email :</Text>
+                <Text className="m-0">{mail ?? "non renseigné"}</Text>
+              </Row>
+              <Row className="mb-2">
+                <Text className="m-0 font-semibold">Téléphone :</Text>
                 <Text className="m-0">
-                  Nom : {firstname} {lastname}
+                  {phone ? phoneParser(phone) : "Non renseigné"}
                 </Text>
               </Row>
               <Row className="mb-2">
-                <Text className="m-0">
-                  Email :{" "}
-                  <Link
-                    href={`mailto:${mail}`}
-                    className="text-blue-500 underline"
-                  >
-                    {mail}
-                  </Link>
-                </Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">Téléphone : {phone}</Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">
-                  Sexe :{" "}
-                  {gender === Gender.Male
-                    ? "Masculin"
-                    : gender === Gender.Female
-                      ? "Féminin"
-                      : "Non spécifié"}
-                </Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">
-                  Date de naissance :{" "}
-                  {new Intl.DateTimeFormat("fr", { dateStyle: "long" }).format(
-                    birthdate,
-                  )}
-                </Text>
-              </Row>
-              <Row className="mb-2">
-                <Text className="m-0">
-                  Adresse : {address}, {postalCode} {city}, {country}
+                <Text className="m-0 font-semibold">Adresse :</Text>
+                <Text className="m-0 text-sm">
+                  {address} <br />
+                  {postalCode} {city} <br />
+                  {country}
                 </Text>
               </Row>
             </Section>
 
             {/* Cours */}
-            <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
-              <Text className="mb-2 font-bold">Cours :</Text>
-              {courses.map((course) => (
-                <Row key={course} className="mb-2">
-                  <Text className="m-0">{course}</Text>
-                </Row>
-              ))}
+            <Section className={sectionClassName}>
+              <Text className={sectionTitleClassName + " flex"}>Cours :</Text>
+              <Row>
+                {courses.map((course) => (
+                  <Column key={course} className="m-0 w-fit">
+                    <Text className="mx-auto w-fit rounded-md bg-neutral-950 px-2.5 py-0.5 text-xs font-semibold text-neutral-50">
+                      {course}
+                    </Text>
+                  </Column>
+                ))}
+              </Row>
             </Section>
 
             {/* Informations médicales */}
             {medicalComment && (
-              <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
-                <Text className="mb-2 font-bold">Informations médicales :</Text>
+              <Section className={sectionClassName}>
+                <Text className={sectionTitleClassName}>
+                  Informations médicales :
+                </Text>
                 <Text className="m-0">{medicalComment}</Text>
               </Section>
             )}
 
             {/* Contacts d'urgence */}
-            <Section className="mb-4 rounded-lg border border-solid border-gray-300 p-4">
-              <Text className="mb-2 font-bold">Contacts d'urgence :</Text>
-              {legalGuardians.map((lg) => {
-                return (
-                  <Row key={lg.phone} className="mb-2">
-                    <Text className="m-0">
-                      Contact 1 : {lg.lastname} {lg.firstname} - {"0" + lg.phone.substring(3)}
-                    </Text>
-                  </Row>
-                );
-              })}
+            <Section className={sectionClassName}>
+              <Text className={sectionTitleClassName}>
+                Contacts d&apos;urgence :
+              </Text>
+              <Row>
+                {legalGuardians.map((lg) => {
+                  return (
+                    <Container key={lg.phone} className="mb-2">
+                      <Row className="mb-1">
+                        <Text className="m-0 font-semibold italic">
+                          {lg.lastname} {lg.firstname}
+                        </Text>
+                      </Row>
+                      <Row className="mb-1 text-xs">
+                        Tél: {phoneParser(lg.phone)}
+                      </Row>
+                      <Row className="text-xs">Email: {lg.mail}</Row>
+                    </Container>
+                  );
+                })}
+              </Row>
             </Section>
 
             {/* Pied de page */}
@@ -156,7 +199,7 @@ export default function RegistrationTemplate({
                 <Column>
                   <Link href="https://templeteam.fr" className="">
                     <Img
-                      src={`${baseUrl}/static/img/logo-light.png`}
+                      src={`https://templeteam.fr/static/img/logo/templeteam/header70-light.png`}
                       width={50}
                       className="mr-0 inline-block"
                     />
@@ -218,8 +261,8 @@ export default function RegistrationTemplate({
               </Row>
               <Hr />
               <Text className="mx-auto mb-0 text-center text-xs text-neutral-500">
-                Temple Team © 2024 • association sportive loi 1901 <br /> 24
-                Rue de Criel • Voiron 38500
+                Temple Team © 2024 • association sportive loi 1901 <br />{" "}
+                Gymnase Pierre de Coubertin - 6 Rue George Sand • Voiron 38500
               </Text>
             </Section>
           </Container>
@@ -235,13 +278,14 @@ RegistrationTemplate.PreviewProps = {
   birthdate: new Date("2002-01-01"),
   mail: "alan@example.com",
   phone: "+33612345678",
-  gender: Gender.Male,
+  gender: "Male",
   address: "4 RUE WILFRID ET CONRAD KILIAN",
   city: "GRENOBLE",
   postalCode: "38000",
   country: "FRANCE",
   photo: null,
-  medicalComment: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus voluptate eum nam dolor, libero sit dolores dolorem. Alias ullam dolorem perspiciatis placeat minus voluptates dicta pariatur enim qui, ducimus cumque.",
+  medicalComment:
+    "Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus voluptate eum nam dolor, libero sit dolores dolorem. Alias ullam dolorem perspiciatis placeat minus voluptates dicta pariatur enim qui, ducimus cumque.",
   courses: ["Temple Run", "Temple Gym"],
   legalGuardians: [
     {
