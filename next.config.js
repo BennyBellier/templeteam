@@ -9,6 +9,11 @@ const config = {
   compiler: {
     styledComponents: true,
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '5mb',
+    }
+  }
 };
 
 export default config;

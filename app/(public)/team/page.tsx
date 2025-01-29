@@ -9,8 +9,17 @@ import {
 import { env } from "@/env.mjs";
 import { getTeamMembers } from "@/server/get-team";
 import Card from "./card";
+import type { Metadata } from "next";
 
-export const revalidate = env.REVALIDATE_TIME ?? 3600;
+export const metadata: Metadata = {
+  title: "La Team | Temple Team",
+  description: "7 athlètes, une seule équipe, des années d'entraînement, il est maintenant l'heure de vous les présenter.",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 export default async function Team() {
   const members = await getTeamMembers();

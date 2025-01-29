@@ -25,6 +25,17 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { getTeamMembers } from "@/server/get-team";
 import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Administration | Temple Team",
+  description: "Gestion de l'association.",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 function StatusCellItem({
   picture,

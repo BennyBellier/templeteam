@@ -8,7 +8,7 @@ import {
   LayoutTitle,
 } from "@/components/layout/layout";
 import { ReferenceCardSkeleton } from "@/components/references/ReferenceCardSkeleton";
-import { ReferenceCard } from "@/components/references/referenceCard";
+import ReferenceCard from "@/components/references/referenceCard";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,17 @@ import { trpc } from "@/trpc/TrpcProvider";
 import { useReferenceCategory } from "./template";
 import { useEffect, useRef, useCallback } from "react";
 import { useInView } from "framer-motion";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Références | Temple Team",
+  description: "Ils nous font confiance. Ils nous soutiennent.",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 function CategorySelector() {
   const { category, setCategory } = useReferenceCategory();

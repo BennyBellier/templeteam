@@ -10,6 +10,17 @@ import {
 import { trpc } from "@/trpc/TrpcProvider";
 import { Photos } from "./photos";
 import { PhotosCarousel } from "./photosCarousel";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Photos | Temple Team",
+  description: "Toutes nos photos !",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 export default function Albums() {
   const { data, error } = trpc.photos.get.useQuery();

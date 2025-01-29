@@ -9,8 +9,17 @@ import {
 } from "@/components/layout/layout";
 import { ImageLink } from "./link";
 import { env } from "@/env.mjs";
+import type { Metadata } from "next";
 
-export const revalidate = env.REVALIDATE_TIME ?? 3600;
+export const metadata: Metadata = {
+  title: "Portfolio | Temple Team",
+  description: "Envie de voir ce que l'on fait !",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 const Portfolio = () => {
   return (

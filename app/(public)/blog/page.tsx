@@ -15,6 +15,17 @@ import { BlogCategory } from "@prisma/client";
 import PostCard from "./PostCard";
 import PostSkeleton from "./PostSkeleton";
 import { useBlogCategory } from "./template";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Blog | Temple Team",
+  description: "Obtenez les dernières informations sur l'équipe, les derniers articles et bien plus encore.",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "blog"
+};
 
 const BlogCategoryList = (): BlogCategory[] => {
   return Object.values(BlogCategory);

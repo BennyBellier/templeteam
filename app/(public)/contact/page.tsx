@@ -8,6 +8,17 @@ import {
 import { Typography } from "@/components/ui/typography";
 import ContactForm from "./contactForm";
 import { env } from "@/env.mjs";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Contact | Temple Team",
+  description: "Une question à poser à la Temple Team ? Pour les questions relatives à la presse et aux médias, vous pouvez nous contacter dès aujourd'hui en visitant notre site web.",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 export default function Page() {
   return (

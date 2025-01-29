@@ -29,7 +29,18 @@ import { getPhoneData } from "@/components/ui/phone-input";
 import { useScrollArea } from "@/components/ui/scroll-area";
 import toast from "react-hot-toast";
 import {registerFile, registerLegalGuardians, registerMember, sendConfirmationMail} from "./registerMember";
+import type { Metadata } from "next";
 import { formData } from "zod-form-data";
+
+export const metadata: Metadata = {
+  title: "Inscription | Temple Team",
+  description: "Vous souhaitez participez à nos cours, venez vous inscrire !",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 /* --------------------------------------------------------
                     Dropzones constantes
@@ -384,7 +395,7 @@ export default function Register() {
 
           // Check if need to fill the legalGuardians step
           const isAdult = calculateAge(store.member.birthdate ?? "") >= 18;
-          if (isAdult && !store.legalGuardians) {
+          if (!isAdult && store.legalGuardians) {
             toast.error("Veuillez renseigner au moins un responsable légale !");
             return;
           }
@@ -425,7 +436,7 @@ export default function Register() {
             return;
           }
 
-          if (store.legalGuardians) {
+          if (store.legalGuardians && store.legalGuardians.length > 0) {
             await registerLegalGuardians(memberId, store.legalGuardians);
           }
 

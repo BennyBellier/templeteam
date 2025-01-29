@@ -81,7 +81,7 @@ export const columns: ColumnDef<MemberWithLegalGuardians>[] = [
       return (
         row.original.phone && (
           <a href={`tel:${row.original.phone}`} className="text-nowrap">
-            {"0".concat(getPhoneData(row.original.phone).nationalNumber)}
+            {"0".concat(getPhoneData(row.original.phone).nationalNumber ?? "")}
           </a>
         )
       );

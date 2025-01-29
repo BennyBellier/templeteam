@@ -12,6 +12,18 @@ import { cn } from "@/lib/utils";
 import { getServerAuthSession } from "@/server/auth";
 import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Temple Team | Parkour Freerun Gymnastique",
+  description: "Découvrez la Temple Team, un collectif de 7 athlètes spécialisés dans le parkour, le freerunning, la gymnastique et le tricking. Animateurs d'événements depuis plusieurs années, ils mettent leur expertise à votre disposition pour émerveiller vos invités.",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
+
 
 export default async function Home() {
   // const hello = await prisma.post.hello.query({ text: "Worldy !" });

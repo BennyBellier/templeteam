@@ -56,7 +56,7 @@ export default function RegistrationTemplate({
   legalGuardians,
   courses,
 }: RegistrationProps) {
-  const phoneParser = (phone: string) => "0" + phone.substring(3);
+  const phoneParser = (phone: string) => "0".concat(phone.substring(3));
 
   const previewText = `Confirmation de l'inscription de ${firstname} ${lastname}`;
 
@@ -100,11 +100,11 @@ export default function RegistrationTemplate({
               <Row className="mb-2">
                 <Column className="w-[70px]">
                   <Img
-                    src="cid:photo"
+                    src={"cid:photo"}
                     alt={`${lastname[0]}${firstname[0]}`}
                     width="70"
                     height="70"
-                    className="rounded-full bg-neutral-100 object-contain pr-2 text-center text-sm leading-[70px]"
+                    className="rounded-full bg-neutral-100 object-cover pr-2 text-center text-sm leading-[70px]"
                   />
                 </Column>
                 <Column className="m-0 ml-1.5">
@@ -132,7 +132,7 @@ export default function RegistrationTemplate({
               <Row className="mb-2">
                 <Text className="m-0 font-semibold">Téléphone :</Text>
                 <Text className="m-0">
-                  {phone ? phoneParser(phone) : "Non renseigné"}
+                  {phone !== null ? phoneParser(phone) : "Non renseigné"}
                 </Text>
               </Row>
               <Row className="mb-2">
@@ -170,7 +170,7 @@ export default function RegistrationTemplate({
             )}
 
             {/* Contacts d'urgence */}
-            <Section className={sectionClassName}>
+           { legalGuardians.length > 0 && (<Section className={sectionClassName}>
               <Text className={sectionTitleClassName}>
                 Contacts d&apos;urgence :
               </Text>
@@ -186,12 +186,12 @@ export default function RegistrationTemplate({
                       <Row className="mb-1 text-xs">
                         Tél: {phoneParser(lg.phone)}
                       </Row>
-                      <Row className="text-xs">Email: {lg.mail}</Row>
+                      <Row className="text-xs">Email: {lg.mail ?? "Non renseigné"}</Row>
                     </Container>
                   );
                 })}
               </Row>
-            </Section>
+            </Section>)}
 
             {/* Pied de page */}
             <Section className="mt-16 rounded border border-solid border-gray-300 bg-neutral-100 px-6 py-4">

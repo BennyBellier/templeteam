@@ -92,7 +92,7 @@ const sendConfirmationMail = async (memberId: string, fileId: string) => {
 
     const payload = {
       from: env.REGISTER_MAIL,
-      subject: `Confirmation de la pré-inscription de ${memberFile.lastname} ${memberFile.firstname}`,
+      subject: `Confirmation de l'inscription de ${memberFile.lastname} ${memberFile.firstname}`,
       replyTo: env.NOREPLY_MAIL,
       html: htmlContent,
       attachments: [
@@ -117,8 +117,8 @@ const sendConfirmationMail = async (memberId: string, fileId: string) => {
 
     logger.info({
       type: "nodemailer",
-      object: "RegistrationConfirmation",
-      message: sended.accepted.toString(),
+      object: "AssociationRegistrationConfirmation",
+      ...sended,
     });
     return sended.response;
   } catch (e) {

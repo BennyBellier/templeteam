@@ -7,6 +7,17 @@ import {
 } from "@/components/layout/layout";
 import { Typography } from "@/components/ui/typography";
 import Position from "./Position"
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Association | Temple Team",
+  description: "La Temple Team a créé son association pour proposer des cours de freerun, parkour. Affilié à la Fédération Française de Parkour, nous vous proposons des cours exclusivement en extérieur.",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 const data = [
   {
@@ -63,7 +74,7 @@ Nous proposons différents cours accessibles à tous les âges.</Typography>
         <Typography as="h1" variant="h1" className="uppercase tracking-wide">Bureau</Typography>
         <div className="flex flex-col gap-6 w-3/5">
           {data.map((position, idx) => (
-            <Position key={position.status + idx} id={idx} index={idx} position={position}/>
+            <Position key={position.status + idx} index={idx} position={position}/>
           ))}
         </div>
       </LayoutSection>

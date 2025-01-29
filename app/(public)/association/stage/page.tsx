@@ -5,7 +5,18 @@ import {
     LayoutSection,
     LayoutTitle,
   } from "@/components/layout/layout";
+import type { Metadata } from "next";
 import { Typography } from "@/components/ui/typography";
+
+export const metadata: Metadata = {
+  title: "Stage | Temple Team",
+  description: "Des questions sur nos stages, c'est par ici !",
+  authors: {
+    name: "BELLIER Benjamin",
+    url: "https://github.com/BennyBellier",
+  },
+  category: "sports"
+};
 
 export default function Stage() {
     return(
