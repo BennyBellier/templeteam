@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ChevronDown, Mail } from "lucide-react";
 import Image from "next/image";
+import { getPhoneData } from '@/components/ui/phone-input';
 
 
 const memberWithLegalGuardians = Prisma.validator<Prisma.MemberDefaultArgs>()({
@@ -32,13 +33,14 @@ export const columns: ColumnDef<MemberWithLegalGuardians>[] = [
       const lastname: string = row.getValue("lastname");
       const firstname: string = row.getValue("firstname");
       const photo: string = row.getValue("photo");
+      const memberId = row.original.id;
 
       return (
         <Avatar>
           <Dialog>
             <DialogTrigger asChild>
               <AvatarImage
-                src={`/static/association/members/photo/${photo}.jpg`}
+                src={`/static/association/members/${memberId}/photos/${photo}`}
                 alt={`${lastname} ${firstname}`}
               />
             </DialogTrigger>
@@ -79,10 +81,7 @@ export const columns: ColumnDef<MemberWithLegalGuardians>[] = [
       return (
         row.original.phone && (
           <a href={`tel:${row.original.phone}`} className="text-nowrap">
-            {"0"
-              .concat(row.original.phone.substring(3))
-              .match(/.{1,2}/g)
-              ?.join(" ")}
+            {"0".concat(getPhoneData(row.original.phone).nationalNumber)}
           </a>
         )
       );

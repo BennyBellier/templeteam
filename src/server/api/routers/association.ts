@@ -472,7 +472,7 @@ export const AssociationRouter = createTRPCRouter({
       }
 
       // Check if member is Adult or not
-      const isAdult = calculateAge(member.birthdate);
+      const isAdult = calculateAge(member.birthdate) >= 18;
 
       // Informations about the members
       const memberInfo = {
@@ -505,7 +505,7 @@ export const AssociationRouter = createTRPCRouter({
         mailTo = member.mail;
       } else if (!isAdult) {
         // member not adult, search for legals guardians mail
-        const legalGuardianWithMail = legalGuardians.find((val) => val.mail);
+        const legalGuardianWithMail = legalGuardians.find((val) => val.mail !== null);
 
         // if legal guardians don't have email, using member email
         mailTo =

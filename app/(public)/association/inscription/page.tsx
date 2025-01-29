@@ -447,7 +447,7 @@ export default function Register() {
 
           console.log(mailResponse);
 
-          toast.success("Inscription réussie !", { id: toastId });
+          toast.success("Inscription réussie !", { id: toastId, duration: 5000 });
           store.reset();
           stepper.reset();
         } catch (e) {

@@ -96,9 +96,9 @@ const sendConfirmationMail = async (memberId: string, fileId: string) => {
       replyTo: env.NOREPLY_MAIL,
       html: htmlContent,
       attachments: [
-        {
-          path: serverPath(associationPath, "certificat_medical.pdf"),
-        },
+        // {
+        //   path: serverPath(associationPath, "certificat_medical.pdf"),
+        // },
         {
           filename: memberFile.photo ?? undefined,
           path: memberFile.photo
