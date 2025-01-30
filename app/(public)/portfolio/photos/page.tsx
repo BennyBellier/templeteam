@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Layout,
   LayoutDescription,
@@ -7,7 +5,7 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import { trpc } from "@/trpc/TrpcProvider";
+import { prisma } from "@/trpc/server";
 import { Photos } from "./photos";
 import { PhotosCarousel } from "./photosCarousel";
 import type { Metadata } from "next";
@@ -22,12 +20,8 @@ export const metadata: Metadata = {
   category: "sports"
 };
 
-export default function Albums() {
-  const { data, error } = trpc.photos.get.useQuery();
-
-  if (error) {
-    console.error(error);
-  }
+export default async function Albums() {
+  const data = await prisma.photos.get();
 
   return (
     <>
@@ -40,7 +34,7 @@ export default function Albums() {
         </LayoutHeader>
         <LayoutSection>
           <ul className="flex h-full w-full flex-wrap justify-center gap-3">
-            <Photos photos={error ? data! : []} />
+            <Photos photos={data ?? []} />
           </ul>
         </LayoutSection>
       </Layout>

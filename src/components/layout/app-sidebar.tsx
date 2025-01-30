@@ -9,6 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarRail,
 } from "@/components/ui/sidebarCustom";
 import { Typography } from "@/components/ui/typography";
 import { NavigationLinks } from "@/lib/site-config";
@@ -53,6 +54,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <ThemeToggleSidebar />
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

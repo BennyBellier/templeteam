@@ -28,7 +28,6 @@ export const getTeamMembers = cache(async () => {
 
     logger.debug("getTeamMembers: ", members);
     return teamMembers;
-    return members;
   } catch (error) {
     logger.error({error});
   }
