@@ -45,11 +45,9 @@ const winstonLogger = winston.createLogger({
   exitOnError: false,
 });
 
-let loggerDefault = winstonLogger;
-
 if (env.NODE_ENV !== "production") {
-  loggerDefault = winstonDevConsole.init(winstonLogger);
-  loggerDefault.add(
+  winstonDevConsole.init(winstonLogger);
+  winstonLogger.add(
     winstonDevConsole.transport({
       showTimestamps: false,
       addLineSeparation: true,
@@ -59,7 +57,7 @@ if (env.NODE_ENV !== "production") {
 
 export interface LogParams {
   message: string;
-  context: "Prisma" | "tRPC" | "API" | "Authentication" | "nodemailer" | "AssociationRegistration";
+  context: "Prisma" | "tRPC" | "API" | "Authentication" | "nodemailer" | "AssociationRegistration" | "FileManipulation" | "NextCached";
   requestPath?: string,
   data?: unknown;
   userId?: string;
@@ -69,11 +67,11 @@ export interface LogParams {
 const formatLog =
   (level: "debug" | "info" | "warn" | "error" | "fatal") =>
   ({ message, context, data, userId, requestId }: LogParams) => {
-    loggerDefault.log(level, message, {
+    winstonLogger.log(level, message, {
       context,
       data,
       userId,
-      requestId
+      requestId,
     });
   };
 
@@ -86,4 +84,4 @@ const logger = {
 };
 
 export default logger;
-export { loggerDefault };
+export { winstonLogger };

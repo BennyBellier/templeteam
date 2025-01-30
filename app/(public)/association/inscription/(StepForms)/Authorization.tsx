@@ -73,6 +73,7 @@ export default function Authorization() {
 
     return store.legalGuardians?.map((legalGuardian, index) => (
       <SelectItem
+        key={legalGuardian.phone}
         value={legalGuardian.lastname + " " + legalGuardian.firstname}
       >
         {legalGuardian.lastname + " " + legalGuardian.firstname}

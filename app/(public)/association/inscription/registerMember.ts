@@ -91,10 +91,19 @@ const sendConfirmationMail = async (memberId: string, fileId: string) => {
 
     transporter.verify(function (error, success) {
       if (error ?? !success) {
-        logger.error({ message: "Server can't take our messages.", context: "nodemailer", data: error});
-        throw new Error("Nous rencontrons actuellement un problème avec notre service d'e-mail. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.")
+        logger.error({
+          message: "Server can't take our messages.",
+          context: "nodemailer",
+          data: error,
+        });
+        throw new Error(
+          "Nous rencontrons actuellement un problème avec notre service d'e-mail. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.",
+        );
       } else {
-        logger.debug({ message: "Server is ready to take our messages", context: "nodemailer"});
+        logger.debug({
+          message: "Server is ready to take our messages",
+          context: "nodemailer",
+        });
       }
     });
 
@@ -127,24 +136,39 @@ const sendConfirmationMail = async (memberId: string, fileId: string) => {
     let mailSended: string | undefined;
 
     // Mail to member
-    transporter.sendMail({
-      ...payload,
-      to: memberFile.mailTo,
-    }, (error, info) => {
-      if (error) {
-        logger.error({ message: `Failed to send message to ${memberFile.mailTo}`, context: "nodemailer", data: error});
-        throw new Error("Une erreur s'est produite lors de l'envoie du mail de confirmation. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.", { cause: "RegistrationConfirmationSendMail"});
-      } else {
-        logger.info({ message: `Message successfully send to ${memberFile.mailTo}`, context: "nodemailer", data: info });
-        mailSended = info.response;
-      }
-    });
+    transporter.sendMail(
+      {
+        ...payload,
+        to: memberFile.mailTo,
+      },
+      (error, info) => {
+        if (error) {
+          logger.error({
+            message: `Failed to send message to ${memberFile.mailTo}`,
+            context: "nodemailer",
+            data: error,
+          });
+          throw new Error(
+            "Une erreur s'est produite lors de l'envoie du mail de confirmation. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.",
+            { cause: "RegistrationConfirmationSendMail" },
+          );
+        } else {
+          logger.info({
+            message: `Message successfully send to ${memberFile.mailTo}`,
+            context: "nodemailer",
+            data: info,
+          });
+          mailSended = info.response;
+        }
+      },
+    );
 
     return mailSended;
   } catch (e) {
     if (e instanceof Error && e.cause !== "RegistrationConfirmationSendMail") {
       logger.error({
-        message: "Error while trying to send association registration confirmation to member.",
+        message:
+          "Error while trying to send association registration confirmation to member.",
         context: "nodemailer",
         requestId: "RegistrationConfirmation",
         data: e,
@@ -156,7 +180,13 @@ const sendConfirmationMail = async (memberId: string, fileId: string) => {
 
 type ID = string | undefined;
 
-const registerValidationError = async (memberId: ID, fileId: ID, legalGuardiansId: string[]) => await prisma.association.deleteMember({memberId, fileId, legalGuardiansId});
+const registerValidationError = async (
+  memberId: ID,
+  fileId: ID,
+  legalGuardiansId: string[],
+) => {
+  await prisma.association.deleteMember({ memberId, fileId, legalGuardiansId });
+};
 
 export {
   registerMember,

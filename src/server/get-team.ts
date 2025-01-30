@@ -26,10 +26,21 @@ export const getTeamMembers = cache(async () => {
       videos: member.videos.map((video: TeamMembersVideo) => video.path),
     }));
 
-    logger.debug("getTeamMembers: ", members);
+    logger.debug({
+      context: "NextCached",
+      requestPath: "getTeamMembers",
+      data: members,
+      message: `Find ${members.length} members.`,
+    });
+
     return teamMembers;
   } catch (error) {
-    logger.error({error});
+    logger.error({
+      context: "NextCached",
+      requestPath: "cached.getTeamMembers",
+      data: error,
+      message: `Error while trying to fetch cached team members.`,
+    });
   }
   return [];
 });

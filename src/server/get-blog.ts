@@ -3,7 +3,7 @@ import "server-only";
 import { prisma } from "@/trpc/server";
 import { cache } from "react";
 import type { CategoryEnum } from "./api/routers/blog";
-// import { logger } from "./logger";
+import logger from "./logger";
 
 export const preloadBlogPosts = () => {
   void getBlogPosts();
@@ -14,11 +14,21 @@ export const getBlogPosts = cache(
     try {
       const posts = await prisma.blogposts.get({ category, page });
 
-      console.debug("getBlogPosts: ", posts);
+      logger.debug({
+        context: "NextCached",
+        requestPath: "getBlogPosts",
+        data: posts,
+        message: `Find ${posts.items.length} photos.`,
+      });
 
       return posts;
     } catch (error) {
-      console.error({error});
+      logger.error({
+        context: "NextCached",
+        requestPath: "getBlogPosts",
+        data: error,
+        message: `Error while fetching cached references.`,
+      });
     }
     return [];
   },

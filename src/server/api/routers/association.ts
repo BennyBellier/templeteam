@@ -119,6 +119,7 @@ export const AssociationRouter = createTRPCRouter({
           message: `Failed when trying to add photo to member ${input.memberId}.`,
           data: e,
         });
+        throw new Error("Impossible d'ajouter la photo, veuillez réessayer.");
       }
     }),
   getCourses: publicProcedure.query(async ({ ctx }) => {
@@ -495,7 +496,8 @@ export const AssociationRouter = createTRPCRouter({
       }));
 
       // Email for send registration confirmation
-      let mailTo = "";
+      let mailTo: string | null = null;
+
       // If member is adult, use member.mail
       if (isAdult && member.mail) {
         mailTo = member.mail;
@@ -506,14 +508,12 @@ export const AssociationRouter = createTRPCRouter({
         );
 
         // if legal guardians don't have email, using member email
-        mailTo =
-          legalGuardianWithMail?.mail ??
-          member.mail ??
-          (() => {
-            throw new Error(
-              "Aucun mail n'est renseigné, impossible d'envoyer la confirmation.",
-            );
-          })();
+        mailTo = legalGuardianWithMail?.mail ?? member.mail;
+        if (!mailTo) {
+          throw new Error(
+            "Aucun mail n'est renseigné, impossible d'envoyer la confirmation.",
+          );
+        }
       } else {
         throw new Error(
           "Aucun mail n'est renseigné, impossible d'envoyer la confirmation.",
@@ -541,8 +541,8 @@ export const AssociationRouter = createTRPCRouter({
   deleteMember: publicProcedure
     .input(
       z.object({
-        memberId: z.string().uuid().optional(),
-        fileId: z.string().uuid().optional(),
+        memberId: z.string().optional(),
+        fileId: z.string().optional(),
         legalGuardiansId: z.array(z.string().uuid()),
       }),
     )
@@ -557,7 +557,13 @@ export const AssociationRouter = createTRPCRouter({
         });
 
         if (fileId) {
+
+          // Parse fileId as UUID
+          z.string().uuid().parse(fileId);
+
+          // Delete file associate to fileId
           const file = await ctx.prisma.file.delete({ where: { id: fileId } });
+
           logger.info({
             context: "tRPC",
             requestPath: "association.deleteMember",
@@ -568,30 +574,49 @@ export const AssociationRouter = createTRPCRouter({
 
         if (legalGuardiansId && legalGuardiansId.length > 0) {
           for (const id of legalGuardiansId) {
-            const lg = await ctx.prisma.legalGuardian.delete({
-              where: {
-                id,
-                members: {
-                  every: {
-                    id: memberId,
-                  },
-                  some: {
-                    id: memberId,
-                  },
-                },
-              },
+
+            // Parse id of legalGuardiansId as UUID
+            z.string().uuid().parse(id);
+
+            // Delete legal guardians associate
+            const lg = await ctx.prisma.legalGuardian.findUnique({
+              where: { id },
+              include: { members: true },
             });
 
-            logger.info({
-              context: "tRPC",
-              requestPath: "association.deleteMember",
-              message: "Legal guardians successfully deleted.",
-              data: lg,
-            });
+            if (!lg) {
+              throw new Error("Tuteur légal introuvable.");
+            }
+
+            // Check if legal guardians as only member id's as connected member
+            if (lg.members.length === 1 && lg.members[0]?.id === memberId) {
+              await ctx.prisma.legalGuardian.delete({ where: { id } });
+              logger.info({
+                context: "tRPC",
+                requestPath: "association.deleteMember",
+                message: "Legal guardians successfully deleted.",
+                data: lg,
+              });
+            } else {
+              await ctx.prisma.legalGuardian.update({
+                where: { id },
+                data: { members: { disconnect: { id: memberId } } },
+              });
+              logger.info({
+                context: "tRPC",
+                requestPath: "association.deleteMember",
+                message: `Legal guardians deconnected from ${memberId}.`,
+                data: lg,
+              });
+            }
           }
         }
 
         if (memberId) {
+          // Parse memberId as UUID
+          z.string().uuid().parse(memberId);
+
+          // Delete member associate to memberId
           const member = await ctx.prisma.member.delete({
             where: {
               id: memberId,
@@ -610,7 +635,7 @@ export const AssociationRouter = createTRPCRouter({
           context: "tRPC",
           requestPath: "association.deleteMember",
           message: `Error while trying to delete member.`,
-          data: input,
+          data: e,
         });
 
         if (e instanceof Error) {

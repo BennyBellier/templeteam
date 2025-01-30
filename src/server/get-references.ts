@@ -12,11 +12,21 @@ export const getReferences = cache(async () => {
   try {
     const references = await prisma.references.getAll();
 
-    logger.debug("getReferences: ", references);
+    logger.debug({
+      context: "NextCached",
+      requestPath: "getReferences",
+      data: references,
+      message: `Find ${references.length} references.`,
+    });
 
     return references;
   } catch (error) {
-    logger.error({error});
+    logger.error({
+      context: "NextCached",
+      requestPath: "getReferences",
+      data: error,
+      message: `Error while fetching cached references.`,
+    });
   }
   return [];
 });

@@ -18,9 +18,21 @@ export function serverPath(...paths: string[]): string {
 export function mkdir(path: string, recursive: boolean): void {
   if (!fs.existsSync(path)) {
     fs.mkdirSync(path, { recursive });
-    logger.info(`Directory created: ${path}`);
+
+    logger.info({
+      context: "FileManipulation",
+      requestPath: "file-manipulation.mkdir",
+      data: { path, recursive },
+      message: `Directory ${path} created.`,
+    });
   } else {
-    logger.info(`Directory already exists: ${path}`);
+
+    logger.warn({
+      context: "FileManipulation",
+      requestPath: "file-manipulation.mkdir",
+      data: { path, recursive },
+      message: `Directory ${path} already exist.`,
+    });
   }
 }
 
@@ -33,13 +45,29 @@ export function rmdir(path: string, recursive: boolean): void {
   if (fs.existsSync(path)) {
     if (recursive) {
       fs.rmSync(path, { recursive: true, force: true });
-      logger.info(`Directory and its contents removed: ${path}`);
+      logger.info({
+        context: "FileManipulation",
+        requestPath: "file-manipulation.rmdir",
+        data: { path, recursive },
+        message: `Directory ${path} and content deleted.`,
+      });
     } else {
       fs.rmdirSync(path);
-      logger.info(`Directory removed: ${path}`);
+
+      logger.info({
+        context: "FileManipulation",
+        requestPath: "file-manipulation.rmdir",
+        data: { path, recursive },
+        message: `Directory ${path} deleted.`,
+      });
     }
   } else {
-    logger.info(`Directory does not exist: ${path}`);
+    logger.warn({
+      context: "FileManipulation",
+      requestPath: "file-manipulation.rmdir",
+      data: { path, recursive },
+      message: `Directory does not exist: ${path}`,
+    });
   }
 }
 
@@ -72,14 +100,22 @@ export function generateMemberFolder(id: string): void {
     mkdir(path.join(memberPath, env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER), true);
     mkdir(path.join(memberPath, env.ASSOCIATION_MEMBERS_MEDICS_FOLDER), true);
     mkdir(path.join(memberPath, env.ASSOCIATION_MEMBERS_FILES_FOLDER), true);
-    logger.info(`Directories created for member ${id}`);
+    logger.info({
+      context: "FileManipulation",
+      requestPath: "file-manipulation.generateMemberFolder",
+      data: { id, memberPath },
+      message: `Directories created for member ${id}`,
+    });
   }
 }
 
 /**
  *
  */
-export async function writeMemberPhoto(id: string, file: File): Promise<string> {
+export async function writeMemberPhoto(
+  id: string,
+  file: File,
+): Promise<string> {
   // Check and generate if member folder does not exist
   generateMemberFolder(id);
 
