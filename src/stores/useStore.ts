@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { RegisterFormStore } from './registerFormStore'
+import { type RegisterFormStore } from './registerFormStore'
 
 type StoreSelector<T> = (state: RegisterFormStore) => T;
 

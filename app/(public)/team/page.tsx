@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Layout,
   LayoutDescription,
@@ -6,7 +5,6 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import { env } from "@/env.mjs";
 import { getTeamMembers } from "@/server/get-team";
 import Card from "./card";
 import type { Metadata } from "next";

@@ -31,6 +31,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Phone, Stethoscope } from "lucide-react";
 import type { LegalGuardian } from "@prisma/client";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<MemberWithLegalGuardians>[];
   data: MemberWithLegalGuardians[];

@@ -40,7 +40,7 @@ interface Props {
   errorProps?: string;
 }
 
-export function Login({ callbackUrl, errorProps }: Props) {
+export function Login({ callbackUrl }: Props) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 

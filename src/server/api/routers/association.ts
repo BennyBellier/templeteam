@@ -4,9 +4,6 @@ import logger from "@/server/logger";
 import { Gender, Prisma } from "@prisma/client";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { RouterLike, UtilsLike } from '@trpc/react-query/shared';
-
-const loggerMetadata = { type: "trpc", router: "association" };
 
 export const AssociationRouter = createTRPCRouter({
   createMember: publicProcedure
@@ -53,17 +50,10 @@ export const AssociationRouter = createTRPCRouter({
         });
         if (member) {
           logger.warn({
-            ...loggerMetadata,
-            endpoint: "createMember",
-            action: "error",
-            input: {
-              firstname,
-              lastname,
-              birthdate,
-              mail,
-              phone,
-            },
-            message: `Un membre avec les mêmes informations existe déjà.`,
+            context: "tRPC",
+            requestPath: "association.createMember",
+            data: input,
+            message: `Member already exist with this information`,
           });
           throw new Error("Un membre avec les mêmes informations existe déjà.");
         }
@@ -75,6 +65,12 @@ export const AssociationRouter = createTRPCRouter({
 
         return member.id;
       } catch (e) {
+        logger.error({
+          context: "tRPC",
+          requestPath: "association.createMember",
+          message: "Failed when trying to add member in DB.",
+          data: input,
+        });
         // Gestion des erreurs Prisma et autres erreurs
         if (
           e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -100,14 +96,30 @@ export const AssociationRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      return await ctx.prisma.member.update({
-        where: {
-          id: input.memberId,
-        },
-        data: {
-          photo: input.photoFilename,
-        },
-      });
+      try {
+        logger.info({
+          context: "tRPC",
+          requestPath: "association.addMemberPhoto",
+          message: `Add photo to member ${input.memberId}.`,
+          data: input,
+        });
+
+        return await ctx.prisma.member.update({
+          where: {
+            id: input.memberId,
+          },
+          data: {
+            photo: input.photoFilename,
+          },
+        });
+      } catch (e) {
+        logger.error({
+          context: "tRPC",
+          requestPath: "association.addMemberPhoto",
+          message: `Failed when trying to add photo to member ${input.memberId}.`,
+          data: e,
+        });
+      }
     }),
   getCourses: publicProcedure.query(async ({ ctx }) => {
     const courses = await ctx.prisma.course.findMany({
@@ -153,6 +165,13 @@ export const AssociationRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        logger.info({
+          context: "tRPC",
+          requestPath: "association.createLegalGuardian",
+          message: `Adding legal guardians with member ${input.memberId}.`,
+          data: input,
+        });
+
         const { memberId, firstname, lastname, phone, mail } = input;
 
         // Search if member to connect exist
@@ -164,10 +183,10 @@ export const AssociationRouter = createTRPCRouter({
 
         if (!member) {
           logger.warn({
-            ...loggerMetadata,
-            endpoint: "createLegalGuardian",
-            action: "error",
-            message: `Impossible de créer un responsables légale pour l'identifiant : ${memberId} associé à aucun membre.`,
+            context: "tRPC",
+            requestPath: "association.createLegalGuardian",
+            message: `Failed to add legal guardian with unknown member id.`,
+            data: input,
           });
           throw new Error("Le membre spécifié n'existe pas.");
         }
@@ -199,17 +218,12 @@ export const AssociationRouter = createTRPCRouter({
           });
 
           logger.info({
-            ...loggerMetadata,
-            endpoint: "createLegalGuardian",
-            action: "create",
-            input: {
-              firstname,
-              lastname,
-              phone,
-              mail,
-              memberId,
+            context: "tRPC",
+            requestPath: "association.createLegalGuardian",
+            message: `Create new legal guardians pour le membre ${member.id}.`,
+            data: {
+              ...newLegalGuardian,
             },
-            message: `Création du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`,
           });
           return newLegalGuardian.id; // Return ID of new legal guardians
         }
@@ -230,21 +244,22 @@ export const AssociationRouter = createTRPCRouter({
         });
 
         logger.info({
-          ...loggerMetadata,
-          endpoint: "createLegalGuardian",
-          action: "update",
-          input: {
-            firstname,
-            lastname,
-            phone,
-            oldmail: existingLegalGuardian.mail,
-            mail,
+          context: "tRPC",
+          requestPath: "association.createLegalGuardian",
+          data: {
             memberId,
+            ...existingLegalGuardian,
           },
-          message: `Ajout du responsable ${firstname} ${lastname} pour le membre ${member.firstname} ${member.lastname}.`,
+          message: `Connect existing legal guardians pour le membre ${member.id}.`,
         });
         return existingLegalGuardian.id; // return ID of existing legalGuardian
       } catch (e) {
+        logger.error({
+          context: "tRPC",
+          requestPath: "association.createLegalGuardian",
+          data: e,
+          message: `Error append while trying to create or connect legal guardian.`,
+        });
         // Gestion des erreurs Prisma et autres erreurs
         if (
           e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -274,6 +289,12 @@ export const AssociationRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
+        logger.info({
+          context: "tRPC",
+          requestPath: "association.createFileForMember",
+          data: input,
+          message: `Create File for member ${input.memberId}.`,
+        });
         const { memberId, year, courses, undersigner, signature } = input;
 
         // Search if member to connect exist
@@ -285,13 +306,10 @@ export const AssociationRouter = createTRPCRouter({
 
         if (!member) {
           logger.warn({
-            ...loggerMetadata,
-            endpoint: "createFileForMember",
-            action: "error",
-            input: {
-              memberId,
-            },
-            message: `Impossible de créer un fichier pour l'identifiant : ${memberId} associé à aucun membre.`,
+            context: "tRPC",
+            requestPath: "association.createFileForMember",
+            message: `Failed to add folder with unknown member id.`,
+            data: input,
           });
           throw new Error("Le membre spécifié n'existe pas.");
         }
@@ -309,14 +327,10 @@ export const AssociationRouter = createTRPCRouter({
           const yearString = `${(year ?? env.FILE_YEAR).getFullYear()}/${(year ?? env.FILE_YEAR).getFullYear() + 1}`;
 
           logger.warn({
-            ...loggerMetadata,
-            endpoint: "createFileForMember",
-            action: "error",
-            input: {
-              memberId,
-              year,
-            },
-            message: `Impossible de créer un dossier pour ${member.lastname} ${member.firstname}, car un dossier pour l'année ${yearString} existe déjà.`,
+            context: "tRPC",
+            requestPath: "association.createFileForMember",
+            message: `Member ${memberId} already can only have a file for ${yearString}.`,
+            data: { year: yearString, ...input },
           });
           throw new Error(
             `Un dossier pour l'année ${yearString} existe déjà pour le membre ${member.firstname} ${member.lastname}.`,
@@ -340,36 +354,15 @@ export const AssociationRouter = createTRPCRouter({
             (course) => !coursesFind.has(course),
           );
           logger.warn({
-            ...loggerMetadata,
-            endpoint: "createFileForMember",
-            action: "error",
-            input: {
-              memberId,
-              courses,
-            },
-            message: `Impossible de créer un dossier pour l'identifiant : ${memberId} car les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}.`,
+            context: "tRPC",
+            requestPath: "association.createFileForMember",
+            message: `Courses for this file creation are unknown.`,
+            data: courses,
           });
           throw new Error(
             `Les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}`,
           );
         }
-
-        logger.debug({...loggerMetadata, data: {
-            year: year ?? env.FILE_YEAR,
-            courses: {
-              connect: Object.keys(courses).map((key) => ({
-                name: key,
-              })),
-            },
-            undersigner,
-            signature: signature ? signature.substring(0, 15) : "no",
-            member: {
-              connect: {
-                id: memberId,
-              },
-            },
-          },
-        });
 
         // File creation
         const file = await ctx.prisma.file.create({
@@ -392,20 +385,23 @@ export const AssociationRouter = createTRPCRouter({
 
         // File creation successfull
         logger.info({
-          ...loggerMetadata,
-          endpoint: "createFileForMember",
-          action: "create",
-          input: {
-            memberId,
-            year,
-            courses,
-            undersigner,
-            signature,
+          context: "tRPC",
+          requestPath: "association.createFileForMember",
+          message: `File successfully created for member ${memberId}.`,
+          data: {
+            year: year ?? env.FILE_YEAR,
+            ...input,
+            signature: signature ? signature.substring(0, 15) : "noSignature",
           },
-          message: `Dossier créé pour le membre ${member.firstname} ${member.lastname}.`,
         });
         return file.id;
       } catch (e) {
+        logger.error({
+          context: "tRPC",
+          requestPath: "association.createFileForMember",
+          message: `Error while trying to create file for member ${input.memberId}.`,
+          data: e,
+        });
         // Gestion des erreurs Prisma et autres erreurs
         if (
           e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -505,7 +501,9 @@ export const AssociationRouter = createTRPCRouter({
         mailTo = member.mail;
       } else if (!isAdult) {
         // member not adult, search for legals guardians mail
-        const legalGuardianWithMail = legalGuardians.find((val) => val.mail !== null);
+        const legalGuardianWithMail = legalGuardians.find(
+          (val) => val.mail !== null,
+        );
 
         // if legal guardians don't have email, using member email
         mailTo =
@@ -539,6 +537,90 @@ export const AssociationRouter = createTRPCRouter({
         legalGuardians,
         courses: file.courses.map((course) => course.name),
       };
+    }),
+  deleteMember: publicProcedure
+    .input(
+      z.object({
+        memberId: z.string().uuid().optional(),
+        fileId: z.string().uuid().optional(),
+        legalGuardiansId: z.array(z.string().uuid()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { memberId, legalGuardiansId, fileId } = input;
+      try {
+        logger.info({
+          context: "tRPC",
+          requestPath: "association.deleteMember",
+          message: `Delete member ${memberId}.`,
+          data: input,
+        });
+
+        if (fileId) {
+          const file = await ctx.prisma.file.delete({ where: { id: fileId } });
+          logger.info({
+            context: "tRPC",
+            requestPath: "association.deleteMember",
+            message: `File successfully deleted.`,
+            data: file,
+          });
+        }
+
+        if (legalGuardiansId && legalGuardiansId.length > 0) {
+          for (const id of legalGuardiansId) {
+            const lg = await ctx.prisma.legalGuardian.delete({
+              where: {
+                id,
+                members: {
+                  every: {
+                    id: memberId,
+                  },
+                  some: {
+                    id: memberId,
+                  },
+                },
+              },
+            });
+
+            logger.info({
+              context: "tRPC",
+              requestPath: "association.deleteMember",
+              message: "Legal guardians successfully deleted.",
+              data: lg,
+            });
+          }
+        }
+
+        if (memberId) {
+          const member = await ctx.prisma.member.delete({
+            where: {
+              id: memberId,
+            },
+          });
+
+          logger.info({
+            context: "tRPC",
+            requestPath: "association.deleteMember",
+            message: "Member successfully deleted.",
+            data: member,
+          });
+        }
+      } catch (e) {
+        logger.error({
+          context: "tRPC",
+          requestPath: "association.deleteMember",
+          message: `Error while trying to delete member.`,
+          data: input,
+        });
+
+        if (e instanceof Error) {
+          throw new Error(e.message); // Autres erreurs personnalisées
+        } else {
+          throw new Error(
+            "Une erreur inconnue est survenue lors de la suppression du membre.",
+          );
+        }
+      }
     }),
   getMemberAllinformations: publicProcedure
     .input(z.object({ memberId: z.string().uuid(), year: z.string().trim() }))

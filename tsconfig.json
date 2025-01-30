@@ -47,6 +47,6 @@
     "app/association/**/*.tsx",
     "src/**/*.tsx",
     "src/**/*.ts"
-  ],
+, "src/components/ui/stepper.deactivated", "src/components/ui/resizable.deactivated"  ],
   "exclude": ["node_modules"]
 }

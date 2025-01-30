@@ -6,10 +6,7 @@ import { ContactBar as Contact } from "@/components/layout/Contact";
 import { LayoutSection } from "@/components/layout/layout";
 import { References } from "@/components/references/References";
 import { Typography } from "@/components/ui/typography";
-// import { env } from "@/env.mjs";
-// import { prisma } from "@/server/";
 import { cn } from "@/lib/utils";
-import { getServerAuthSession } from "@/server/auth";
 import { AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import type { Metadata } from "next";
@@ -26,10 +23,6 @@ export const metadata: Metadata = {
 
 
 export default async function Home() {
-  // const hello = await prisma.post.hello.query({ text: "Worldy !" });
-  // const session = await getServerAuthSession();
-  // console.info(session);
-
   return (
     <>
       {/* Hero Banner */}

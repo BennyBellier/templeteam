@@ -15,7 +15,7 @@ export const send = async (mail: string, data: EndOfTrialsProps) => {
     to: mail,
     subject: "Fin des cours d'essaies !",
     replyTo: "inscription.templeteam.fr",
-    html: render(EndOfTrialTemplate(data)),
+    html: await render(EndOfTrialTemplate(data)),
   });
 
   await transporter.sendMail({
@@ -23,7 +23,7 @@ export const send = async (mail: string, data: EndOfTrialsProps) => {
     to: env.REGISTER_MAIL,
     subject: "Fin des cours d'essaies !",
     replyTo: "inscription.templeteam.fr",
-    html: render(EndOfTrialTemplate(data)),
+    html: await render(EndOfTrialTemplate(data)),
   });
 
   console.info({ type: "mail", page: "tmp", to: mail, message: sended });

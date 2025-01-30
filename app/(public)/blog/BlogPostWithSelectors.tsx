@@ -66,7 +66,7 @@ export default function BlogPostWithSelectors() {
     if (query[1].hasNextPage) await query[1].fetchNextPage();
   };
 
-  const posts = useMemo(() => query[0].pages, [query[0].pages]);
+  const posts = useMemo(() => query[0].pages, [query]);
 
   return (
     <>

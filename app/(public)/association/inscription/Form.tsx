@@ -9,7 +9,7 @@ import Member from "./(StepForms)/Member";
 import LegalGuardians from "./(StepForms)/LegalGuardians";
 import Authorization from "./(StepForms)/Authorization";
 import Resume from "./(StepForms)/Resume";
-import { calculateAge, cn, fileToBase64 } from "@/lib/utils";
+import { calculateAge, cn } from "@/lib/utils";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +24,7 @@ import {
   registerFile,
   registerLegalGuardians,
   registerMember,
+  registerValidationError,
   sendConfirmationMail,
 } from "./registerMember";
 
@@ -370,7 +371,10 @@ export default function RegisterForm() {
         break;
 
       case "resume":
-        let toastId = undefined;
+        let toastId,
+          memberId,
+          fileId = "";
+        let legalGuardiansId: string[] = [];
         try {
           // Check if all required step are filled
           if (!(store.courses && store.member && store.authorization)) {
@@ -380,7 +384,10 @@ export default function RegisterForm() {
 
           // Check if need to fill the legalGuardians step
           const isAdult = calculateAge(store.member.birthdate ?? "") >= 18;
-          if (!isAdult && (!store.legalGuardians || store.legalGuardians.length < 1)) {
+          if (
+            !isAdult &&
+            (!store.legalGuardians || store.legalGuardians.length < 1)
+          ) {
             toast.error("Veuillez renseigner au moins un responsable légale !");
             return;
           }
@@ -389,7 +396,7 @@ export default function RegisterForm() {
           // Inform user that we treat validation
           toastId = toast.loading("Traitement de l'inscription...");
 
-          const memberId = await registerMember(store.member);
+          memberId = await registerMember(store.member);
 
           console.log(memberId);
 
@@ -428,10 +435,13 @@ export default function RegisterForm() {
           }
 
           if (store.legalGuardians && store.legalGuardians.length > 0) {
-            await registerLegalGuardians(memberId, store.legalGuardians);
+            legalGuardiansId = await registerLegalGuardians(
+              memberId,
+              store.legalGuardians,
+            );
           }
 
-          const fileId = await registerFile(
+          fileId = await registerFile(
             memberId,
             store.courses,
             store.authorization,
@@ -448,9 +458,7 @@ export default function RegisterForm() {
             return;
           }
 
-          const mailResponse = await sendConfirmationMail(memberId, fileId);
-
-          console.log(mailResponse);
+          await sendConfirmationMail(memberId, fileId);
 
           toast.success("Inscription réussie !", {
             id: toastId,
@@ -470,6 +478,7 @@ export default function RegisterForm() {
               duration: 3000,
             });
           }
+          await registerValidationError(memberId, fileId, legalGuardiansId);
         }
         break;
 

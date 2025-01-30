@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
@@ -56,3 +56,4 @@ const ThreeScene: React.FC<{ className?: string }> = (props) => {
 };
 
 export default ThreeScene;
+ */

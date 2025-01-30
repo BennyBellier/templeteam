@@ -6,7 +6,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./collapsible";
-import {
+import type {
   CollapsibleContentProps,
   CollapsibleProps,
   CollapsibleTriggerProps,

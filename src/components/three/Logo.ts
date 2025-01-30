@@ -1,4 +1,4 @@
-"use client"; // Assurez-vous que ce fichier est exécuté côté client
+/* "use client"; // Assurez-vous que ce fichier est exécuté côté client
 
 import * as THREE from "three";
 import { SVGLoader } from "three/addons/loaders/SVGLoader.js";
@@ -46,3 +46,4 @@ const Logo3D = (svgPath: string): Promise<THREE.Group | null> => {
 
 export default Logo3D;
 
+ */

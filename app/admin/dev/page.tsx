@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/trpc/TrpcProvider";
@@ -36,3 +36,4 @@ export default function Page() {
     </Button>
   );
 }
+ */

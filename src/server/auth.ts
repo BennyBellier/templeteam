@@ -1,7 +1,7 @@
 import LoginErrors from "@/lib/loginErrors";
 import { prisma } from "@/server/db";
 import logger from "@/server/logger";
-import { compare, hash } from "bcrypt";
+import { compare } from "bcrypt";
 import { type NextAuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { z } from "zod";
@@ -24,13 +24,17 @@ export const authOptions: NextAuthOptions = {
           .safeParse(credentials);
 
         if (!parsedCredentials.success) {
-          logger.error("Invalid credentials:", parsedCredentials.error);
+          logger.error({
+            message: "Invalid credentials !",
+            context: "Authentication",
+            data: parsedCredentials.error,
+          });
           throw new Error(LoginErrors.INVALID_INFORMATIONS as string);
         }
 
         const { identifier, password } = parsedCredentials.data;
 
-        logger.info(`${identifier} try to connect`);
+        logger.info({message: `${identifier} try to connect`, context: "Authentication"});
 
         const user = await prisma.user.findFirst({
           where: {
@@ -39,13 +43,16 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          logger.error(`${identifier} doesn't exist as user`);
+          logger.error({message: `${identifier} doesn't exist as user`, context: "Authentication"});
           throw new Error(LoginErrors.USER_NOT_FOUND);
         }
 
         const passwordMatch = await compare(password, user.password);
         if (!passwordMatch) {
-          logger.error(`${identifier} password incorrect !`);
+          logger.error({
+            message: `${identifier} password incorrect !`,
+            context: "Authentication",
+          });
           throw new Error(LoginErrors.USER_PASSWORD_MISSMATCH);
         }
         return user;
@@ -74,13 +81,17 @@ export const authOptions: NextAuthOptions = {
   },
   logger: {
     error(code, metadata) {
-      logger.error(code, metadata);
+      logger.error({message: code, context: "Authentication", data: metadata});
     },
     warn(code) {
-      logger.warn(code);
+      logger.warn({message: code, context: "Authentication"});
     },
     debug(code, metadata) {
-      logger.debug(code, metadata);
+      logger.debug({
+        message: code,
+        context: "Authentication",
+        data: metadata,
+      });
     },
   },
 };

@@ -3,8 +3,8 @@ import winstonDevConsole from "@epegzz/winston-dev-console";
 import winston from "winston";
 import DailyRotationFile from "winston-daily-rotate-file";
 
-const { combine, timestamp, json, colorize, align, printf, errors } =
-  winston.format;
+/* const { combine, timestamp, json, colorize, align, printf, errors } =
+  winston.format; */
 
 const logLevels = {
   fatal: 0,
@@ -45,11 +45,11 @@ const winstonLogger = winston.createLogger({
   exitOnError: false,
 });
 
-let logger = winstonLogger;
+let loggerDefault = winstonLogger;
 
 if (env.NODE_ENV !== "production") {
-  logger = winstonDevConsole.init(winstonLogger);
-  logger.add(
+  loggerDefault = winstonDevConsole.init(winstonLogger);
+  loggerDefault.add(
     winstonDevConsole.transport({
       showTimestamps: false,
       addLineSeparation: true,
@@ -57,4 +57,33 @@ if (env.NODE_ENV !== "production") {
   );
 }
 
+export interface LogParams {
+  message: string;
+  context: "Prisma" | "tRPC" | "API" | "Authentication" | "nodemailer" | "AssociationRegistration";
+  requestPath?: string,
+  data?: unknown;
+  userId?: string;
+  requestId?: string;
+}
+
+const formatLog =
+  (level: "debug" | "info" | "warn" | "error" | "fatal") =>
+  ({ message, context, data, userId, requestId }: LogParams) => {
+    loggerDefault.log(level, message, {
+      context,
+      data,
+      userId,
+      requestId
+    });
+  };
+
+const logger = {
+  fatal: formatLog("fatal"),
+  warn: formatLog("warn"),
+  error: formatLog("error"),
+  info: formatLog("info"),
+  debug: formatLog("debug"),
+};
+
 export default logger;
+export { loggerDefault };

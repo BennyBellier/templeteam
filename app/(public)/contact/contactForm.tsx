@@ -75,31 +75,34 @@ export const ContactForm = () => {
     let toastId = undefined;
     try {
       toastId = toast.loading("Envoie du message en cours...");
-      const response = await send(values);
+      await send(values);
 
-      if (response.rejected.length > 0) {
-        toast.error("une erreur s'est produite. Veuillez réessayer.", {
+      toast.success("Nous avons bien reçu votre message !", {
+        id: toastId,
+        duration: 5000,
+      });
+
+      form.reset({
+        mail: "",
+        message: "",
+        name: "",
+        subject: "",
+      });
+
+      setIsSent(true);
+      
+    } catch (e) {
+      if (e instanceof Error) {
+        toast.error(e.message, {
           id: toastId,
           duration: 3000,
         });
       } else {
-        toast.success("Nous avons bien reçu votre message !", {
+        toast.error("Un problème est survenu. Veuillez réessayer.", {
           id: toastId,
-          duration: 5000,
+          duration: 3000,
         });
-
-        form.reset({
-          mail: "",
-          message: "",
-          name: "",
-          subject: "",
-        });
-        setIsSent(true);
       }
-    } catch (error) {
-      toast.error("Un problème est survenue. Veuillez réessayer.", {
-        id: toastId,
-      });
     }
     setIsSending(false);
   }

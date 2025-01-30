@@ -8,7 +8,6 @@ import {
   LayoutTitle,
 } from "@/components/layout/layout";
 import { ImageLink } from "./link";
-import { env } from "@/env.mjs";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

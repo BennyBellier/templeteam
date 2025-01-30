@@ -7,7 +7,6 @@ import {
 } from "@/components/layout/layout";
 import { Typography } from "@/components/ui/typography";
 import ContactForm from "./contactForm";
-import { env } from "@/env.mjs";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

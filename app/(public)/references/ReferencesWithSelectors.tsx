@@ -14,12 +14,12 @@ function CategorySelector() {
     const { category, setCategory } = useReferenceCategory();
     const categoriesQuery = trpc.references.getCategory.useSuspenseQuery();
     const categories = categoriesQuery[0];
-  
+
     const handleCategory = (newCategory: number) => {
       if (category === newCategory) setCategory(null);
       else setCategory(newCategory);
     };
-  
+
     return (
       <aside
         className={cn(
@@ -61,7 +61,7 @@ export default function ReferencesWithSelectors() {
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     },
   );
-  const references = useMemo(() => query[0].pages, [query[0].pages]);
+  const references = useMemo(() => query[0].pages, [query]);
 
   const handleFetchNextPage = useCallback(async () => {
     if (query[1].hasNextPage) await query[1].fetchNextPage();
