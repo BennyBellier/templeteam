@@ -53,7 +53,7 @@ import { memo, useMemo, useState } from "react";
 import type { DropzoneOptions } from "react-dropzone";
 import { useFormContext } from "react-hook-form";
 import type { z } from "zod";
-import { type MemberSchema, MAX_UPLOAD_SIZE } from "../page";
+import { type MemberSchema, MAX_UPLOAD_SIZE } from "../Form";
 import { Gender } from "@prisma/client";
 import { countries } from "@/components/ui/phone-input/countries";
 import Image from "next/image";
@@ -195,11 +195,7 @@ export default function Member() {
             <FormItem>
               <FormLabel>Date de naissance</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                  className={inputClass}
-                />
+                <Input type="date" {...field} className={inputClass} />
               </FormControl>
               <FormMessage />
             </FormItem>

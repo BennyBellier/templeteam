@@ -21,7 +21,7 @@ import { useFormContext } from "react-hook-form";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Rocket } from "lucide-react";
 import { Prisma } from "@prisma/client";
-import type { CoursesSchema } from "../page";
+import type { CoursesSchema } from "../Form";
 import type { z } from "zod";
 
 /* --------------------------------------------------------

@@ -27,12 +27,6 @@ const data = [
     picture: "Hugo.jpg"
   },
   {
-    status: "Vice President",
-    firstName: "Hugo",
-    lastName: "Rival",
-    picture: "Hugo.jpg"
-  },
-  {
     status: "Secretary",
     firstName: "Allan",
     lastName: "Escolano",
