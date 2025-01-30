@@ -18,11 +18,11 @@ export const NavigationLinks = [
         name: "Photos",
         href: "/portfolio/photos",
       },
-      {
-        id: "portfolio_videos",
-        name: "Vidéos",
-        href: "/portfolio/videos",
-      },
+      // {
+      //   id: "portfolio_videos",
+      //   name: "Vidéos",
+      //   href: "/portfolio/videos",
+      // },
     ],
   },
   {
