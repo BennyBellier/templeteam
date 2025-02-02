@@ -52,3 +52,6 @@ yarn-error.log*
 # Google IDX
 .idx/dev.nix
 .idx/.data
+
+# react-email
+.react-email
