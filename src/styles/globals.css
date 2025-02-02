@@ -31,6 +31,9 @@
     --destructive: 354.9 86.9% 52%;
     --destructive-foreground: 0 0% 98%;
 
+    --warning: 21 90% 48%;
+    --warning-foreground: 0 0% 98%;
+
     --border: 0 0% 90%;
     --input: 0 0% 89.8%;
     --ring: 354.9 86.9% 48%;
@@ -43,6 +46,15 @@
     --radius: 0.5rem;
 
     --hero-banner-aside: 354.915 87% 60%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
@@ -78,6 +90,15 @@
     --ring: 355 85% 65%;
 
     --hero-banner-aside: 354.915 87% 60%;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
 
@@ -93,6 +114,10 @@
   html:not([data-scroll="0"]) header {
     @apply fixed;
     @apply shadow-md;
+  }
+
+  .rdp-vhidden {
+    @apply hidden;
   }
 
   /*!
@@ -193,5 +218,15 @@
     transition:
       bottom 0.1s ease-out,
       transform 0.22s 0.12s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  input[type=date]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    display: none;
+  }
+
+  input[type=date]::-webkit-calendar-picker-indicator {
+    -webkit-appearance: none;
+    display: none;
   }
 }

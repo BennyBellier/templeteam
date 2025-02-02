@@ -12,18 +12,17 @@ export const NavigationLinks = [
   {
     id: "portfolio",
     name: "Portfolio",
-    href: "/portoflio",
     content: [
       {
         id: "portfolio_photos",
         name: "Photos",
-        href: "/portoflio/photos",
+        href: "/portfolio/photos",
       },
-      {
-        id: "portfolio_videos",
-        name: "Vidéos",
-        href: "/portoflio/videos",
-      },
+      // {
+      //   id: "portfolio_videos",
+      //   name: "Vidéos",
+      //   href: "/portfolio/videos",
+      // },
     ],
   },
   {
@@ -44,11 +43,10 @@ export const NavigationLinks = [
   {
     id: "association",
     name: "Association",
-    href: "/association",
     content: [
       {
         id: "association_home",
-        name: "Acceuil",
+        name: "Accueil",
         href: "/association",
       },
       {
@@ -57,9 +55,9 @@ export const NavigationLinks = [
         href: "/association/stage",
       },
       {
-        id: "association_sportsSaturday",
-        name: "Samedi sportif",
-        href: "/association/samedi_sportif",
+        id: "association_registration",
+        name: "Inscription",
+        href: "/association/inscription",
       },
     ],
   },

@@ -1,33 +1,23 @@
-import {
-  Toast,
-  ToastClose,
-  ToastDescription,
-  ToastProvider,
-  ToastTitle,
-  ToastViewport,
-} from "@/components/ui/toast"
-import { useToast } from "@/components/ui/use-toast"
+import { Toaster as ReactHotToaster } from "react-hot-toast";
+import { Typography } from "./typography";
 
 export function Toaster() {
-  const { toasts } = useToast()
-
-  return (
-    <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            {action}
-            <ToastClose />
-          </Toast>
-        )
-      })}
-      <ToastViewport />
-    </ToastProvider>
-  )
+  return <ReactHotToaster position="bottom-right" />;
 }
+
+export type DropzoneToastProps = {
+  title: string,
+  fileInfo?: string,
+  description: string,
+}
+
+export const DropzoneToast = (props: DropzoneToastProps) => {
+  return (
+    <div>
+      <Typography variant="h3" className="text-sm">
+        {props.title} : {props.fileInfo}
+      </Typography>
+      <Typography variant="muted">{props.description}</Typography>
+    </div>
+  );
+};

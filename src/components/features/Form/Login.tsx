@@ -1,5 +1,17 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Loader } from "@/components/ui/loader";
 import LoginErrors from "@/lib/loginErrors";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,25 +20,15 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { z } from "zod";
-import { Button } from "../../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../../ui/form";
-import { Input } from "../../ui/input";
-import { Loader } from "../../ui/loader";
-import { useToast } from "../../ui/use-toast";
 import { ShowHide } from "./ShowHide";
+import { throttle } from "lodash";
 
 // Schema definition for form validation using Zod
 const formSchema = z.object({
-  password: z.string({ required_error: "Veuillez saisir le mot de passe" }),
+  identifier: z.string({ required_error: "Veuillez saisir une adresse mail ou un nom d'utilisateur."}),
+  password: z.string({ required_error: "Veuillez saisir le mot de passe." }),
 });
 
 // Type inference for form inputs based on the Zod schema
@@ -35,13 +37,12 @@ type InputType = z.infer<typeof formSchema>;
 // Props definition, optionally including a callback URL
 interface Props {
   callbackUrl?: string;
-  error?: string;
+  errorProps?: string;
 }
 
-export function Login({ callbackUrl, error }: Props) {
-  const { toast } = useToast();
-  const [showPassword, setShowPassword] = useState(false);
+export function Login({ callbackUrl }: Props) {
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<InputType>({
     resolver: zodResolver(formSchema), // Set up Zod as the form validation resolver
@@ -56,54 +57,58 @@ export function Login({ callbackUrl, error }: Props) {
 
   // Function to handle form submission
   async function onSubmit(values: InputType) {
+    let toastId = undefined;
     try {
       form.resetField("password");
-      // Attempt to sign in using the 'credentials' provider
-      const response = await signIn("credentials", {
-        redirect: false,
-        callbackUrl: callbackUrl ?? "/",
-        password: values.password,
-      });
+      toastId = toast.loading("Connexion en cours");
+
+      const response = await signIn("credentials", {...values, redirect: false,  callback: "/admin"});
+
+      console.log(response)
 
       if (response) {
         if (!response.ok) {
-          form.resetField("password");
           switch (response.error) {
             case LoginErrors.USER_PASSWORD_MISSMATCH:
               form.setError("password", {
                 type: "custom",
                 message: "Le mot de passe est incorrecte.",
               });
+              toast.error("Mot de passe incorrecte.", {
+                id: toastId,
+                duration: 3000,
+              });
               break;
 
-            case LoginErrors.MISSING_PASSWORD:
-              form.setError("password", {
+            case LoginErrors.USER_NOT_FOUND:
+              form.setError("identifier", {
                 type: "custom",
-                message: "Veuillez entrez un mot de passe.",
+                message: "Utilisateur introuvable.",
+              });
+              toast.error("Utilisateur introuvable.", {
+                id: toastId,
+                duration: 3000,
               });
               break;
 
             default:
-              toast({
-                variant: "destructive",
-                title: "Une erreur s'est produite.",
-                description: "Veuillez réessayer.",
+              toast.error("une erreur s'est produite. Veuillez réessayer.", {
+                id: toastId,
+                duration: 3000,
               });
               break;
           }
         } else {
-          toast({
-            variant: "default",
-            title: "Connecté",
-            description: "Vous allez être redirigé.",
+          toast.success("Connecté, vous allez être redirigé.", {
+            id: toastId,
+            duration: 3000,
           });
-          setTimeout(() => router.push(callbackUrl ?? "/"), 1000);
+          router.push(callbackUrl ?? "/admin");
         }
       }
     } catch (error) {
-      toast({
-        title: "Un problème est survenue.",
-        description: "Veuillez réessayer.",
+      toast.error("Un problème est survenue. Veuillez réessayer.", {
+        id: toastId,
       });
     }
   }
@@ -118,9 +123,44 @@ export function Login({ callbackUrl, error }: Props) {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={throttle(async (e: React.FormEvent) => {
+              e.preventDefault();
+              await onSubmit(form.getValues());
+            }, 3000)}
+          >
             <div className="grid gap-4">
               <div className="relative grid gap-1">
+                <FormField
+                  control={form.control}
+                  name="identifier"
+                  render={({ field }) => (
+                    <FormItem className={cn("group")}>
+                      <FormLabel
+                        className={cn(
+                          "pointer-events-none absolute translate-x-3 translate-y-6 px-0.5 text-muted-foreground transition-transform group-has-[:focus-visible,_:valid]:translate-x-2 group-has-[:focus-visible,_:valid]:translate-y-3 group-has-[:focus-visible,_:valid]:text-xs",
+                        )}
+                      >
+                        Email ou nom d&apos;utilisateur
+                      </FormLabel>
+                      <FormControl>
+                        <div className="grid items-center gap-2">
+                          <Input
+                            type="text"
+                            autoComplete="email username webauthn"
+                            className="h-12 bg-background object-bottom pr-12 pt-5 text-base group-has-[:focus-visible,_:valid]:bg-indigo-50/30 dark:group-has-[:focus-visible,_:valid]:bg-indigo-50/5"
+                            aria-required
+                            required
+                            {...field}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage>
+                        {form.formState.errors.identifier?.message}
+                      </FormMessage>
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="password"
@@ -128,7 +168,7 @@ export function Login({ callbackUrl, error }: Props) {
                     <FormItem className={cn("group")}>
                       <FormLabel
                         className={cn(
-                          "absolute translate-x-3 translate-y-6 px-0.5 text-muted-foreground transition-transform group-has-[:focus-visible,_:valid]:translate-x-2 group-has-[:focus-visible,_:valid]:translate-y-3 group-has-[:focus-visible,_:valid]:text-xs",
+                          "pointer-events-none absolute translate-x-3 translate-y-6 px-0.5 text-muted-foreground transition-transform group-has-[:focus-visible,_:valid]:translate-x-2 group-has-[:focus-visible,_:valid]:translate-y-3 group-has-[:focus-visible,_:valid]:text-xs",
                         )}
                       >
                         Mot de passe
@@ -140,6 +180,7 @@ export function Login({ callbackUrl, error }: Props) {
                             autoComplete="peer current-password webauthn"
                             className="h-12 bg-background object-bottom pr-12 pt-5 text-base group-has-[:focus-visible,_:valid]:bg-indigo-50/30 dark:group-has-[:focus-visible,_:valid]:bg-indigo-50/5"
                             required
+                            ia-required
                             {...field}
                           />
                           <ShowHide
@@ -148,7 +189,9 @@ export function Login({ callbackUrl, error }: Props) {
                           />
                         </div>
                       </FormControl>
-                      <FormMessage>{error}</FormMessage>
+                      <FormMessage>
+                        {form.formState.errors.password?.message}
+                      </FormMessage>
                     </FormItem>
                   )}
                 />

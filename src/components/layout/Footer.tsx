@@ -31,7 +31,7 @@ import { cva } from "class-variance-authority";
 import { v4 as uuidv4 } from "uuid";
 import { Separator } from "@/components/ui/separator";
 import { ThemeToggle } from "../theme/ThemeToggle";
-import FooterLogo from "@/../public/img/footer.png"
+import FooterLogo from "public/img/footer.png"
 
 const socialLinksClass = cva(
   "group flex h-14 w-14 items-center justify-center rounded-full border border-const-white transition-colors duration-200 hover:bg-const-white focus:bg-const-white focus:outline-none",
@@ -56,7 +56,7 @@ function LinkList({
           {link.name}
         </Typography>
         <ul>
-          {link.content?.map((sublink, i) => (
+          {link.content?.map((sublink) => (
             <li key={uuidv4()}>
               <Typography
                 variant="footerLink"
@@ -162,7 +162,7 @@ export function Footer() {
       </div>
       <nav className="h-full justify-self-center lg:col-start-1 lg:col-end-3">
         <Accordion type="single" collapsible className="lg:hidden">
-          {nav.map((link, i) => (
+          {nav.map((link) => (
             <AccordionItem
               key={uuidv4()}
               value={link.name}
@@ -170,14 +170,14 @@ export function Footer() {
             >
               <Typography
                 variant="h3"
-                className="font-semibold font-caption"
+                className="font-semibold font-caption hover:no-underline"
                 as={AccordionTrigger}
               >
                 {link.name}
               </Typography>
               <AccordionContent>
                 <ul className="flex flex-col gap-2">
-                  {link.content?.map((sublink, i) => (
+                  {link.content?.map((sublink) => (
                     <li key={uuidv4()}>
                       <Typography
                         variant="footerLink"
@@ -207,7 +207,7 @@ export function Footer() {
               className="bg-footer-separator lg:bg-footer-navSeparator"
             />
           </li>
-          {nav.map((link, i) => (
+          {nav.map((link) => (
             <LinkList key={uuidv4()} link={link} />
           ))}
         </ul>
@@ -264,6 +264,15 @@ export function Footer() {
             className="text-xs"
           >
             Gestion des cookies
+          </Typography>
+          <Separator className="w-3 bg-footer-separator" />
+          <Typography
+            variant="base"
+            as={Link}
+            href="/admin"
+            className="text-xs"
+          >
+            Administration
           </Typography>
         </div>
         <div className="flex items-center w-fit">

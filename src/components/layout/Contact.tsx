@@ -21,7 +21,7 @@ export const ContactBar= () => (
       </Typography>
       <div className="flex flex-col gap-1">
         <Typography variant="h3" className="text-md font-light tracking-normal">
-          UNE DEMANDE D'INFOS,
+          UNE DEMANDE D&apos;INFOS,
         </Typography>
         <Typography variant="h3" className="text-md font-light tracking-normal">
           DES RENSEIGNEMENTS ?

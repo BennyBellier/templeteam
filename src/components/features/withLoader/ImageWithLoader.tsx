@@ -1,6 +1,6 @@
 "use client";
 
-import { ImageNotFound } from "@/components/ui/imageNotFound";
+import { ImageNotFound  } from "@/components/ui/imageNotFound";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import Image, { type ImageProps } from "next/image";
@@ -10,7 +10,6 @@ export interface ImageWithLoaderProps extends ImageProps {
   className?: string;
   onLoaded?: (e?: SyntheticEvent<HTMLImageElement, Event>) => void;
   onError?: (e?: SyntheticEvent<HTMLImageElement, Event>) => void;
-  fit?: "contain" | "cover" | "fill" | "none" | "scale-down";
   fallback?: ReactNode;
 }
 
@@ -19,7 +18,6 @@ export const ImageWithLoader: React.FC<ImageWithLoaderProps> = ({
   onLoaded,
   onError,
   fallback,
-  fit,
   alt,
   ...props
 }) => {
@@ -37,15 +35,10 @@ export const ImageWithLoader: React.FC<ImageWithLoaderProps> = ({
   };
 
   return (
-    <div
-      className={cn(
-        "relative grid w-full grid-cols-1 grid-rows-1 justify-center self-center",
-        className,
-      )}
-    >
+    <>
       <Skeleton
         className={cn(
-          "z-10 h-auto w-full rounded-none",
+          "z-10 col-start-1 col-end-1 row-start-1 row-end-1 rounded-none",
           load && !error ? "" : "animate-none opacity-0",
         )}
       />
@@ -54,12 +47,13 @@ export const ImageWithLoader: React.FC<ImageWithLoaderProps> = ({
         onLoad={handleLoad}
         onError={handleError}
         className={cn(
+          "grid col-start-1 col-end-1 row-start-1 row-end-1 overflow-hidden rounded-lg",
           load || error ? "opacity-0" : "",
-          fit ? "object" + fit : "",
+          className,
         )}
         alt={alt}
         {...props}
       />
-    </div>
+    </>
   );
 };

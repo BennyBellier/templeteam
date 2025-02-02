@@ -1,6 +1,9 @@
+import { Gender, Role } from "@prisma/client";
 /* eslint-disable @typescript-eslint/no-floating-promises */
+import { env } from "@/env.mjs";
 import { faker } from "@faker-js/faker";
-import { PrismaClient } from "@prisma/client";
+import { BlogCategory, PrismaClient } from "@prisma/client";
+import { hash } from "bcrypt";
 
 const prisma = new PrismaClient();
 
@@ -10,28 +13,18 @@ const references = [
     img: "pvbc.png",
     href: "pvbc.fr",
     alt: "Logo du PVBC",
-    categoryId: 1,
   },
   {
     name: "Ville de Voiron",
     img: "ville-de-voiron-social-logo.png",
     href: "voiron.fr",
     alt: "Logo de la ville de Voiron",
-    categoryId: 1,
   },
   {
     name: "Outsider",
     img: null,
     href: null,
     alt: "Outsider",
-    categoryId: 1,
-  },
-];
-
-const referencesCategory = [
-  {
-    id: 1,
-    name: "Loisir & Tourisme",
   },
 ];
 
@@ -92,6 +85,211 @@ const main = async () => {
   await prisma.teamMembers.deleteMany();
   await prisma.teamMembersVideo.deleteMany();
   await prisma.teamMembersSkill.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.member.deleteMany();
+  await prisma.legalGuardian.deleteMany();
+  await prisma.file.deleteMany();
+  await prisma.course.deleteMany();
+  await prisma.courseSession.deleteMany();
+  await prisma.courseSessionLocation.deleteMany();
+
+  process.stdout.write("Delete old data OK.\n");
+
+  const user = await prisma.user.create({
+    data: {
+      name: "admin",
+      email: "contact@templeteam.fr",
+      password: await hash("admin", 10),
+      role: Role.Developer,
+    },
+  });
+
+  process.stdout.write("Add dev user for test at id " + user.id + ".\n");
+
+  await prisma.course.create({
+    data: {
+      name: "Temple Run",
+      description:
+        "Votre enfant souhaite découvrir le Parkour (art du déplacement) en intérieur, comme en extérieur ? Encadré, on sera l'accompagné dans la découverte de ce sport qui est le nôtre !",
+      price: 200,
+      sessions: {
+        create: {
+          dayOfWeek: "Saturday",
+          startHour: new Date("1970-01-01T17:00:00Z"),
+          endHour: new Date("1970-01-01T18:30:00Z"),
+          location: {
+            connectOrCreate: {
+              create: {
+                place: "Salle des Prairies",
+                city: "Voiron",
+                postalCode: "38500",
+                query:
+                  "22%20Av.%20Fran%C3%A7ois%20Mitterrand,%2038500%20Voiron",
+              },
+              where: {
+                place_city_postalCode: {
+                  place: "Salle des Prairies",
+                  city: "Voiron",
+                  postalCode: "38500",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await prisma.course.create({
+    data: {
+      name: "Temple Gym Junior",
+      description:
+        "Une salle spécialisée gymnastique, de quoi vous entraîner et essayer tout ce qui vous passe par la tête sans vous blesser !",
+      info: "de 6 à 13 ans",
+      price: 180,
+      sessions: {
+        create: {
+          dayOfWeek: "Saturday",
+          startHour: new Date("1970-01-01T19:00:00Z"),
+          endHour: new Date("1970-01-01T20:15:00Z"),
+          location: {
+            connectOrCreate: {
+              create: {
+                place: "Gymnase Pierre de Coubertin",
+                city: "Voiron",
+                postalCode: "38500",
+                query:
+                  "Gymnase%20Pierre%20de%20Coubertin,%206%20Rue%20George%20Sand,%2038500%20Voiron",
+              },
+              where: {
+                place_city_postalCode: {
+                  place: "Gymnase Pierre de Coubertin",
+                  city: "Voiron",
+                  postalCode: "38500",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  await prisma.course.create({
+    data: {
+      name: "Temple Gym",
+      description:
+        "Une salle spécialisée gymnastique, de quoi vous entraîner et essayer tout ce qui vous passe par la tête sans vous blesser !",
+      info: "14 ans et +",
+      price: 200,
+      sessions: {
+        create: {
+          dayOfWeek: "Saturday",
+          startHour: new Date("1970-01-01T20:15:00Z"),
+          endHour: new Date("1970-01-01T21:45:00Z"),
+          location: {
+            connectOrCreate: {
+              create: {
+                place: "Gymnase Pierre de Coubertin",
+                city: "Voiron",
+                postalCode: "38500",
+                query:
+                  "Gymnase%20Pierre%20de%20Coubertin,%206%20Rue%20George%20Sand,%2038500%20Voiron",
+              },
+              where: {
+                place_city_postalCode: {
+                  place: "Gymnase Pierre de Coubertin",
+                  city: "Voiron",
+                  postalCode: "38500",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  process.stdout.write("Courses generation OK.\n");
+
+  let progress = 0;
+  for (let i = 0; i < 50; i++) {
+    const course: string = faker.helpers.arrayElement([
+      "Temple Gym",
+      "Temple Gym Junior",
+      "Temple Run",
+    ]);
+    const { id: memberId } = await prisma.member.create({
+      data: {
+        firstname: faker.person.firstName(),
+        lastname: faker.person.lastName(),
+        birthdate: faker.date.birthdate(),
+        gender: faker.helpers.arrayElement([Gender.Male, Gender.Female]),
+        mail: faker.internet.email(),
+        phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
+        address: faker.location.streetAddress(),
+        city: faker.location.city(),
+        postalCode: faker.location.zipCode(),
+        country: faker.location.country(),
+        photo: faker.system.commonFileName("jpg"),
+        medicalComment: faker.lorem.paragraph(),
+        legalGuardians: {
+          create: {
+            firstname: faker.person.firstName(),
+            lastname: faker.person.lastName(),
+            phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
+            mail: faker.internet.email(),
+          },
+        },
+        files: {
+          create: {
+            year: new Date("2024-09-01"),
+            medicalCertificate: faker.system.commonFileName("jpg"),
+            undersigner: faker.person.fullName(),
+            signature: "signature.png",
+            courses: {
+              connect: {
+                name: course,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    for (let j = 0; j < faker.helpers.rangeToNumber({ min: 0, max: 1 }); j++) {
+      const { id: legalGuardians } = await prisma.legalGuardian.create({
+        data: {
+          lastname: faker.person.lastName(),
+          firstname: faker.person.firstName(),
+          phone: faker.helpers.fromRegExp("+33[6-7][0-9]{8}"),
+          mail: faker.internet.email(),
+        },
+      });
+
+      await prisma.member.update({
+        where: {
+          id: memberId,
+        },
+        data: {
+          legalGuardians: {
+            connect: {
+              id: legalGuardians,
+            },
+          },
+        },
+      });
+    }
+    progress = Math.round((i / 50) * 100);
+    process.stdout.write(
+      `\rProgress member generation: [${"#".repeat(progress / 10)}${" ".repeat(10 - progress / 10)}] ${progress}%`,
+    );
+  }
+  process.stdout.write(
+    `\rProgress member generation: [${"#".repeat(10)}}] 100%`,
+  );
+
+  process.stdout.write("\n");
 
   for (let i = 0; i < 20; i++) {
     await prisma.blogPosts.create({
@@ -99,23 +297,40 @@ const main = async () => {
         title: faker.lorem.sentence(),
         thumbnail: faker.system.filePath(),
         published:
-          faker.number.float() > 0.8 ? faker.date.past() : faker.date.future(),
-        type: faker.helpers.arrayElement(["Article", "Event", "Information"]),
+          faker.number.float() > 0.5 ? faker.date.past() : faker.date.future(),
+        category: faker.helpers.arrayElement([
+          BlogCategory.ARTICLE,
+          BlogCategory.EVENT,
+          BlogCategory.INFORMATION,
+        ]),
         description: faker.lorem.paragraph(),
         readTime: faker.helpers.rangeToNumber({ min: 1, max: 8 }),
-        extraLink: faker.helpers.maybe(faker.internet.url, {
+        /* extraLink: faker.helpers.maybe(faker.internet.url, {
           probability: 0.5,
-        }),
+        }), */
       },
     });
   }
 
-  referencesCategory.map(async (category) => {
-    await prisma.referenceCategory.create({ data: category });
-  });
-
   references.map(async (ref) => {
-    await prisma.references.create({ data: ref });
+    await prisma.references.create({
+      data: {
+        name: ref.name,
+        img: ref.img,
+        href: ref.href,
+        alt: ref.alt,
+        category: {
+          connectOrCreate: {
+            create: {
+              name: "Loisir & Tourisme",
+            },
+            where: {
+              name: "Loisir & Tourisme",
+            },
+          },
+        },
+      },
+    });
   });
 
   for (const member of Members) {
@@ -150,19 +365,17 @@ const main = async () => {
         });
       }
     }
-    console.info("Database seed with member: " + member.name);
+    process.stdout.write("Database seed with member: " + member.name + "\n");
   }
 };
 
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (error) => {
-    // eslint-disable-next-line no-console
-    console.error(error);
-
-    await prisma.$disconnect();
-
-    process.exit(1);
-  });
+if (env.NODE_ENV === "development") {
+  main()
+    .catch((error) => {
+      console.error(error);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

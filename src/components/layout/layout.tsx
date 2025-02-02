@@ -4,6 +4,7 @@ import { References } from "../references/References";
 import { Typography } from "../ui/typography";
 import { ContactBar } from "./Contact";
 
+
 export const Layout = ({
   children,
   noContact,
@@ -13,7 +14,7 @@ export const Layout = ({
   children?: ReactNode;
   noContact?: boolean;
   noReferences?: boolean;
-  _props?: ComponentPropsWithoutRef<"article">;
+  _props?: ComponentPropsWithoutRef<"div">;
 }) => {
   return (
     <>

@@ -37,14 +37,12 @@ export const VideoWithLoader: React.FC<VideoWithLoaderProps> = ({
   };
 
   useEffect(() => {
-    if (videoRef.current?.readyState === 0) {
-      setError(true);
-    }
-
     if (videoRef.current?.readyState && videoRef.current?.readyState >= 2) {
       setError(false);
       setIsLoading(false);
       onLoaded;
+    } else if (videoRef.current?.readyState === 0) {
+      setError(true);
     }
   }, [onLoaded, videoRef.current?.readyState]);
 

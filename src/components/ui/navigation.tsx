@@ -19,7 +19,7 @@ export function NavigationBar({ className }: { className?: string }) {
   const [offset, setOffset] = useState(0);
   const listRef = useRef<HTMLUListElement>(null);
   const [currentItemName, setCurrentItemName] = useState<string>();
-  const [activeTrigger, setActiveTrigger] = useState<HTMLButtonElement>();
+  const [activeTrigger, setActiveTrigger] = useState<HTMLButtonElement | null>();
 
   useEffect(() => {
     const list = listRef.current;
@@ -48,11 +48,10 @@ export function NavigationBar({ className }: { className?: string }) {
           link.content ? (
             <NavigationMenuItem key={link.id} value={link.name}>
               <NavigationMenuTrigger
-                ref={(node: HTMLButtonElement) => {
+                ref={(node: HTMLButtonElement | null) => {
                   if (currentItemName === link.name && activeTrigger !== node) {
                     setActiveTrigger(node);
                   }
-                  return node;
                 }}
                 className="text-xl font-normal lg:text-lg lg:font-light"
               >
@@ -90,63 +89,6 @@ export function NavigationBar({ className }: { className?: string }) {
           transform: `translateX(${offset}px)`,
         }}
       />
-    </NavigationMenu>
-  );
-}
-
-function NavigationSidebarContent({
-  link,
-}: {
-  link: {
-    name: string;
-    href: string;
-    content: { name: string; href: string }[];
-  };
-}) {
-  return (
-    <>
-      <NavigationMenuItem>
-        <Typography as={NavigationMenuLink} href={link.href} variant="link">
-          {link.name}
-        </Typography>
-      </NavigationMenuItem>
-
-      {link.content.map((item) => (
-        <NavigationMenuItem key={uuidv4()}>
-          <Typography
-            as={NavigationMenuLink}
-            href={item.href}
-            variant="link"
-            className="ml-5"
-          >
-            {item.name}
-          </Typography>
-        </NavigationMenuItem>
-      ))}
-    </>
-  );
-}
-
-export function NavigationSidebar({ className }: { className?: string }) {
-  return (
-    <NavigationMenu orientation="vertical" className={className}>
-      <NavigationMenuList className="flex-col">
-        {NavigationLinks.map((link) =>
-          link.content ? (
-            <NavigationSidebarContent key={uuidv4()} link={link} />
-          ) : (
-            <NavigationMenuItem key={uuidv4()}>
-              <Typography
-                as={NavigationMenuLink}
-                href={link.href}
-                variant="link"
-              >
-                {link.name}
-              </Typography>
-            </NavigationMenuItem>
-          ),
-        )}
-      </NavigationMenuList>
     </NavigationMenu>
   );
 }

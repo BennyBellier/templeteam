@@ -1,3 +1,5 @@
+import "server-only";
+
 import { prisma } from "@/trpc/server";
 import type {
   TeamMembers,
@@ -5,7 +7,7 @@ import type {
   TeamMembersVideo,
 } from "@prisma/client";
 import { cache } from "react";
-import "server-only";
+import logger from "./logger";
 
 export const preloadTeamMembers = () => {
   void getTeamMembers();
@@ -17,11 +19,28 @@ type TeamMembersDB = {
 } & TeamMembers;
 
 export const getTeamMembers = cache(async () => {
-  const members = await prisma.teamMembers.get();
-  const teamMembers = members.map((member: TeamMembersDB) => ({
-    ...member,
-    videos: member.videos.map((video: TeamMembersVideo) => video.path),
-  }));
+  try {
+    const members = await prisma.teamMembers.get();
+    const teamMembers = members.map((member: TeamMembersDB) => ({
+      ...member,
+      videos: member.videos.map((video: TeamMembersVideo) => video.path),
+    }));
 
-  return teamMembers;
+    logger.debug({
+      context: "NextCached",
+      requestPath: "getTeamMembers",
+      data: members,
+      message: `Find ${members.length} members.`,
+    });
+
+    return teamMembers;
+  } catch (error) {
+    logger.error({
+      context: "NextCached",
+      requestPath: "cached.getTeamMembers",
+      data: error,
+      message: `Error while trying to fetch cached team members.`,
+    });
+  }
+  return [];
 });

@@ -38,11 +38,15 @@ const typographyVariants = cva("", {
       alert: "text-destructive",
       lead: "text-xl text-muted-foreground",
       large: "text-lg font-semibold",
-      small: "text-sm font-medium leading-none",
+      small: "text-sm leading-none",
       muted: "text-sm text-muted-foreground",
       link: "font-normal lg:font-light text-xl lg:text-lg",
       footerLink: "font-light lg:font-light text-xl lg:text-base",
       portfolio: "text-5xl text-white drop-shadow font-caption font-medium",
+      postCardTitle:
+        "scroll-m-20 text-lg md:text-2xl lg:text-3xl font-semibold tracking-tight transition-colors first:mt-0 font-caption",
+      postCardContent: "",
+      postCardReadTime: "self-end flex gap-1 text-base font-light leading-none items-center justify-center",
     },
   },
   defaultVariants: {
@@ -74,6 +78,9 @@ const defaultElementMapping: Record<
   footerLink: "a",
   base: "p",
   portfolio: "h1",
+  postCardTitle: "h1",
+  postCardContent: "p",
+  postCardReadTime: "span",
 } as const;
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars

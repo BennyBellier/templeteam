@@ -1,183 +1,99 @@
-import { env } from "@/env.mjs";
-import {
-  jwtHelper,
-  tokenOnWeek,
-  tokenOneDay,
-} from "@/lib/jwtHelper";
-import loginErrors from "@/lib/loginErrors";
+import LoginErrors from "@/lib/loginErrors";
 import { prisma } from "@/server/db";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import logger from "@/server/logger";
 import { compare } from "bcrypt";
-import {
-  getServerSession,
-  type DefaultSession,
-  type NextAuthOptions,
-  type User,
-} from "next-auth";
-import { type Adapter } from "next-auth/adapters";
+import { type NextAuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { z } from "zod";
 
-declare module "next-auth" {
-  interface User {
-    name?: string;
-    email?: string;
-  }
-
-  interface Session extends DefaultSession {
-    user: {
-      id?: string;
-    } & DefaultSession["user"];
-    error?: "RefreshAccessTokenError";
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    accessToken: string;
-    refreshToken: string;
-    accessTokenExpired: number;
-    refreshTokenExpired: number;
-    error?: "RefreshAccessTokenError";
-  }
-}
-
-const LoginDelay = 2000;
-
 export const authOptions: NextAuthOptions = {
+  // adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
-    maxAge: 60 * 60 * 24 * 7,
   },
-  callbacks: {
-    async jwt({ token, user }) {
-      // credentials provider:  Save the access token and refresh token in the JWT on the initial login
-      if (user) {
-        const accessToken = await jwtHelper.createAcessToken(token);
-        const refreshToken = await jwtHelper.createRefreshToken(token);
-        const accessTokenExpired = Date.now() / 1000 + tokenOneDay;
-        const refreshTokenExpired = Date.now() / 1000 + tokenOnWeek;
-
-        return {
-          ...token,
-          accessToken,
-          refreshToken,
-          accessTokenExpired,
-          refreshTokenExpired,
-        };
-      } else {
-        if (token) {
-          // In subsequent requests, check access token has expired, try to refresh it
-          if (Date.now() / 1000 > token.accessTokenExpired) {
-            const verifyToken = await jwtHelper.verifyToken(token.refreshToken);
-
-            if (verifyToken) {
-              const user = await prisma.user.findFirst({
-                where: {
-                  name: token.name,
-                },
-              });
-
-              if (user) {
-                const accessToken = await jwtHelper.createAcessToken(token);
-                const accessTokenExpired = Date.now() / 1000 + tokenOneDay;
-
-                return {
-                  ...token,
-                  accessToken,
-                  accessTokenExpired,
-                };
-              }
-            }
-
-            return { ...token, error: "RefreshAccessTokenError" };
-          }
-        }
-      }
-
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user = {
-          name: token.name,
-          id: token.sub,
-        };
-      }
-      session.error = token.error;
-      return session;
-    },
-  },
-  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     CredentialsProvider({
       name: "Credentials",
-      authorize: async (credentials, _req) => {
-        if (!credentials?.password) {
-          // Adding 1.5 s time to response to avoid bruteforce and DDOS
-          await new Promise((resolve) => setTimeout(resolve, LoginDelay));
-          throw new Error("No password", {
-            cause: loginErrors.MISSING_PASSWORD,
-          });
-        }
-
-        const parseCredentials = z
-          .object({ password: z.string() })
+      credentials: {
+        identifier: { label: "Username or Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const parsedCredentials = z
+          .object({ identifier: z.string(), password: z.string() })
           .safeParse(credentials);
 
-        if (!parseCredentials.success) {
-          // Adding 1.5 s time to response to avoid bruteforce and DDOS
-          await new Promise((resolve) => setTimeout(resolve, LoginDelay));
-          throw new Error("Invalid password", {
-            cause: loginErrors.INVALID_PASSWORD,
+        if (!parsedCredentials.success) {
+          logger.error({
+            message: "Invalid credentials !",
+            context: "Authentication",
+            data: parsedCredentials.error,
           });
-        } else {
-          const { password } = parseCredentials.data;
-          const login_data = await login(password);
-          return login_data;
+          throw new Error(LoginErrors.INVALID_INFORMATIONS as string);
         }
-      },
-      credentials: {
-        password: {
-          label: "Password",
-          type: "password",
-        },
+
+        const { identifier, password } = parsedCredentials.data;
+
+        logger.info({message: `${identifier} try to connect`, context: "Authentication"});
+
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [{ email: identifier }, { name: identifier }],
+          },
+        });
+
+        if (!user) {
+          logger.error({message: `${identifier} doesn't exist as user`, context: "Authentication"});
+          throw new Error(LoginErrors.USER_NOT_FOUND);
+        }
+
+        const passwordMatch = await compare(password, user.password);
+        if (!passwordMatch) {
+          logger.error({
+            message: `${identifier} password incorrect !`,
+            context: "Authentication",
+          });
+          throw new Error(LoginErrors.USER_PASSWORD_MISSMATCH);
+        }
+        return user;
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.role = user.role;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session?.user) {
+        session.user.id = token.id;
+        session.user.role = token.role as string;
+      }
+      return session;
+    },
+  },
   pages: {
     signIn: "/login",
     error: "/login",
   },
+  logger: {
+    error(code, metadata) {
+      logger.error({message: code, context: "Authentication", data: metadata});
+    },
+    warn(code) {
+      logger.warn({message: code, context: "Authentication"});
+    },
+    debug(code, metadata) {
+      logger.debug({
+        message: code,
+        context: "Authentication",
+        data: metadata,
+      });
+    },
+  },
 };
 
-/**
- * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
- *
- * @see https://next-auth.js.org/configuration/nextjs
- */
 export const getServerAuthSession = () => getServerSession(authOptions);
-
-const login = z
-  .function()
-  .args(z.string())
-  .implement(async (password) => {
-    const user = await prisma.user.findFirst({
-      where: {
-        name: env.ADMIN_ID,
-      },
-    });
-    if (!user) {
-      // Adding 1.5 s time to response to avoid bruteforce and DDOS
-      await new Promise((resolve) => setTimeout(resolve, LoginDelay));
-      throw new Error(loginErrors.USER_NOT_FOUND);
-    }
-    // if user exist -> check password
-    if (await compare(password, user.password)) {
-      user.password = "";
-      return user as User;
-    } else {
-      await new Promise((resolve) => setTimeout(resolve, LoginDelay));
-      throw new Error(loginErrors.USER_PASSWORD_MISSMATCH);
-    }
-  });
