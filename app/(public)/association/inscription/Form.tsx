@@ -1,25 +1,27 @@
 "use client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import { getPhoneData } from "@/components/ui/phone-input";
+import { useScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/ui/typography";
-import Courses from "./(StepForms)/Courses";
-import Member from "./(StepForms)/Member";
-import LegalGuardians from "./(StepForms)/LegalGuardians";
-import Authorization from "./(StepForms)/Authorization";
-import Resume from "./(StepForms)/Resume";
 import { calculateAge, cn } from "@/lib/utils";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defineStepper } from "@stepperize/react";
+import { AlertTriangle } from "lucide-react";
 import { Gender } from "prisma/prisma-client";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { getPhoneData } from "@/components/ui/phone-input";
-import { useScrollArea } from "@/components/ui/scroll-area";
 import toast from "react-hot-toast";
+import { z } from "zod";
+import Authorization from "./(StepForms)/Authorization";
+import Courses from "./(StepForms)/Courses";
+import LegalGuardians from "./(StepForms)/LegalGuardians";
+import Member from "./(StepForms)/Member";
+import Resume from "./(StepForms)/Resume";
 import {
   registerFile,
   registerLegalGuardians,
@@ -270,7 +272,11 @@ const { useStepper } = defineStepper(
 
 export default function RegisterForm() {
   const stepper = useStepper();
-  const [coursesQuery] = trpc.association.getCourses.useSuspenseQuery();
+  const {
+    data: query,
+    isError,
+    isLoading,
+  } = trpc.association.getCourses.useQuery();
   const store = useRegisterFormStore((state) => state);
   const { scrollTo } = useScrollArea();
 
@@ -278,9 +284,7 @@ export default function RegisterForm() {
     mode: "onTouched",
     resolver: zodResolver(stepper.current.schema),
     defaultValues: {
-      courses: coursesQuery.map(
-        (course) => store.courses?.[course.name] ?? false,
-      ),
+      courses: query?.map((course) => store.courses?.[course.name] ?? false),
       ...store.member,
       birthdate: store.member?.birthdate ?? undefined,
       photo: null,
@@ -298,11 +302,23 @@ export default function RegisterForm() {
     },
   });
 
+  if (isError || !query) {
+    return (
+      <Alert variant="destructive" className="mx-auto max-w-lg">
+        <AlertTriangle className="h-6 w-6" />
+        <AlertTitle>Une erreur s&apos;est produite</AlertTitle>
+        <AlertDescription>
+          Veuillez réessayer ou contactez un administrateur.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   const onSubmit = async (values: z.infer<typeof stepper.current.schema>) => {
     switch (stepper.current.id) {
       case "courses":
         const data = values as z.infer<typeof CoursesSchema>;
-        const courses: Record<string, boolean> = coursesQuery.reduce(
+        const courses: Record<string, boolean> = query.reduce(
           (acc, course, index) => ({
             ...acc,
             [course.name]: data.courses[index],
@@ -398,8 +414,6 @@ export default function RegisterForm() {
 
           memberId = await registerMember(store.member);
 
-          console.log(memberId);
-
           if (!memberId) {
             toast.error(
               "Erreur lors de l'enregistrement de l'adhérent. Veuillez réessayer.",
@@ -425,7 +439,7 @@ export default function RegisterForm() {
 
           if (!response.ok) {
             toast.error(
-              "Erreur lors de la sauvegarde la photo. Veuillez réessayer.",
+              "Erreur lors de la sauvegarde de la photo. Veuillez réessayer.",
               {
                 id: toastId,
                 duration: 3000,
@@ -571,7 +585,7 @@ export default function RegisterForm() {
             )}
           >
             {stepper.when("courses", () => (
-              <Courses query={coursesQuery} />
+              <Courses query={query} isLoading={isLoading} />
             ))}
             {stepper.when("informations", () => (
               <Member />

@@ -137,9 +137,9 @@ export default function Resume() {
             >
               Responsables légaux
             </Typography>
-            <div className="flex flex-wrap gap-4">
+            <ul className="flex flex-wrap gap-4">
               {legalGuardians?.map((legalGuardian) => (
-                <div
+                <li
                   key={`${legalGuardian.lastname} ${legalGuardian.firstname}`}
                 >
                   <Typography className=" text-foreground-muted font-medium italic">{`${legalGuardian.lastname} ${legalGuardian.firstname}`}</Typography>
@@ -152,9 +152,9 @@ export default function Resume() {
                   <Typography>
                     Email: {legalGuardian.mail ?? "Non renseigné"}
                   </Typography>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         )}
         <div className="flex flex-wrap gap-2">

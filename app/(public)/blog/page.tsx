@@ -5,7 +5,7 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import BlogPostWithSelectors from "./BlogPostWithSelectors";
+import BlogPost, { CategorySelector } from "./BlogPostWithSelectors";
 
 import type { Metadata } from "next";
 
@@ -32,7 +32,8 @@ export default function Blog() {
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="flex gap-6 md:items-start">
-        <BlogPostWithSelectors />
+        <CategorySelector />
+        <BlogPost/>
       </LayoutSection>
     </Layout>
   );

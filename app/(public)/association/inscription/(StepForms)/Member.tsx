@@ -108,7 +108,7 @@ const FileUploadedItem = memo(function FileUploadedItem({
             variant="quote"
             className="col-start-2 m-0 border-none p-0 font-light"
           >
-            {Math.round(file.size / 1024)} Kb
+            {(file.size / 1024 / 1024).toFixed(2)} Mb
           </Typography>
         </div>
       </div>

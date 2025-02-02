@@ -1,4 +1,4 @@
-import { Gender, PrismaClient } from "@prisma/client";
+/* import { Gender, PrismaClient } from "@prisma/client";
 
 
 const prisma = new PrismaClient();
@@ -29,3 +29,4 @@ main()
     process.exit(1);
   })
   .finally(async () => await prisma.$disconnect());
+ */

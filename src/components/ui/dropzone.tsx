@@ -35,6 +35,7 @@ type FileUploaderContextType = {
   setActiveIndex: Dispatch<SetStateAction<number>>;
   orientation: "horizontal" | "vertical";
   direction: DirectionOptions;
+  disabled: boolean;
 };
 
 const FileUploaderContext = createContext<FileUploaderContextType | null>(null);
@@ -53,9 +54,10 @@ type FileUploaderProps = {
   onValueChange: (value: File[] | null) => void;
   dropzoneOptions: DropzoneOptions;
   orientation?: "horizontal" | "vertical";
+  disabled?: boolean;
 };
 
-export function AcceptFileTypeText(accept: Record<string, string[]>): string {
+export function AcceptFileTypeText(accept: Record<string, readonly string[]>): string {
   const extensions: string[] = [];
 
   // Each valeur off accept object
@@ -80,6 +82,7 @@ export const FileUploader = forwardRef<
       orientation = "vertical",
       children,
       dir,
+      disabled = false,
       ...props
     },
     ref,
@@ -222,7 +225,7 @@ export const FileUploader = forwardRef<
                 />,
               );
             }
-          })
+          });
         }
       },
       // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -247,6 +250,7 @@ export const FileUploader = forwardRef<
       onDrop,
       onDropRejected: () => setIsFileTooBig(true),
       onDropAccepted: () => setIsFileTooBig(false),
+      disabled,
     });
 
     return (
@@ -260,6 +264,7 @@ export const FileUploader = forwardRef<
           setActiveIndex,
           orientation,
           direction,
+          disabled,
         }}
       >
         <div
@@ -268,6 +273,7 @@ export const FileUploader = forwardRef<
           onKeyDownCapture={handleKeyDown}
           className={cn(
             "grid w-full overflow-hidden focus:outline-none ",
+            disabled && "opacity-50 cursor-not-allowed",
             className,
             {
               "gap-2": value && value.length > 0,
@@ -319,7 +325,7 @@ export const FileUploaderItem = forwardRef<
   HTMLDivElement,
   { index: number } & React.HTMLAttributes<HTMLDivElement>
 >(({ className, index, children, ...props }, ref) => {
-  const { removeFileFromSet, activeIndex } = useFileUpload();
+  const { removeFileFromSet, activeIndex, disabled } = useFileUpload();
   const isSelected = index === activeIndex;
   return (
     <div
@@ -329,13 +335,14 @@ export const FileUploaderItem = forwardRef<
         "h-6 cursor-pointer justify-between p-1 hover:scale-100",
         className,
         isSelected ? "bg-muted" : "",
+        disabled && "opacity-50 cursor-not-allowed"
       )}
       {...props}
     >
       <div className="flex h-full w-full items-center gap-1.5 font-medium leading-none tracking-tight">
         {children}
       </div>
-      <button type="button" onClick={() => removeFileFromSet(index)}>
+      <button type="button" onClick={() => !disabled && removeFileFromSet(index)} disabled={disabled} className={disabled ? "cursor-not-allowed opacity-50" : ""} >
         <span className="sr-only">remove item {index}</span>
         <RemoveIcon className="mr-2 h-4 w-4 duration-200 ease-in-out hover:stroke-destructive" />
       </button>
@@ -349,14 +356,14 @@ export const FileInput = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
-  const { dropzoneState, isFileTooBig, isLOF } = useFileUpload();
-  const rootProps = isLOF ? {} : dropzoneState.getRootProps();
+  const { dropzoneState, isFileTooBig, isLOF, disabled } = useFileUpload();
+  const rootProps = disabled || isLOF ? {} : dropzoneState.getRootProps();
   return (
     <div
       ref={ref}
       {...props}
       className={`relative w-full ${
-        isLOF ? "cursor-not-allowed " : "cursor-pointer "
+        disabled || isLOF ? "cursor-not-allowed " : "cursor-pointer "
       }`}
     >
       <div
@@ -371,16 +378,16 @@ export const FileInput = forwardRef<
          }`,
           className,
         )}
-        data-disabled={isLOF}
+        data-disabled={disabled || isLOF}
         {...rootProps}
       >
         {children}
       </div>
       <Input
         ref={dropzoneState.inputRef}
-        disabled={isLOF}
+        disabled={disabled || isLOF}
         {...dropzoneState.getInputProps()}
-        className={`${isLOF ? "cursor-not-allowed" : ""}`}
+        className={`${disabled || isLOF ? "cursor-not-allowed" : ""}`}
       />
     </div>
   );

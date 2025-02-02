@@ -5,7 +5,9 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import ReferencesWithSelectors from "./ReferencesWithSelectors";
+import ReferencesWithSelectors, {
+  CategorySelector,
+} from "./ReferencesWithSelectors";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -28,6 +30,7 @@ export default function References() {
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="grid grid-cols-1 justify-between gap-6 md:items-start lg:flex lg:auto-cols-min lg:flex-row">
+        <CategorySelector />
         <ReferencesWithSelectors />
       </LayoutSection>
     </Layout>

@@ -122,6 +122,40 @@ export const AssociationRouter = createTRPCRouter({
         throw new Error("Impossible d'ajouter la photo, veuillez réessayer.");
       }
     }),
+  addFileMedic: publicProcedure
+    .input(
+      z.object({
+        fileId: z.string().uuid(),
+        medicFilename: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        logger.info({
+          context: "tRPC",
+          requestPath: "association.addMemberMedic",
+          message: `Add medic to file ${input.fileId}.`,
+          data: input,
+        });
+
+        return await ctx.prisma.member.update({
+          where: {
+            id: input.fileId,
+          },
+          data: {
+            photo: input.medicFilename,
+          },
+        });
+      } catch (e) {
+        logger.error({
+          context: "tRPC",
+          requestPath: "association.addMemberMedic",
+          message: `Failed when trying to add medic to file ${input.fileId}.`,
+          data: e,
+        });
+        throw new Error("Impossible d'ajouter le certificat médical, veuillez réessayer.");
+      }
+    }),
   getCourses: publicProcedure.query(async ({ ctx }) => {
     const courses = await ctx.prisma.course.findMany({
       select: {
@@ -557,7 +591,6 @@ export const AssociationRouter = createTRPCRouter({
         });
 
         if (fileId) {
-
           // Parse fileId as UUID
           z.string().uuid().parse(fileId);
 
@@ -574,7 +607,6 @@ export const AssociationRouter = createTRPCRouter({
 
         if (legalGuardiansId && legalGuardiansId.length > 0) {
           for (const id of legalGuardiansId) {
-
             // Parse id of legalGuardiansId as UUID
             z.string().uuid().parse(id);
 
@@ -647,8 +679,51 @@ export const AssociationRouter = createTRPCRouter({
         }
       }
     }),
+  getMemberResume: publicProcedure
+    .input(
+      z.object({
+        memberId: z.string().uuid(),
+        year: z.string().trim().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const member = await ctx.prisma.member.findFirst({
+        omit: {
+          createdAt: true,
+          updatedAt: true,
+        },
+        include: {
+          files: {
+            select: {
+              id: true,
+              medicalCertificate: true,
+              courses: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          legalGuardians: {
+            omit: {
+              id: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+        },
+        where: { id: input.memberId },
+      });
+
+      return member ?? null;
+    }),
   getMemberAllinformations: publicProcedure
-    .input(z.object({ memberId: z.string().uuid(), year: z.string().trim() }))
+    .input(
+      z.object({
+        memberId: z.string().uuid(),
+        year: z.string().trim().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const member = await ctx.prisma.member.findFirst({
         select: {
@@ -665,7 +740,7 @@ export const AssociationRouter = createTRPCRouter({
           photo: true,
           files: {
             where: {
-              year: input.year,
+              year: input.year ?? env.FILE_YEAR,
             },
             select: {
               medicalCertificate: true,

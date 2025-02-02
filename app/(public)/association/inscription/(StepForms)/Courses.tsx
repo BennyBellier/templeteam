@@ -23,6 +23,7 @@ import { Rocket } from "lucide-react";
 import { Prisma } from "@prisma/client";
 import type { CoursesSchema } from "../Form";
 import type { z } from "zod";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /* --------------------------------------------------------
             Localisation element for First Form
@@ -119,93 +120,97 @@ const coursesQueryProps = Prisma.validator<Prisma.CourseDefaultArgs>()({
 
 export default function Courses({
   query,
+  isLoading,
 }: {
   query: Prisma.CourseGetPayload<typeof coursesQueryProps>[];
+  isLoading: boolean;
 }) {
   const form = useFormContext<z.infer<typeof CoursesSchema>>();
 
   const error = form.formState.errors.courses?.root?.message;
-    return (
-      <>
-        <CardHeader className="flex-none pb-2 pt-4">
-          <Typography as={CardTitle} variant="h1" className="lg:text-4xl">
-            Adhésion
-          </Typography>
-          <Typography as={CardDescription} variant="lead">
-            Choisissez le cours où vous souhaitez vous inscrire.
-          </Typography>
-        </CardHeader>
-        <CardContent className="grid h-full gap-6">
-          <Alert>
-            <Rocket className="h-4 w-4" />
-            <AlertTitle>Pour toute pré-inscription</AlertTitle>
-            <AlertDescription>
-              La licence est offert (soit 20 €) !
-            </AlertDescription>
-          </Alert>
-
-          {query?.map((course, index) => (
-            <FormField
-              key={course.name}
-              control={form.control}
-              name={`courses.${index}`}
-              render={({ field }) => (
-                <FormItem className={error && "text-destructive"}>
-                  <FormLabel
-                    className={cn(
-                      "flex cursor-pointer items-center gap-4 rounded-lg border p-6",
-                      field.value ? "border-primary" : "",
-                    )}
-                  >
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        className="hidden"
-                      />
-                    </FormControl>
-                    <div className="grid w-full grid-cols-[3fr_1fr] grid-rows-[1.75rem_auto] gap-2">
-                      <Typography
-                        as="h1"
-                        variant="lead"
-                        className={cn(
-                          "col-span-2 col-start-1 row-start-1 text-foreground",
-                          field.value ? "text-primary" : "",
-                        )}
-                      >
-                        {course.name}
-                      </Typography>
-                      <div className="flex flex-col gap-2 font-normal">
-                        <div className="flex gap-2">
-                          {course.sessions.map((session) => (
-                            <Typography
-                              key={session.id}
-                              variant="base"
-                              className="col-start-1 row-start-2 self-start font-light"
-                            >
-                              {`${session.dayOfWeek} - ${displayTime(session.startHour)} / ${displayTime(session.endHour)} `}
-                            </Typography>
-                          ))}
-                        </div>
-                        <Typography
-                          as="p"
-                          variant="base"
-                          className="col-start-1 row-start-2"
-                        >
-                          {course.description}
-                        </Typography>
-                      </div>
-                      {course.sessions?.[0] && (
-                        <Localisation location={course.sessions[0].location} />
+  return (
+    <>
+      <CardHeader className="flex-none pb-2 pt-4">
+        <Typography as={CardTitle} variant="h1" className="lg:text-4xl">
+          Adhésion
+        </Typography>
+        <Typography as={CardDescription} variant="lead">
+          Choisissez le cours où vous souhaitez vous inscrire.
+        </Typography>
+      </CardHeader>
+      <CardContent className="grid h-full gap-6">
+        <Alert>
+          <Rocket className="h-4 w-4" />
+          <AlertTitle>Pour toute pré-inscription</AlertTitle>
+          <AlertDescription>
+            La licence est offert (soit 20 €) !
+          </AlertDescription>
+        </Alert>
+        {isLoading && (
+          <Skeleton className="w-full h-32" />
+        )}
+        {query?.map((course, index) => (
+          <FormField
+            key={course.name}
+            control={form.control}
+            name={`courses.${index}`}
+            render={({ field }) => (
+              <FormItem className={error && "text-destructive"}>
+                <FormLabel
+                  className={cn(
+                    "flex cursor-pointer items-center gap-4 rounded-lg border p-6",
+                    field.value ? "border-primary" : "",
+                  )}
+                >
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="hidden"
+                    />
+                  </FormControl>
+                  <div className="grid w-full grid-cols-[3fr_1fr] grid-rows-[1.75rem_auto] gap-2">
+                    <Typography
+                      as="h1"
+                      variant="lead"
+                      className={cn(
+                        "col-span-2 col-start-1 row-start-1 text-foreground",
+                        field.value ? "text-primary" : "",
                       )}
+                    >
+                      {course.name}
+                    </Typography>
+                    <div className="flex flex-col gap-2 font-normal">
+                      <div className="flex gap-2">
+                        {course.sessions.map((session) => (
+                          <Typography
+                            key={session.id}
+                            variant="base"
+                            className="col-start-1 row-start-2 self-start font-light"
+                          >
+                            {`${session.dayOfWeek} - ${displayTime(session.startHour)} / ${displayTime(session.endHour)} `}
+                          </Typography>
+                        ))}
+                      </div>
+                      <Typography
+                        as="p"
+                        variant="base"
+                        className="col-start-1 row-start-2"
+                      >
+                        {course.description}
+                      </Typography>
                     </div>
-                  </FormLabel>
-                  <FormMessage>{error}</FormMessage>
-                </FormItem>
-              )}
-            />
-          ))}
-        </CardContent>
-      </>
-    );
+                    {course.sessions?.[0] && (
+                      <Localisation location={course.sessions[0].location} />
+                    )}
+                  </div>
+                </FormLabel>
+                <FormMessage>{error}</FormMessage>
+              </FormItem>
+            )}
+          />
+        ))}
+      </CardContent>
+    </>
+  );
 }

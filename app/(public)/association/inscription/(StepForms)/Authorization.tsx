@@ -42,7 +42,6 @@ import { useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import SignatureCanvas from "react-signature-canvas";
 import { z } from "zod";
-import StepperFormActions from "../StepperFormActions";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { AuthorizationSchema } from "../Form";
 import Image from "next/image";

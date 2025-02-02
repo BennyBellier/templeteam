@@ -20,7 +20,7 @@ const sectionClassName =
   "mb-4 rounded-lg border border-solid border-gray-300 p-2";
 const sectionTitleClassName = "m-0 mb-1 font-bold";
 
-interface RegistrationProps {
+export interface RegistrationProps {
   firstname: string;
   lastname: string;
   birthdate: Date;

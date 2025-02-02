@@ -1,6 +1,4 @@
-"use client";
-
-import { trpc } from "@/trpc/TrpcProvider";
+import { prisma } from "@/trpc/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
@@ -16,8 +14,8 @@ export const metadata: Metadata = {
   category: "sports",
 };
 
-export default function AdminDashboard() {
-  const [members] = trpc.association.getMembersList.useSuspenseQuery();
+export default async function AdminDashboard() {
+  const members = await prisma.association.getMembersList()
 
   return (
     <Card className="h-full">

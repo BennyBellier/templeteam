@@ -34,36 +34,34 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-/* prisma.$on("query", (e) => {
+prisma.$on("query", (e) => {
   logger.debug({
-    type: "prisma",
-    query: e.query,
-    params: e.params,
-    duration: e.duration,
-    function: this,
+    context: "Prisma",
+    message: `${this}`,
+    data: e
   });
-}); */
+});
 
 prisma.$on("error", (e) => {
   logger.error({
-    type: "prisma",
-    message: e.message,
-    target: e.target,
+    context: "Prisma",
+    message: this + " " + e.message,
+    data: e,
   });
 });
 
 prisma.$on("info", (e) => {
   logger.info({
-    type: "prisma",
-    message: e.message,
-    target: e.target,
+    context: "Prisma",
+    message: this + " " + e.message,
+    data: e,
   });
 });
 
 prisma.$on("warn", (e) => {
   logger.warn({
-    type: "prisma",
-    message: e.message,
-    target: e.target,
+    context: "Prisma",
+    message: this + " " + e.message,
+    data: e,
   });
 });

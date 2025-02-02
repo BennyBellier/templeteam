@@ -136,6 +136,27 @@ export async function writeMemberPhoto(
   return filename;
 }
 
+export async function writeMemberFileMedic(memberId: string, file: File): Promise<string> {
+  // Check and generate if member folder does not exist
+  generateMemberFolder(memberId);
+
+  // Get members/{id}/photo folder path
+  const memberMedicPath = serverPath(
+    membersPath,
+    memberId,
+    env.ASSOCIATION_MEMBERS_MEDICS_FOLDER,
+  );
+
+  // Generate filename and file path for the photo
+  const filename = `${uuidv4()}_${Date.now()}${path.extname(file.name)}`;
+  const filePath = path.join(memberMedicPath, filename);
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  fs.writeFileSync(filePath, buffer);
+
+  return filename;
+}
+
 export const getMemberPhotoPath = (memberId: string, photoFileName: string) =>
   serverPath(
     membersPath,
