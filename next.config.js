@@ -8,12 +8,14 @@ await import("./src/env.mjs");
 const config = {
   compiler: {
     styledComponents: true,
-  },
+  // Required on webserver
   experimental: {
     serverActions: {
       bodySizeLimit: '5mb',
     }
-  }
+    workerThreads: true,
+    cpus: 4,
+  },
 };
 
 export default config;
