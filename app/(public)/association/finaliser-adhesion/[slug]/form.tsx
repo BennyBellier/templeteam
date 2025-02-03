@@ -26,8 +26,9 @@ import {
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CloudUpload } from "lucide-react";
+import { CloudUpload, FileText } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import type { DropzoneOptions } from "react-dropzone";
 import {
   type ControllerRenderProps,
@@ -70,36 +71,46 @@ const medicDropZoneConfig = {
   multiple: false,
 } satisfies DropzoneOptions;
 
-const formSchema = z.object({
-  photo: z
-    .array(z.instanceof(File), {
-      invalid_type_error: "La photo est obligatoire.",
-    })
-    .refine((files) => files.length > 0, "La photo est obligatoire.")
-    .refine((files) => {
-      return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
-    }, `La taille du fichier doit faire moins de ${MAX_UPLOAD_SIZE}MB.`)
-    .refine((files) => {
-      return files?.every((file) =>
-        PHOTO_ACCEPTED_FILE_TYPES.includes(file.type),
-      );
-    }, "Le fichier doit être de type PNG, JPEG ou TIFF.")
-    .nullable(),
-  medicalCertificate: z
-    .array(z.instanceof(File), {
-      invalid_type_error: "La certificat est obligatoire.",
-    })
-    .refine((files) => files.length > 0, "La certificat est obligatoire.")
-    .refine((files) => {
-      return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
-    }, `La taille du fichier doit faire moins de ${MAX_UPLOAD_SIZE}MB.`)
-    .refine((files) => {
-      return files?.every((file) =>
-        MEDIC_ACCEPTED_FILE_TYPES.includes(file.type),
-      );
-    }, "Le fichier doit être de type PNG, JPEG ou PDF.")
-    .nullable(),
-});
+const formSchema = z
+  .object({
+    photo: z
+      .array(z.instanceof(File))
+      .refine((files) => {
+        return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
+      }, `La taille du fichier doit faire moins de ${MAX_UPLOAD_SIZE}MB.`)
+      .refine((files) => {
+        return files?.every((file) =>
+          PHOTO_ACCEPTED_FILE_TYPES.includes(file.type),
+        );
+      }, "Le fichier doit être de type PNG, JPEG ou TIFF."),
+    medicalCertificate: z
+      .array(z.instanceof(File))
+      .refine((files) => {
+        return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
+      }, `La taille du fichier doit faire moins de ${MAX_UPLOAD_SIZE}MB.`)
+      .refine((files) => {
+        return files?.every((file) =>
+          MEDIC_ACCEPTED_FILE_TYPES.includes(file.type),
+        );
+      }, "Le fichier doit être de type PNG, JPEG ou PDF."),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      (data.photo?.length ?? 0) === 0 &&
+      (data.medicalCertificate?.length ?? 0) === 0
+    ) {
+      ctx.addIssue({
+        path: ["photo"],
+        code: z.ZodIssueCode.custom,
+        message: `Veuillez ajouter au moins un fichier.`,
+      });
+      ctx.addIssue({
+        path: ["medicalCertificate"],
+        code: z.ZodIssueCode.custom,
+        message: `Veuillez ajouter au moins un fichier.`,
+      });
+    }
+  });
 
 export const FormCompletion = ({
   memberId,
@@ -117,6 +128,10 @@ export const FormCompletion = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     shouldFocusError: true,
+    defaultValues: {
+      photo: [],
+      medicalCertificate: [],
+    },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -153,6 +168,7 @@ export const FormCompletion = ({
         // Adding medic
         const formData = new FormData();
 
+        formData.append("memberId", memberId);
         formData.append("fileId", fileId);
         formData.append("medic", values.medicalCertificate?.[0]);
 
@@ -174,10 +190,13 @@ export const FormCompletion = ({
         }
       }
 
-      toast.success("Inscription réussie !", {
-        id: toastId,
-        duration: 5000,
-      });
+      toast.success(
+        `Enregistrement ${values.photo?.[0] && values.medicalCertificate?.[0] ? "des documents" : "du document"} réussi !`,
+        {
+          id: toastId,
+          duration: 5000,
+        },
+      );
       await refetch();
       form.reset();
     } catch (e) {
@@ -228,10 +247,10 @@ export const FormCompletion = ({
               )}
             />
           </CardContent>
-          <CardFooter>
+          <CardFooter className="p-0">
             <Button
               type="submit"
-              className="h-full w-full rounded-b-lg rounded-l-none rounded-t-none hover:scale-100 focus-visible:scale-100 disabled:opacity-100"
+              className="h-full w-full rounded-b-lg rounded-t-none hover:scale-100 focus-visible:scale-100 disabled:opacity-100"
             >
               Envoyer
             </Button>
@@ -254,86 +273,102 @@ const UploadZone = ({
   type: string;
   field: ControllerRenderProps<
     {
-      medicalCertificate: File[] | null;
-      photo: File[] | null;
+      medicalCertificate: File[];
+      photo: File[];
     },
     "medicalCertificate" | "photo"
   >;
   dropzoneConfig: DropzoneOptions;
   error: Merge<FieldError, (FieldError | undefined)[]> | undefined;
   disabled?: boolean;
-}) => (
-  <FormItem>
-    <FormLabel className={disabled ? "text-muted-foreground" : ""}>
-      {label}
-    </FormLabel>
-    <FormControl>
-      <FileUploader
-        value={field.value}
-        disabled={disabled}
-        aria-required={!disabled}
-        onValueChange={field.onChange}
-        dropzoneOptions={{ ...dropzoneConfig }}
-        reSelect
-        className="relative col-span-2 rounded-lg bg-background p-0.5"
-      >
-        <FileInput
-          className={cn(
-            "group h-24 w-full outline-dashed outline-1 outline-foreground data-disabled:opacity-50",
-            error && "outline-destructive",
-          )}
+}) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (field.value?.[0]) {
+      const url = URL.createObjectURL(field.value?.[0]);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
+    }
+  }, [field]);
+
+  return (
+    <FormItem>
+      <FormLabel className={disabled ? "text-muted-foreground" : ""}>
+        {label}
+      </FormLabel>
+      <FormControl>
+        <FileUploader
+          value={field.value ?? null}
+          disabled={disabled}
+          aria-required={!disabled}
+          onValueChange={field.onChange}
+          dropzoneOptions={{ ...dropzoneConfig }}
+          reSelect
+          className="relative col-span-2 rounded-lg bg-background p-0.5"
         >
-          <div className="flex h-full w-full flex-col items-center justify-center">
-            <CloudUpload className="transition-colors group-hover:text-primary group-data-disabled:text-foreground" />
-            <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
-              <span className="font-semibold">Ajouter un fichier</span>
-              &nbsp; ou glisser déposer
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{type}</p>
-          </div>
-        </FileInput>
-        <FileUploaderContent>
-          {field.value &&
-            field.value.length > 0 &&
-            field.value.map((file, i) => (
-              <FileUploaderItem
-                key={i}
-                index={i}
-                className="flex h-fit justify-center bg-card"
-              >
-                <div className="flex gap-2">
-                  <div className="size-16">
-                    <AspectRatio className="size-full">
-                      <Image
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        className="rounded-md object-cover"
-                        fill
-                      />
-                    </AspectRatio>
+          <FileInput
+            className={cn(
+              "group h-24 w-full outline-dashed outline-1 outline-foreground data-disabled:opacity-50",
+              error && "outline-destructive",
+            )}
+          >
+            <div className="flex h-full w-full flex-col items-center justify-center">
+              <CloudUpload className="transition-colors group-hover:text-primary group-data-disabled:text-foreground" />
+              <p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+                <span className="font-semibold">Ajouter un fichier</span>
+                &nbsp; ou glisser déposer
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">{type}</p>
+            </div>
+          </FileInput>
+          <FileUploaderContent>
+            {field.value &&
+              field.value.length > 0 &&
+              field.value.map((file, i) => (
+                <FileUploaderItem
+                  key={i}
+                  index={i}
+                  className="flex h-fit justify-center bg-card"
+                >
+                  <div className="flex gap-2">
+                    <div className="size-16">
+                      {file.type !== "application/pdf" ? (
+                        <AspectRatio className="size-full">
+                          <Image
+                            src={previewUrl ?? ""}
+                            alt={file.name}
+                            className="rounded-md object-cover"
+                            fill
+                          />
+                        </AspectRatio>
+                      ) : (
+                        <FileText className="size-full stroke-1" />
+                      )}
+                    </div>
+                    <div className="flex flex-col justify-around">
+                      <Typography as="span" className="">
+                        {file.name.length > 20
+                          ? file.name.slice(0, 16) +
+                            "..." +
+                            file.name.split(".")[1]
+                          : file.name}
+                      </Typography>
+                      <Typography
+                        as="span"
+                        variant="quote"
+                        className=" m-0 border-none p-0"
+                      >
+                        {(file.size / 1024 / 1024).toFixed(2)} Mb
+                      </Typography>
+                    </div>
                   </div>
-                  <div className="flex flex-col justify-around">
-                    <Typography as="span" className="">
-                      {file.name.length > 20
-                        ? file.name.slice(0, 16) +
-                          "..." +
-                          file.name.split(".")[1]
-                        : file.name}
-                    </Typography>
-                    <Typography
-                      as="span"
-                      variant="quote"
-                      className=" m-0 border-none p-0"
-                    >
-                      {(file.size / 1024 / 1024).toFixed(2)} Mb
-                    </Typography>
-                  </div>
-                </div>
-              </FileUploaderItem>
-            ))}
-        </FileUploaderContent>
-      </FileUploader>
-    </FormControl>
-    <FormMessage />
-  </FormItem>
-);
+                </FileUploaderItem>
+              ))}
+          </FileUploaderContent>
+        </FileUploader>
+      </FormControl>
+      <FormMessage disabled={disabled} />
+    </FormItem>
+  );
+};

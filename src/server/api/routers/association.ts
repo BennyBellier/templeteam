@@ -138,12 +138,12 @@ export const AssociationRouter = createTRPCRouter({
           data: input,
         });
 
-        return await ctx.prisma.member.update({
+        return await ctx.prisma.file.update({
           where: {
             id: input.fileId,
           },
           data: {
-            photo: input.medicFilename,
+            medicalCertificate: input.medicFilename,
           },
         });
       } catch (e) {
@@ -151,7 +151,7 @@ export const AssociationRouter = createTRPCRouter({
           context: "tRPC",
           requestPath: "association.addMemberMedic",
           message: `Failed when trying to add medic to file ${input.fileId}.`,
-          data: e,
+          data: {e},
         });
         throw new Error("Impossible d'ajouter le certificat médical, veuillez réessayer.");
       }
@@ -715,7 +715,7 @@ export const AssociationRouter = createTRPCRouter({
         where: { id: input.memberId },
       });
 
-      return member ?? null;
+      return member;
     }),
   getMemberAllinformations: publicProcedure
     .input(

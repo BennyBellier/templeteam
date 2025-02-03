@@ -57,8 +57,7 @@ type MemberAllInformations = Prisma.MemberGetPayload<
 >;
 
 export const Content = ({ memberId }: { memberId: string }) => {
-  const { data, isLoading, error, refetch } =
-    trpc.association.getMemberResume.useQuery({ memberId });
+  const { data, isLoading, isError, refetch } = trpc.association.getMemberResume.useQuery({ memberId });
 
   const handleRefetch = async () => {
     await refetch();
@@ -85,8 +84,7 @@ export const Content = ({ memberId }: { memberId: string }) => {
     );
   }
 
-  if (error ?? !data ?? !data.files[0]) {
-    console.log(error);
+  if (isError) {
     return (
       <>
         <span>content.tsx</span>
@@ -99,12 +97,12 @@ export const Content = ({ memberId }: { memberId: string }) => {
     <>
       <FormCompletion
         memberId={memberId}
-        fileId={data.files[0]?.id}
-        photoExist={!!data.photo}
-        medicExist={!!data.files[0]?.medicalCertificate}
+        fileId={data?.files[0]?.id ?? ""}
+        photoExist={!!data?.photo}
+        medicExist={!!data?.files[0]?.medicalCertificate}
         refetch={handleRefetch}
       />
-      <MemberCard member={data} />
+      <MemberCard member={data!} />
     </>
   );
 };
