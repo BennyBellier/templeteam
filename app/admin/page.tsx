@@ -1,8 +1,8 @@
-import { prisma } from "@/trpc/server";
 import { Card, CardContent } from "@/components/ui/card";
+import { prisma } from "@/trpc/server";
+import type { Metadata } from "next";
 import { columns } from "./components/columns";
 import { DataTable } from "./components/data-table";
-import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Administration | Temple Team",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminDashboard() {
-  const members = await prisma.association.getMembersList()
+  const members = await prisma.association.getMembersList();
 
   return (
     <Card className="h-full">
