@@ -14,6 +14,9 @@ const config = {
       bodySizeLimit: "5mb",
     },
   },
+  images: {
+    unoptimized: true,
+  }
 };
 
 export default config;

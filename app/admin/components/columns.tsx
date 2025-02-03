@@ -43,6 +43,7 @@ export const columns: ColumnDef<MemberWithLegalGuardians>[] = [
                 <AvatarImage
                   src={`/static/association/members/${memberId}/photos/${photo}`}
                   alt={`${lastname} ${firstname}`}
+                  className="aspect-auto object-cover"
                 />
               </DialogTrigger>
               <DialogContent className="aspect-square h-1/3 w-fit overflow-hidden">
