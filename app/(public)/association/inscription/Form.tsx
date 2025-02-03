@@ -51,9 +51,7 @@ export const CoursesSchema = z.object({
   courses: z
     .boolean()
     .array()
-    .refine((courses) => courses.some((checked) => checked), {
-      message: "Veuillez sélectionner au moins un cours.",
-    }),
+    .nonempty({ message: "Veuillez sélectionner au moins un cours." }),
 });
 
 export const MemberSchema = z
@@ -302,7 +300,7 @@ export default function RegisterForm() {
     },
   });
 
-  if (isError || !query) {
+  if (isError) {
     return (
       <Alert variant="destructive" className="mx-auto max-w-lg">
         <AlertTriangle className="h-6 w-6" />
@@ -317,6 +315,10 @@ export default function RegisterForm() {
   const onSubmit = async (values: z.infer<typeof stepper.current.schema>) => {
     switch (stepper.current.id) {
       case "courses":
+        if (!query) {
+          toast.error("Une erreur s'est produite. Veuillez réessayer !");
+          break;
+        }
         const data = values as z.infer<typeof CoursesSchema>;
         const courses: Record<string, boolean> = query.reduce(
           (acc, course, index) => ({
@@ -585,7 +587,7 @@ export default function RegisterForm() {
             )}
           >
             {stepper.when("courses", () => (
-              <Courses query={query} isLoading={isLoading} />
+              <Courses query={query ? query : []} isLoading={isLoading} />
             ))}
             {stepper.when("informations", () => (
               <Member />

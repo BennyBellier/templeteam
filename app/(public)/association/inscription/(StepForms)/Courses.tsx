@@ -79,7 +79,11 @@ function Localisation({
         </a>
       )}
       <div className="flex flex-col justify-start gap-0.5">
-        <Typography as="h3" variant="base" className="text-base font-normal leading-none">
+        <Typography
+          as="h3"
+          variant="base"
+          className="text-base font-normal leading-none"
+        >
           {location.place}
         </Typography>
         <Typography as="span" variant="base" className="font-light">
@@ -127,7 +131,7 @@ export default function Courses({
 }) {
   const form = useFormContext<z.infer<typeof CoursesSchema>>();
 
-  const error = form.formState.errors.courses?.root?.message;
+  const error = form.formState.errors.courses?.root;
   return (
     <>
       <CardHeader className="flex-none pb-2 pt-4">
@@ -146,9 +150,9 @@ export default function Courses({
             La licence est offert (soit 20 €) !
           </AlertDescription>
         </Alert>
-        {isLoading && (
-          <Skeleton className="w-full h-32" />
-        )}
+        {isLoading && Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={`Skeleton${i}`} className="h-32 w-full" />
+            ))}
         {query?.map((course, index) => (
           <FormField
             key={course.name}
@@ -205,7 +209,7 @@ export default function Courses({
                     )}
                   </div>
                 </FormLabel>
-                <FormMessage>{error}</FormMessage>
+                <FormMessage>{error?.message}</FormMessage>
               </FormItem>
             )}
           />
