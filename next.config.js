@@ -11,12 +11,14 @@ const config = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "5mb",
+      bodySizeLimit: '5mb',
     },
+    workerThreads: true,
+    cpus: 4,
   },
   images: {
     unoptimized: true,
-  }
+  },
 };
 
 export default config;
