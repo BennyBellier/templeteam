@@ -5,16 +5,15 @@ import { ImageWithLoader } from "@/components/features/withLoader/ImageWithLoade
 import { Badge } from "@/components/ui/badge";
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
-import type { Photos as PhotosType } from "@prisma/client";
+// import type { Photos as PhotosType } from "@prisma/client";
+import { trpc } from "@/trpc/TrpcProvider";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export type PhotosArrayProps = {
-  photos: PhotosType[];
-};
-
-export const Photos = ({ photos, ..._props }: PhotosArrayProps) => {
+export const Photos = async () => {
+  const { data: photos, isLoading, isError } = await trpc.photos.get.useQuery();
   const { setCarouselIdx } = useCarouselPhotosIdx();
 
-  if (photos.length === 0) {
+  if (isError || photos?.length === 0) {
     return (
       <Typography as="h1" variant="lead">
         Aucune photo n&apos;est disponible pour le moment !
@@ -22,9 +21,17 @@ export const Photos = ({ photos, ..._props }: PhotosArrayProps) => {
     );
   }
 
+  if (isLoading) {
+    return (
+      <li className="group relative grid grid-cols-1 grid-rows-1 justify-center self-center overflow-hidden rounded-lg hover:cursor-zoom-in">
+        <Skeleton className="w-auto md:h-80" />
+      </li>
+    );
+  }
+
   return (
     <>
-      {photos.map((photo, index) => (
+      {photos?.map((photo, index) => (
         <li
           key={photo.id}
           className="group relative grid grid-cols-1 grid-rows-1 justify-center self-center overflow-hidden rounded-lg hover:cursor-zoom-in"

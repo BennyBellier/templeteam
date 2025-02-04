@@ -5,9 +5,8 @@ import {
   LayoutSection,
   LayoutTitle,
 } from "@/components/layout/layout";
-import { prisma } from "@/trpc/server";
 import { Photos } from "./photos";
-import { PhotosCarousel } from "./photosCarousel";
+// import { PhotosCarousel } from "./photosCarousel";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -21,8 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Albums() {
-  const data = await prisma.photos.get();
-
   return (
     <>
       <Layout>
@@ -34,11 +31,11 @@ export default async function Albums() {
         </LayoutHeader>
         <LayoutSection>
           <ul className="flex h-full w-full flex-wrap justify-center gap-3">
-            <Photos photos={data ?? []} />
+            <Photos />
           </ul>
         </LayoutSection>
       </Layout>
-      <PhotosCarousel content={data ?? []} />
+      {/* <PhotosCarousel content={data ?? []} /> */}
     </>
   );
 }
