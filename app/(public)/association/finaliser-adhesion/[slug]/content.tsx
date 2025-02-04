@@ -24,7 +24,6 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { FormCompletion } from "./form";
-// import { FormCompletion } from "./form";
 
 const MemberAllInformations = Prisma.validator<Prisma.MemberDefaultArgs>()({
   omit: {
@@ -60,14 +59,6 @@ type MemberAllInformations = Prisma.MemberGetPayload<
 export const Content = ({ memberId }: { memberId: string }) => {
   const { data, isLoading, isError } =
     trpc.association.getMemberResume.useQuery({ memberId });
-
-  /* const handleRefetch = () => {
-      refetch().catch(() =>
-        toast.error(
-          "Une erreur s'est produite lors de la mise à jour des données !",
-        ),
-      );
-  }; */
 
   if (isLoading) {
     return (

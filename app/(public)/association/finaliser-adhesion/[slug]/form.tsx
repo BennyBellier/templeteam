@@ -26,7 +26,7 @@ import {
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-// import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { CloudUpload, FileText } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -124,7 +124,7 @@ export const FormCompletion = ({
   photoExist?: boolean;
   medicExist?: boolean;
 }) => {
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     shouldFocusError: true,
@@ -201,7 +201,7 @@ export const FormCompletion = ({
           duration: 5000,
         },
       );
-      // await queryClient.invalidateQueries();
+      await queryClient.invalidateQueries();
       form.reset();
     } catch (e) {
       if (e instanceof Error) {
