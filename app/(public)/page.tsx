@@ -1,17 +1,18 @@
 /* eslint-disable react/no-unescaped-entities */
-import TeamPicture from "@/../public/img/team/Team.jpg";
-import { ButtonWithArrow } from "@/components/features/animated/ButtonWithArrow";
-import { VideoWithLoader } from "@/components/features/withLoader/VideoWithLoader";
-import { ContactBar as Contact } from "@/components/layout/Contact";
-import { LayoutSection } from "@/components/layout/layout";
-import { References } from "@/components/references/References";
-import { Typography } from "@/components/ui/typography";
-import { cn } from "@/lib/utils";
-import { AlertTriangle } from "lucide-react";
-import Image from "next/image";
-import type { Metadata } from "next";
+// import TeamPicture from "@/../public/img/team/Team.jpg";
+// import { ButtonWithArrow } from "@/components/features/animated/ButtonWithArrow";
+// import { VideoWithLoader } from "@/components/features/withLoader/VideoWithLoader";
+// import { ContactBar as Contact } from "@/components/layout/Contact";
+// import { LayoutSection } from "@/components/layout/layout";
+// import { References } from "@/components/references/References";
+// import { Typography } from "@/components/ui/typography";
+// import { cn } from "@/lib/utils";
+// import { AlertTriangle } from "lucide-react";
+// import Image from "next/image";
+// import type { Metadata } from "next";
+import { type ReactNode } from "react";
 
-export const metadata: Metadata = {
+/* export const metadata: Metadata = {
   title: "Temple Team | Parkour Freerun Gymnastique",
   description: "Découvrez la Temple Team, un collectif de 7 athlètes spécialisés dans le parkour, le freerunning, la gymnastique et le tricking. Animateurs d'événements depuis plusieurs années, ils mettent leur expertise à votre disposition pour émerveiller vos invités.",
   authors: {
@@ -19,15 +20,16 @@ export const metadata: Metadata = {
     url: "https://github.com/BennyBellier",
   },
   category: "sports"
-};
+}; */
 
 
-export default async function Home() {
+export default function Home(): ReactNode
+ {
   return (
     <>
       {/* Hero Banner */}
-      <LayoutSection>
-        <Typography
+      <div>
+        {/* <Typography
           variant="h1"
           className="xs:text-xl bg-aside-heroBanner text-const-white w-full pb-2 pt-1 text-center tracking-widest lg:hidden"
         >
@@ -80,7 +82,7 @@ export default async function Home() {
       </LayoutSection>
       <Contact />
       {/* Description */}
-      <LayoutSection className="relative grid gap-5 bg-secondary lg:grid-cols-[50%_50%]">
+        {/* <LayoutSection className="relative grid gap-5 bg-secondary lg:grid-cols-[50%_50%]">
         <Typography
           variant="h1"
           className="row-span-1 w-full text-center tracking-widest"
@@ -107,9 +109,9 @@ export default async function Home() {
           title="Photo des membres de la Temple Team"
           placeholder="blur"
           className="object-contain lg:col-start-2 lg:row-span-3 lg:row-start-1"
-        />
-      </LayoutSection>
-      <References />
+        /> */}
+      </div>
+      {/* <References /> */}
     </>
   );
 }

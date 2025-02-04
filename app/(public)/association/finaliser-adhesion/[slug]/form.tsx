@@ -26,6 +26,7 @@ import {
 import { Typography } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+// import { useQueryClient } from "@tanstack/react-query";
 import { CloudUpload, FileText } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -117,14 +118,13 @@ export const FormCompletion = ({
   fileId,
   photoExist: photoExist = true,
   medicExist: medicExist = true,
-  refetch,
 }: {
   memberId: string;
   fileId: string;
   photoExist?: boolean;
   medicExist?: boolean;
-  refetch: () => Promise<void>;
 }) => {
+  // const queryClient = useQueryClient();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     shouldFocusError: true,
@@ -133,6 +133,10 @@ export const FormCompletion = ({
       medicalCertificate: [],
     },
   });
+
+  if (photoExist && medicExist) {
+    return null;
+  }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     let toastId = "";
@@ -197,7 +201,7 @@ export const FormCompletion = ({
           duration: 5000,
         },
       );
-      await refetch();
+      // await queryClient.invalidateQueries();
       form.reset();
     } catch (e) {
       if (e instanceof Error) {

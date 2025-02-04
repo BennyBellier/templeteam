@@ -21,7 +21,11 @@ export const metadata: Metadata = {
   category: "sports",
 };
 
-export default async function FinaliserAdhesion({ params }: { params: Promise<{ slug: string }> }) {
+export default async function FinaliserAdhesion({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const id = (await params).slug;
   const result = FormProps.safeParse(id);
 

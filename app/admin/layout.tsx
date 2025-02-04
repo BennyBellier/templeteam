@@ -5,7 +5,7 @@ import {
 } from "@/components/ui/sidebar";
 import type { PropsWithChildren } from "react";
 import { ErrorBoundary } from "react-error-boundary";
-import FallbackError from "../error";
+import FallbackError from "./error";
 
 export default async function AdminLayout({ children }: PropsWithChildren) {
   return (
