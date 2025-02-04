@@ -24,6 +24,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { FormCompletion } from "./form";
+// import { FormCompletion } from "./form";
 
 const MemberAllInformations = Prisma.validator<Prisma.MemberDefaultArgs>()({
   omit: {
@@ -57,11 +58,16 @@ type MemberAllInformations = Prisma.MemberGetPayload<
 >;
 
 export const Content = ({ memberId }: { memberId: string }) => {
-  const { data, isLoading, isError, refetch } = trpc.association.getMemberResume.useQuery({ memberId });
+  const { data, isLoading, isError } =
+    trpc.association.getMemberResume.useQuery({ memberId });
 
-  const handleRefetch = async () => {
-    await refetch();
-  };
+  /* const handleRefetch = () => {
+      refetch().catch(() =>
+        toast.error(
+          "Une erreur s'est produite lors de la mise à jour des données !",
+        ),
+      );
+  }; */
 
   if (isLoading) {
     return (
@@ -100,7 +106,6 @@ export const Content = ({ memberId }: { memberId: string }) => {
         fileId={data?.files[0]?.id ?? ""}
         photoExist={!!data?.photo}
         medicExist={!!data?.files[0]?.medicalCertificate}
-        refetch={handleRefetch}
       />
       <MemberCard member={data!} />
     </>

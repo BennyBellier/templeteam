@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const Photos = async () => {
-  const { data: photos, isLoading, isError } = await trpc.photos.get.useQuery();
+export const Photos = () => {
+  const { data: photos, isLoading, isError } = trpc.photos.get.useQuery();
   const { setCarouselIdx } = useCarouselPhotosIdx();
 
   if (isError || photos?.length === 0) {

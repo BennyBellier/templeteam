@@ -13,7 +13,7 @@ const config = {
     serverActions: {
       bodySizeLimit: '5mb',
     },
-    // workerThreads: true,
+    workerThreads: true,
     cpus: 4,
   },
   images: {
