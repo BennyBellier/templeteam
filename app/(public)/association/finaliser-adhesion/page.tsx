@@ -5,11 +5,9 @@ import {
   LayoutTitle,
   LayoutDescription,
 } from "@/components/layout/layout";
-import { Content, ErrorComponents } from "./content";
-import { z } from "zod";
-import type { Metadata } from "next";
+import { Content } from "./content";
 
-const FormProps = z.string().uuid();
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Inscription | Temple Team",
@@ -21,13 +19,7 @@ export const metadata: Metadata = {
   category: "sports",
 };
 
-export default async function FinaliserAdhesion({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const id = (await params).slug;
-  const result = FormProps.safeParse(id);
+export default async function FinaliserAdhesion() {
 
   return (
     <Layout noReferences>
@@ -38,14 +30,7 @@ export default async function FinaliserAdhesion({
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="gap-6 md:flex-row">
-        {!result.success ? (
-          <>
-            <span>page.tsx</span>
-            <ErrorComponents />
-          </>
-        ) : (
-          <Content memberId={result.data} />
-        )}
+          <Content />
       </LayoutSection>
     </Layout>
   );

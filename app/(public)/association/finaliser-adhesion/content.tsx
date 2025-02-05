@@ -2,6 +2,8 @@
 
 import { trpc } from "@/trpc/TrpcProvider";
 import { useMemo } from "react";
+import { useSearchParams } from 'next/navigation'
+import { z } from "zod";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,6 +26,8 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { FormCompletion } from "./form";
+
+const SearchParams = z.string().uuid();
 
 const MemberAllInformations = Prisma.validator<Prisma.MemberDefaultArgs>()({
   omit: {
@@ -56,7 +60,19 @@ type MemberAllInformations = Prisma.MemberGetPayload<
   typeof MemberAllInformations
 >;
 
-export const Content = ({ memberId }: { memberId: string }) => {
+export const Content = () => {
+  const searchParams = useSearchParams();
+  const search = searchParams.get('id')
+  const { success, data: memberId }  = SearchParams.safeParse(search);
+
+  if (!success || !memberId) {
+    return (
+      <>
+        <ErrorComponents />
+      </>
+    );
+  }
+
   const { data, isLoading, isError } =
     trpc.association.getMemberResume.useQuery({ memberId });
 
@@ -84,7 +100,6 @@ export const Content = ({ memberId }: { memberId: string }) => {
   if (isError) {
     return (
       <>
-        <span>content.tsx</span>
         <ErrorComponents />
       </>
     );
