@@ -113,6 +113,8 @@ const formSchema = z
     }
   });
 
+  type InputType = z.infer<typeof formSchema>;
+
 export const FormCompletion = ({
   memberId,
   fileId,
@@ -125,7 +127,7 @@ export const FormCompletion = ({
   medicExist?: boolean;
 }) => {
   const queryClient = useQueryClient();
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<InputType>({
     resolver: zodResolver(formSchema),
     shouldFocusError: true,
     defaultValues: {
@@ -138,7 +140,7 @@ export const FormCompletion = ({
     return null;
   }
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: InputType) => {
     let toastId = "";
     try {
       toastId = toast.loading("Sauvegarde des informations en cours...");
