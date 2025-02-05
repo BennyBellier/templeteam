@@ -275,13 +275,21 @@ const UploadZone = ({
 }: {
   label: string;
   type: string;
-  field: ControllerRenderProps<
-    {
-      medicalCertificate: File[];
-      photo: File[];
-    },
-    "medicalCertificate" | "photo"
-  >;
+  field:
+    | ControllerRenderProps<
+        {
+          photo: File[];
+          medicalCertificate: File[];
+        },
+        "photo"
+      >
+    | ControllerRenderProps<
+        {
+          photo: File[];
+          medicalCertificate: File[];
+        },
+        "medicalCertificate"
+      >;
   dropzoneConfig: DropzoneOptions;
   error: Merge<FieldError, (FieldError | undefined)[]> | undefined;
   disabled?: boolean;
