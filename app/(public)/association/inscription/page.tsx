@@ -7,6 +7,7 @@ import {
 } from "@/components/layout/layout";
 import type { Metadata } from "next";
 import RegisterForm from "./Form";
+import { prisma } from "@/trpc/server";
 
 export const metadata: Metadata = {
   title: "Inscription | Temple Team",
@@ -19,7 +20,9 @@ export const metadata: Metadata = {
 };
 
 
-export default function Register() {
+export default async function Register() {
+  const courses = await prisma.association.getCourses();
+
   return (
     <Layout>
       <LayoutHeader>
@@ -29,7 +32,7 @@ export default function Register() {
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="gap-6">
-        <RegisterForm />
+        <RegisterForm courses={courses} />
       </LayoutSection>
     </Layout>
   );

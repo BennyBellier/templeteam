@@ -22,6 +22,7 @@ import Courses from "./(StepForms)/Courses";
 import LegalGuardians from "./(StepForms)/LegalGuardians";
 import Member from "./(StepForms)/Member";
 import Resume from "./(StepForms)/Resume";
+import { Prisma } from "@prisma/client";
 import {
   registerFile,
   registerLegalGuardians,
@@ -51,7 +52,9 @@ export const CoursesSchema = z.object({
   courses: z
     .boolean()
     .array()
-    .nonempty({ message: "Veuillez sélectionner au moins un cours." }),
+    .refine((courses) => courses.some((checked) => checked), {
+      message: "Veuillez sélectionner au moins un cours.",
+    }),
 });
 
 export const MemberSchema = z
@@ -268,13 +271,34 @@ const { useStepper } = defineStepper(
   },
 );
 
-export default function RegisterForm() {
+const coursesProps = Prisma.validator<Prisma.CourseDefaultArgs>()({
+  select: {
+    name: true,
+    description: true,
+    info: true,
+    sessions: {
+      select: {
+        id: true,
+        dayOfWeek: true,
+        startHour: true,
+        endHour: true,
+        location: {
+          select: {
+            place: true,
+            city: true,
+            postalCode: true,
+            query: true,
+          },
+        },
+      },
+    },
+  },
+});
+
+type CoursesProps = Prisma.CourseGetPayload<typeof coursesProps>;
+
+export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
   const stepper = useStepper();
-  const {
-    data: query,
-    isError,
-    isLoading,
-  } = trpc.association.getCourses.useQuery();
   const store = useRegisterFormStore((state) => state);
   const { scrollTo } = useScrollArea();
 
@@ -282,7 +306,7 @@ export default function RegisterForm() {
     mode: "onTouched",
     resolver: zodResolver(stepper.current.schema),
     defaultValues: {
-      courses: query?.map((course) => store.courses?.[course.name] ?? false),
+      courses: courses.map((course) => store.courses?.[course.name] ?? false),
       ...store.member,
       birthdate: store.member?.birthdate ?? undefined,
       photo: null,
@@ -300,34 +324,18 @@ export default function RegisterForm() {
     },
   });
 
-  if (isError) {
-    return (
-      <Alert variant="destructive" className="mx-auto max-w-lg">
-        <AlertTriangle className="h-6 w-6" />
-        <AlertTitle>Une erreur s&apos;est produite</AlertTitle>
-        <AlertDescription>
-          Veuillez réessayer ou contactez un administrateur.
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
   const onSubmit = async (values: z.infer<typeof stepper.current.schema>) => {
     switch (stepper.current.id) {
       case "courses":
-        if (!query) {
-          toast.error("Une erreur s'est produite. Veuillez réessayer !");
-          break;
-        }
         const data = values as z.infer<typeof CoursesSchema>;
-        const courses: Record<string, boolean> = query.reduce(
+        const coursesSelected: Record<string, boolean> = courses.reduce(
           (acc, course, index) => ({
             ...acc,
             [course.name]: data.courses[index],
           }),
           {},
         );
-        store.setCourses(courses);
+        store.setCourses(coursesSelected);
         stepper.next();
         break;
 
@@ -587,7 +595,7 @@ export default function RegisterForm() {
             )}
           >
             {stepper.when("courses", () => (
-              <Courses query={query ? query : []} isLoading={isLoading} />
+              <Courses query={courses} />
             ))}
             {stepper.when("informations", () => (
               <Member />

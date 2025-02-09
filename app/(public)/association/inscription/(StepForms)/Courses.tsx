@@ -124,10 +124,8 @@ const coursesQueryProps = Prisma.validator<Prisma.CourseDefaultArgs>()({
 
 export default function Courses({
   query,
-  isLoading,
 }: {
   query: Prisma.CourseGetPayload<typeof coursesQueryProps>[];
-  isLoading: boolean;
 }) {
   const form = useFormContext<z.infer<typeof CoursesSchema>>();
 
@@ -150,9 +148,6 @@ export default function Courses({
             La licence est offert (soit 20 €) !
           </AlertDescription>
         </Alert>
-        {isLoading && Array.from({ length: 3 }).map((_, i) => (
-              <Skeleton key={`Skeleton${i}`} className="h-32 w-full" />
-            ))}
         {query?.map((course, index) => (
           <FormField
             key={course.name}
