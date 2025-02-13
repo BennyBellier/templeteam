@@ -717,6 +717,44 @@ export const AssociationRouter = createTRPCRouter({
 
       return member;
     }),
+    getMemberRegistrationFileInfo: publicProcedure
+    .input(
+      z.object({
+        memberId: z.string().uuid(),
+        year: z.string().trim().optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return await ctx.prisma.member.findFirst({
+        omit: {
+          createdAt: true,
+          updatedAt: true,
+        },
+        include: {
+          files: {
+            omit: {
+              id: true,
+              updatedAt: true,
+            },
+            include: {
+              courses: {
+                select: {
+                  price: true,
+                },
+              },
+            },
+          },
+          legalGuardians: {
+            omit: {
+              id: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+        },
+        where: { id: input.memberId },
+      });
+    }),
   getMemberAllinformations: publicProcedure
     .input(
       z.object({

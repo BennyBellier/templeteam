@@ -1,277 +1,334 @@
-// "use server";
+"use server";
 
-// import { PDFDocument, drawText, rgb } from "pdf-lib";
-// import { RegistrationProps } from "emails/AssociationRegistration";
-// import fs from "fs";
-// import path from "path";
-// import fontkit from "@pdf-lib/fontkit";
+import { PDFDocument, PDFImage, drawText, rgb } from "pdf-lib";
+import fs from "fs";
+import path from "path";
+import fontkit from "@pdf-lib/fontkit";
+import { Gender } from "@prisma/client";
+import { calculateMembershipPrice } from "@/lib/utils";
+import { associationPath, getMemberPhotoPath, serverPath } from "@/server/file-manipulations";
+import z from "zod";
+import { prisma } from "@/trpc/server";
 
-// export async function generateRegistrationPDF(
-//   data: RegistrationProps,
-// ): Promise<Buffer> {
-//   try {
-//     const uint8Array = fs.readFileSync(
-//       path.join(
-//         process.cwd(),
-//         "public",
-//         "static",
-//         "Template_dossier_inscription_2024-2025.pdf",
-//       ),
-//     );
-//     const pdfDoc = await PDFDocument.load(uint8Array);
+const RegistrationPDFProps = z.string().uuid();
 
-//     pdfDoc.registerFontkit(fontkit);
+export async function generateRegistrationPDF(
+  id: string,
+): Promise<Buffer> {
+    const {data: memberId, success, error} = RegistrationPDFProps.safeParse(id);
 
-//     const pages = pdfDoc.getPages();
+    if (!success) {
+        throw new Error(`Le paramètre ID n'est pas de type UUID.`);
+    }
 
-//     const { width, height } = pages[0]?.getSize()!;
+    const data = await prisma.association.getMemberRegistrationFileInfo({ memberId });
 
-//     // Charger la police d'écriture
-//     const centuryGothicPath = path.join(
-//       process.cwd(),
-//       "fonts",
-//       "centurygothic.ttf",
-//     );
-//     const centuryGothicBoldPath = path.join(
-//       process.cwd(),
-//       "fonts",
-//       "centurygothic_bold.ttf",
-//     );
+    if (!data || !data.files[0]) {
+        throw new Error(`Aucun fichiers existant pour le membre ${memberId}`);
+    }
+  try {
+    const uint8Array = fs.readFileSync(
+        serverPath(associationPath, "Template_dossier_inscription_2024-2025.pdf")
+    );
+    const pdfDoc = await PDFDocument.load(uint8Array);
 
-//     var centuryGothicBytes = fs.readFileSync(centuryGothicPath); // Read the font file
-//     const centuryGothic = await pdfDoc.embedFont(centuryGothicBytes);
+    pdfDoc.registerFontkit(fontkit);
 
-//     var centuryGothicBoldBytes = fs.readFileSync(centuryGothicBoldPath); // Read the font file
-//     const centuryGothicBold = await pdfDoc.embedFont(centuryGothicBoldBytes);
+    const pages = pdfDoc.getPages();
 
-//     var page = pages[0];
+    const { width, height } = pages[0]?.getSize()!;
 
-//     page?.setFont(centuryGothic);
-//     page?.setFontSize(11);
-//     page?.setFontColor(rgb(0, 0, 0));
+    // Charger la police d'écriture
+    const centuryGothicPath = path.join(
+      process.cwd(),
+      "fonts",
+      "centurygothic.ttf",
+    );
+    const centuryGothicBoldPath = path.join(
+      process.cwd(),
+      "fonts",
+      "centurygothic_bold.ttf",
+    );
 
-//     /*
-//      * Licensee informations
-//      */
+    var centuryGothicBytes = fs.readFileSync(centuryGothicPath); // Read the font file
+    const centuryGothic = await pdfDoc.embedFont(centuryGothicBytes);
 
-//     const licenseeXOffset = 110;
-//     const licenseeYOffset = {
-//       lastname: height - 198,
-//       firstname: height - 218,
-//       sexe: height - 238,
-//       birthdate: height - 263,
-//       address: height - 286,
-//       codePostal: height - 306,
-//       city: height - 326,
-//       country: height - 346,
-//       phone: height - 366,
-//       mail: height - 386,
-//     };
+    var centuryGothicBoldBytes = fs.readFileSync(centuryGothicBoldPath); // Read the font file
+    const centuryGothicBold = await pdfDoc.embedFont(centuryGothicBoldBytes);
 
-//     const RL1 = {
-//       name: { x: 401, y: height - 202 },
-//       phone: { x: 401, y: height - 222 },
-//     };
+    var page = pages[0];
 
-//     const RL2 = {
-//       name: { x: 401, y: height - 300 },
-//       phone: { x: 401, y: height - 320 },
-//     };
+    page?.setFont(centuryGothic);
+    page?.setFontSize(11);
+    page?.setFontColor(rgb(0, 0, 0));
 
-//     page?.drawText(data.lastname, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.lastname,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    /*
+     * Licensee informations
+     */
 
-//     page?.drawText(data.firstname, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.firstname,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    const licenseeXOffset = 110;
+    const licenseeYOffset = {
+      lastname: height - 198,
+      firstname: height - 218,
+      sexe: height - 238,
+      birthdate: height - 263,
+      address: height - 286,
+      codePostal: height - 306,
+      city: height - 326,
+      country: height - 346,
+      phone: height - 366,
+      mail: height - 386,
+    };
 
-//     page?.drawText(data.Sexe, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.sexe,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    const LG = {
+      x: 385,
+      y: height - 203,
+    };
 
-//     page?.drawText(data.birthdate.toLocaleDateString("fr-FR"), {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.birthdate,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    const genDate = new Date();
 
-//     page?.drawText(data.Address, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.address,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    if (data.photo) {
+        const photoBytes = fs.readFileSync(getMemberPhotoPath(memberId, data.photo))
+        let photoImage: PDFImage | null = null;
+        if (data.photo.endsWith(".png")) {
+            photoImage = await pdfDoc.embedPng(photoBytes);
+        } else if (data.photo.endsWith(".jpg") || data.photo.endsWith(".jpeg")) {
+            photoImage = await pdfDoc.embedJpg(photoBytes);
+        }
 
-//     page?.drawText(data.CodePostal, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.codePostal,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+        if (!photoImage){ throw new Error("Invalid photo format");}
 
-//     page?.drawText(data.City, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.city,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+        const photoHeight = 85;
+        const photoDims = photoImage.scale(1);
+        const photoAspectRatio = photoDims.width / photoDims.height;
+        const photoProportionalWidth = photoHeight / photoAspectRatio;
+        page?.drawImage(photoImage, {
+            x: 460,
+            y: height - 147,
+            width: photoProportionalWidth,
+            height: photoHeight,
+          });
+    }
 
-//     page?.drawText(data.Country, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.country,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
 
-//     page?.drawText(data.Phone, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.phone,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    page?.drawText(data.lastname, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.lastname,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     page?.drawText(data.mail, {
-//       x: licenseeXOffset,
-//       y: licenseeYOffset.mail,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    page?.drawText(data.firstname, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.firstname,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     page?.drawText(data.EmergencyContactName1, {
-//       x: RL1.name.x,
-//       y: RL1.name.y,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    const gender =
+      data.gender === Gender.Male
+        ? "Masculin"
+        : data.gender === Gender.Female
+          ? "Féminin"
+          : "Non renseigné";
 
-//     page?.drawText(data.EmergencyContactPhone1, {
-//       x: RL1.phone.x,
-//       y: RL1.phone.y,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    page?.drawText(gender, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.sexe,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     page?.drawText(data.EmergencyContactName2, {
-//       x: RL2.name.x,
-//       y: RL2.name.y,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    page?.drawText(data.birthdate.toLocaleDateString("fr-FR"), {
+      x: licenseeXOffset,
+      y: licenseeYOffset.birthdate,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     page?.drawText(data.EmergencyContactPhone2, {
-//       x: RL2.phone.x,
-//       y: RL2.phone.y,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    page?.drawText(data.address, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.address,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     /**
-//      * Authorizations
-//      */
+    page?.drawText(data.postalCode, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.codePostal,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     page = pages[1];
+    page?.drawText(data.city, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.city,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     page?.setFont(centuryGothic);
-//     page?.setFontSize(11);
-//     page?.setFontColor(rgb(0, 0, 0));
+    page?.drawText(data.country, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.country,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     page?.drawText(data.City, {
-//       x: 403,
-//       y: height - 377,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    const phone = data.phone
+      ? "0" + data.phone.slice(4)
+      : "Non renseigné";
 
-//     page?.drawText(data.creationDate.toLocaleDateString("fr-FR"), {
-//       x: 388,
-//       y: height - 400,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//     });
+    page?.drawText(phone, {
+      x: licenseeXOffset,
+      y: licenseeYOffset.phone,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     const base64Data = data.Signature.replace(/^data:image\/png;base64,/, "");
-//     const signatureBytes = Uint8Array.from(atob(base64Data), (char) =>
-//       char.charCodeAt(0),
-//     );
+    page?.drawText(data.mail ?? "Non renseigné", {
+      x: licenseeXOffset,
+      y: licenseeYOffset.mail,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     const signatureImage = await pdfDoc.embedPng(signatureBytes);
+    data.legalGuardians.forEach((lg, index) => {
+      page?.drawText(lg.lastname + " " + lg.firstname, {
+        x: LG.x,
+        y: LG.y - index * 117,
+        size: 11,
+        color: rgb(0, 0, 0),
+      });
 
-//     const signatureWidth = 175;
-//     const signatureDims = signatureImage.scale(1); // Obtenir les dimensions originales
-//     const aspectRatio = signatureDims.width / signatureDims.height;
-//     const proportionalHeight = signatureWidth / aspectRatio;
+      page?.drawText(lg.mail ?? "Non renseigné", {
+        x: LG.x,
+        y: LG.y - 20 - index * 117,
+        size: 11,
+        color: rgb(0, 0, 0),
+      });
 
-//     page?.drawImage(signatureImage, {
-//       x: 350, // Coordonnées X de la signature
-//       y: height - 550, // Coordonnées Y de la signature
-//       width: signatureWidth,
-//       height: proportionalHeight,
-//     });
+      page?.drawText("0" + lg.phone.slice(4), {
+        x: LG.x,
+        y: LG.y - 40 - index * 117,
+        size: 11,
+        color: rgb(0, 0, 0),
+      });
+    });
 
-//     /**
-//      * Payment
-//      */
+    /**
+     * Authorizations
+     */
 
-//     page = pages[2];
+    page = pages[1];
 
-//     page?.drawText(data.lastname.toUpperCase(), {
-//       x: 284,
-//       y: height - 277,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//       font: centuryGothicBold,
-//     });
+    page?.setFont(centuryGothic);
+    page?.setFontSize(11);
+    page?.setFontColor(rgb(0, 0, 0));
 
-//     page?.drawText(data.firstname, {
-//       x: 284,
-//       y: height - 298,
-//       size: 11,
-//       color: rgb(0, 0, 0),
-//       font: centuryGothicBold,
-//     });
+    page?.drawText(data.city, {
+      x: 403,
+      y: height - 377,
+      size: 11,
+      color: rgb(0, 0, 0),
+    });
 
-//     const genDate = new Date();
+    page?.drawText(
+      data.files[0]?.createdAt.toLocaleDateString("fr-FR") ??
+        genDate.toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+      {
+        x: 388,
+        y: height - 400,
+        size: 11,
+        color: rgb(0, 0, 0),
+      },
+    );
 
-//     page?.drawText(
-//       genDate.toLocaleDateString("fr-FR", {
-//         day: "numeric",
-//         month: "long",
-//         year: "numeric",
-//       }),
-//       {
-//         x: 256,
-//         y: height - 410,
-//         size: 11,
-//         color: rgb(0, 0, 0),
-//         font: centuryGothic,
-//       },
-//     );
+    const base64Data =
+      data.files[0]?.signature.replace(/^data:image\/png;base64,/, "") ?? "";
+    const signatureBytes = Uint8Array.from(atob(base64Data), (char) =>
+      char.charCodeAt(0),
+    );
 
-//     const pdfBytes = await pdfDoc.save();
+    const signatureImage = await pdfDoc.embedPng(signatureBytes);
 
-//     try {
-//       fs.writeFileSync(
-//         path.join(process.cwd(), "public", "static", "output.pdf"),
-//         pdfBytes,
-//       );
-//     } catch (err) {
-//       console.error("Error writing PDF file:", err);
-//     }
+    const signatureWidth = 175;
+    const signatureDims = signatureImage.scale(1);
+    const aspectRatio = signatureDims.width / signatureDims.height;
+    const proportionalHeight = signatureWidth / aspectRatio;
 
-//     return Buffer.from(pdfBytes);
-//   } catch (error) {
-//     console.error("Error generating PDF:", error);
-//     throw error;
-//   }
-// }
+    page?.drawImage(signatureImage, {
+      x: 350,
+      y: height - 550,
+      width: signatureWidth,
+      height: proportionalHeight,
+    });
+
+    /**
+     * Payment
+     */
+
+    page = pages[2];
+
+    page?.drawText(data.lastname, {
+      x: 284,
+      y: height - 277,
+      size: 11,
+      color: rgb(0, 0, 0),
+      font: centuryGothicBold,
+    });
+
+    page?.drawText(data.firstname, {
+      x: 284,
+      y: height - 298,
+      size: 11,
+      color: rgb(0, 0, 0),
+      font: centuryGothicBold,
+    });
+
+    const coursesPrice = data.files[0]?.courses.map((course) => course.price);
+    const paymentAmount = calculateMembershipPrice(data.files[0]?.createdAt <= new Date("2024-09-07 08:00:00.00000"), coursesPrice);
+
+    page?.drawText(`${paymentAmount.toFixed(2)} €`, {
+      x: 450,
+      y: height - 336,
+      size: 11,
+      color: rgb(0, 0, 0),
+      font: centuryGothicBold,
+    });
+
+    page?.drawText(
+      genDate.toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }),
+      {
+        x: 256,
+        y: height - 410,
+        size: 11,
+        color: rgb(0, 0, 0),
+        font: centuryGothic,
+      },
+    );
+
+    const pdfBytes = await pdfDoc.save();
+
+    try {
+      fs.writeFileSync(
+        path.join(process.cwd(), "public", "static", "output.pdf"),
+        pdfBytes,
+      );
+    } catch (err) {
+      console.error("Error writing PDF file:", err);
+    }
+
+    return Buffer.from(pdfBytes);
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    throw error;
+  }
+}
