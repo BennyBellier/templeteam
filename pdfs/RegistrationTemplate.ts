@@ -6,7 +6,7 @@ import path from "path";
 import fontkit from "@pdf-lib/fontkit";
 import { Gender } from "@prisma/client";
 import { calculateMembershipPrice } from "@/lib/utils";
-import { associationPath, getMemberPhotoPath, serverPath } from "@/server/file-manipulations";
+import { associationPath, getMemberPhotoPath, serverPath, writeMemberFile } from "@/server/file-manipulations";
 import z from "zod";
 import { prisma } from "@/trpc/server";
 
@@ -15,7 +15,7 @@ const RegistrationPDFProps = z.string().uuid();
 export async function generateRegistrationPDF(
   id: string,
 ): Promise<Buffer> {
-    const {data: memberId, success, error} = RegistrationPDFProps.safeParse(id);
+    const {data: memberId, success} = RegistrationPDFProps.safeParse(id);
 
     if (!success) {
         throw new Error(`Le paramètre ID n'est pas de type UUID.`);
@@ -318,10 +318,12 @@ export async function generateRegistrationPDF(
     const pdfBytes = await pdfDoc.save();
 
     try {
-      fs.writeFileSync(
-        path.join(process.cwd(), "public", "static", "output.pdf"),
-        pdfBytes,
-      );
+      const filename = await writeMemberFile(memberId, pdfBytes);
+
+      await prisma.association.addFileFilename({
+        fileId: data.files[0].id,
+        filename
+      })
     } catch (err) {
       console.error("Error writing PDF file:", err);
     }

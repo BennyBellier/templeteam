@@ -157,10 +157,38 @@ export async function writeMemberFileMedic(memberId: string, file: File): Promis
   return filename;
 }
 
+export async function writeMemberFile(memberId: string, file: Uint8Array): Promise<string> {
+  // Check and generate if member folder does not exist
+  generateMemberFolder(memberId);
+
+  // Get members/{id}/photo folder path
+  const memberFilePath = serverPath(
+    membersPath,
+    memberId,
+    env.ASSOCIATION_MEMBERS_FILES_FOLDER,
+  );
+
+  // Generate filename and file path for the photo
+  const filename = `${uuidv4()}_${Date.now()}.pdf}`;
+  const filePath = path.join(memberFilePath, filename);
+
+  fs.writeFileSync(filePath, file);
+
+  return filename;
+}
+
 export const getMemberPhotoPath = (memberId: string, photoFileName: string) =>
   serverPath(
     membersPath,
     memberId,
     env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER,
     photoFileName,
+  );
+
+export const getMemberMedicPath = (memberId: string, medicFileName: string) =>
+  serverPath(
+    membersPath,
+    memberId,
+    env.ASSOCIATION_MEMBERS_MEDICS_FOLDER,
+    medicFileName,
   );

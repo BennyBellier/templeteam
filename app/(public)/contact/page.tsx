@@ -51,6 +51,21 @@ export default function Page() {
             as="span"
             className="text-center font-caption text-xl font-extrabold"
           >
+            Phone
+          </Typography>
+          <Typography
+            as="a"
+            href="tel:+33613577548"
+            className="text-center font-caption text-lg font-thin"
+          >
+            06 13 57 75 48
+          </Typography>
+        </div>
+        <div className="flex flex-col gap-2">
+          <Typography
+            as="span"
+            className="text-center font-caption text-xl font-extrabold"
+          >
             Email
           </Typography>
           <Typography

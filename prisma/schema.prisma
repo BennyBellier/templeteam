@@ -199,6 +199,7 @@ model LegalGuardian {
 model File {
   id                 String         @id @default(uuid())
   year               DateTime
+  filename           String?
   paymentMethod      PaymentMethod?
   paymentDetails     String?
   paymentAmout       Float?

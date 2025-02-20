@@ -9,7 +9,10 @@ interface ReferencesContextType {
   isLoading: boolean,
 };
 
-const ReferencesContext = createContext<ReferencesContextType | null>(null);
+const ReferencesContext = createContext<ReferencesContextType>({
+  references: undefined,
+  isLoading: false,
+});
 
 export function useReferences() {
   const context = useContext(ReferencesContext);

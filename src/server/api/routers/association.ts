@@ -151,11 +151,49 @@ export const AssociationRouter = createTRPCRouter({
           context: "tRPC",
           requestPath: "association.addMemberMedic",
           message: `Failed when trying to add medic to file ${input.fileId}.`,
-          data: {e},
+          data: { e },
         });
-        throw new Error("Impossible d'ajouter le certificat médical, veuillez réessayer.");
+        throw new Error(
+          "Impossible d'ajouter le certificat médical, veuillez réessayer.",
+        );
       }
     }),
+  addFileFilename: publicProcedure
+  .input(
+    z.object({
+      fileId: z.string().uuid(),
+      filename: z.string(),
+    }),
+  )
+  .mutation(async ({ ctx, input }) => {
+    try {
+      logger.info({
+        context: "tRPC",
+        requestPath: "association.addFileFilename",
+        message: `Add medic to file ${input.fileId}.`,
+        data: input,
+      });
+
+      return await ctx.prisma.file.update({
+        where: {
+          id: input.fileId,
+        },
+        data: {
+          filename: input.filename,
+        },
+      });
+    } catch (e) {
+      logger.error({
+        context: "tRPC",
+        requestPath: "association.addFileFilename",
+        message: `Failed when trying to add medic to file ${input.fileId}.`,
+        data: { e },
+      });
+      throw new Error(
+        "Impossible d'ajouter le certificat médical, veuillez réessayer.",
+      );
+    }
+  }),
   getCourses: publicProcedure.query(async ({ ctx }) => {
     const courses = await ctx.prisma.course.findMany({
       select: {
@@ -717,7 +755,7 @@ export const AssociationRouter = createTRPCRouter({
 
       return member;
     }),
-    getMemberRegistrationFileInfo: publicProcedure
+  getMemberRegistrationFileInfo: publicProcedure
     .input(
       z.object({
         memberId: z.string().uuid(),
@@ -733,7 +771,6 @@ export const AssociationRouter = createTRPCRouter({
         include: {
           files: {
             omit: {
-              id: true,
               updatedAt: true,
             },
             include: {

@@ -23,77 +23,10 @@ export default function SignIn(props: {params: Params, searchParams: SearchParam
   const searchParams = use(props.searchParams)
 
   return (
-    <Layout noContact noReferences>
-      <LayoutSection className="self-center">
+      <section className="relative flex h-fit flex-col items-center px-5 py-6 lg:px-1050 self-center">
         <Login
           errorProps={searchParams?.error}
         />
-      </LayoutSection>
-    </Layout>
+      </section>
   );
 }
-
-
-// "use client";
-// import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
-// import { signIn } from "next-auth/react";
-// import { useState } from "react";
-
-// export default function LoginPage() {
-//     const { register, handleSubmit, formState: { errors } } = useForm();
-//     const [error, setError] = useState(null);
-
-//     const onSubmit = async (data: FieldValues) => {
-//         setError(null);
-
-//         const res = await signIn("credentials", {
-//             redirect: false,
-//             identifier: data.identifier,
-//             password: data.password,
-//         });
-
-//         if (res?.error) {
-//             setError(res.error);
-//         } else if (res?.ok) {
-//             window.location.href = "/admin";
-//         }
-//     };
-
-
-//     return (
-//         <form onSubmit={handleSubmit(onSubmit)}>
-//             <div>
-//                 <label htmlFor="identifier">Email ou Username</label>
-//                 <input
-//                     type="text"
-//                     id="identifier"
-//                     {...register("identifier", { required: "Identifiant requis" })}
-//                 />
-//                 {errors.identifier && <span role="alert">{errors.identifier.message}</span>}
-//             </div>
-
-//             <div>
-//                 <label htmlFor="password">Mot de passe</label>
-//                 <input
-//                     type="password"
-//                     id="password"
-//                     {...register("password", { required: "Mot de passe requis" })}
-//                 />
-//                 {errors.password && <span role="alert">{errors.password.message}</span>}
-//             </div>
-
-//             <div>
-//                 <label htmlFor="remember">Se souvenir de moi</label>
-//                 <input type="checkbox" id="remember" {...register("remember")} />
-//             </div>
-
-//             <div>
-//                 <a href="#">Mot de passe oublié ?</a>
-//             </div>
-
-//             {error && <div role="alert" style={{ color: "red" }}>{error}</div>}
-
-//             <button type="submit">Se connecter</button>
-//         </form>
-//     );
-// }

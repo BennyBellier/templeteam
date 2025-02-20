@@ -10,10 +10,8 @@ export default function Providers({ children }: PropsWithChildren) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <SidebarProvider defaultOpen={false}>
-       
             <Toaster />
             {children}
-          
       </SidebarProvider>
     </ThemeProvider>
   );
