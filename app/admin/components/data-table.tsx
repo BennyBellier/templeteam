@@ -47,7 +47,6 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
@@ -74,7 +73,7 @@ export function DataTable<TData, TValue>({
         />
       </div>
       <ScrollArea className="max-h-full flex-1">
-        <Table className="max-h-full w-full border-b">
+        <Table className="max-h-full w-full">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -151,7 +150,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </ScrollArea>
-      <DataTablePagination table={table} />
+      {/* <DataTablePagination table={table} /> */}
     </>
   );
 }

@@ -159,41 +159,41 @@ export const AssociationRouter = createTRPCRouter({
       }
     }),
   addFileFilename: publicProcedure
-  .input(
-    z.object({
-      fileId: z.string().uuid(),
-      filename: z.string(),
-    }),
-  )
-  .mutation(async ({ ctx, input }) => {
-    try {
-      logger.info({
-        context: "tRPC",
-        requestPath: "association.addFileFilename",
-        message: `Add medic to file ${input.fileId}.`,
-        data: input,
-      });
+    .input(
+      z.object({
+        fileId: z.string().uuid(),
+        filename: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      try {
+        logger.info({
+          context: "tRPC",
+          requestPath: "association.addFileFilename",
+          message: `Add medic to file ${input.fileId}.`,
+          data: input,
+        });
 
-      return await ctx.prisma.file.update({
-        where: {
-          id: input.fileId,
-        },
-        data: {
-          filename: input.filename,
-        },
-      });
-    } catch (e) {
-      logger.error({
-        context: "tRPC",
-        requestPath: "association.addFileFilename",
-        message: `Failed when trying to add medic to file ${input.fileId}.`,
-        data: { e },
-      });
-      throw new Error(
-        "Impossible d'ajouter le certificat médical, veuillez réessayer.",
-      );
-    }
-  }),
+        return await ctx.prisma.file.update({
+          where: {
+            id: input.fileId,
+          },
+          data: {
+            filename: input.filename,
+          },
+        });
+      } catch (e) {
+        logger.error({
+          context: "tRPC",
+          requestPath: "association.addFileFilename",
+          message: `Failed when trying to add medic to file ${input.fileId}.`,
+          data: { e },
+        });
+        throw new Error(
+          "Impossible d'ajouter le certificat médical, veuillez réessayer.",
+        );
+      }
+    }),
   getCourses: publicProcedure.query(async ({ ctx }) => {
     const courses = await ctx.prisma.course.findMany({
       select: {

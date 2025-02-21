@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
 
   return (
     <Card className="h-full">
-      <CardContent className="flex h-full flex-col justify-between px-0 py-6">
+      <CardContent className="flex h-full flex-col justify-between px-0 pb-0 pt-6">
         <DataTable columns={columns} data={members} />
       </CardContent>
     </Card>

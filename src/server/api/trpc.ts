@@ -106,3 +106,26 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
     },
   });
 });
+
+/**
+ * Protected (authenticated) procedure for user with Developer, President or Treasurer role
+ */
+export const treasurerProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  switch (ctx.session.user.role) {
+    case "Developer":
+    case "President":
+    case "Treasurer":
+      return next({
+        ctx: {
+          session: { ...ctx.session, user: ctx.session.user },
+        },
+      });
+  
+    default:
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+});

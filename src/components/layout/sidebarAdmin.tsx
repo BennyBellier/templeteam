@@ -22,9 +22,14 @@ const data = {
   navMain: [
     {
       title: "Adhérents",
-      url: "#",
-      items: [{ title: "Liste des adhérents", url: "/adherents" }],
+      url: "/admin",
+      items: [{ title: "Liste des adhérents", url: "" }],
     },
+    {
+      title: "Trésorerie",
+      url: "/admin/tresorerie",
+      items: []
+    }
   ],
 };
 
@@ -58,7 +63,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     {item.title}
                   </a>
                 </SidebarMenuButton>
-                {item.items?.length ? (
+                {item.items?.length > 0 ? (
                   <SidebarMenuSub>
                     {item.items.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
@@ -66,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           asChild
                           // isActive={item.isActive}
                         >
-                          <a href={`/admin${item.url}`}>{item.title}</a>
+                          <a href={`/${item.url}`}>{item.title}</a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}

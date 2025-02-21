@@ -6,6 +6,7 @@ import { photosRouter } from "./routers/photos";
 import { referencesRouter } from "./routers/references";
 import { teamMembersRouter } from "./routers/team";
 import { AssociationRouter } from "./routers/association";
+import { TreasurerRouter } from "./routers/treasurer";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ import { AssociationRouter } from "./routers/association";
  */
 export const appRouter = createTRPCRouter({
   association: AssociationRouter,
+  treasurer: TreasurerRouter,
   references: referencesRouter,
   teamMembers: teamMembersRouter,
   photos: photosRouter,
