@@ -13,7 +13,7 @@ import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { defineStepper } from "@stepperize/react";
 import { AlertTriangle } from "lucide-react";
-import { Gender } from "prisma/prisma-client";
+import { Gender } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
