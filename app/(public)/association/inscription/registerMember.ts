@@ -22,7 +22,7 @@ const registerMember = async (
   member: MemberState,
 ): Promise<string | undefined> => {
   try {
-    const memberId = await prisma.association.createMember({
+    const memberId = await prisma.association.createOrGetMember({
       ...member,
       mail: member.mail === "" ? undefined : member.mail,
       phone: member.phone === "" ? undefined : member.phone,

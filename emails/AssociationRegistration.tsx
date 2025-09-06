@@ -2,6 +2,7 @@ import {
   Body,
   Column,
   Container,
+  Font,
   Head,
   Hr,
   Html,
@@ -12,7 +13,6 @@ import {
   Section,
   Tailwind,
   Text,
-  Font,
 } from "@react-email/components";
 import { Facebook, Instagram, Youtube } from "lucide-react";
 
@@ -92,6 +92,26 @@ export default function RegistrationTemplate({
 
             <Hr />
 
+            {/* Information rentrée */}
+            <Section className={sectionClassName}>
+              <Text className={sectionTitleClassName}>Rentrée :</Text>
+              <Row className="mb-2">
+                <Text className="m-0">
+                  Les cours commence a partir du{" "}
+                  <strong className="font-semibold">
+                    samedi 4 octobre 2025
+                  </strong>
+                  .
+                </Text>
+                <Text className="m-0">
+                  les paiements devront être{" "}
+                  <span className="font-semibold italic underline">réglé</span>{" "}
+                  a partir du{" "}
+                  <strong className="underline">samedi 18 octobre 2025</strong>
+                </Text>
+              </Row>
+            </Section>
+
             {/* Informations du membre */}
             <Section className={sectionClassName}>
               <Text className={sectionTitleClassName}>
@@ -170,28 +190,32 @@ export default function RegistrationTemplate({
             )}
 
             {/* Contacts d'urgence */}
-           { legalGuardians.length > 0 && (<Section className={sectionClassName}>
-              <Text className={sectionTitleClassName}>
-                Contacts d&apos;urgence :
-              </Text>
-              <Row>
-                {legalGuardians.map((lg) => {
-                  return (
-                    <Container key={lg.phone} className="mb-2">
-                      <Row className="mb-1">
-                        <Text className="m-0 font-semibold italic">
-                          {lg.lastname} {lg.firstname}
-                        </Text>
-                      </Row>
-                      <Row className="mb-1 text-xs">
-                        Tél: {phoneParser(lg.phone)}
-                      </Row>
-                      <Row className="text-xs">Email: {lg.mail ?? "Non renseigné"}</Row>
-                    </Container>
-                  );
-                })}
-              </Row>
-            </Section>)}
+            {legalGuardians.length > 0 && (
+              <Section className={sectionClassName}>
+                <Text className={sectionTitleClassName}>
+                  Contacts d&apos;urgence :
+                </Text>
+                <Row>
+                  {legalGuardians.map((lg) => {
+                    return (
+                      <Container key={lg.phone} className="mb-2">
+                        <Row className="mb-1">
+                          <Text className="m-0 font-semibold italic">
+                            {lg.lastname} {lg.firstname}
+                          </Text>
+                        </Row>
+                        <Row className="mb-1 text-xs">
+                          Tél: {phoneParser(lg.phone)}
+                        </Row>
+                        <Row className="text-xs">
+                          Email: {lg.mail ?? "Non renseigné"}
+                        </Row>
+                      </Container>
+                    );
+                  })}
+                </Row>
+              </Section>
+            )}
 
             {/* Pied de page */}
             <Section className="mt-16 rounded border border-solid border-gray-300 bg-neutral-100 px-6 py-4">

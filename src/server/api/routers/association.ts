@@ -6,7 +6,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 
 export const AssociationRouter = createTRPCRouter({
-  createMember: publicProcedure
+  createOrGetMember: publicProcedure
     .input(
       z.object({
         lastname: z.string().trim().toUpperCase(),
@@ -55,7 +55,7 @@ export const AssociationRouter = createTRPCRouter({
             data: input,
             message: `Member already exist with this information`,
           });
-          throw new Error("Un membre avec les mêmes informations existe déjà.");
+          return member.id;
         }
         member = await ctx.prisma.member.create({
           data: {
@@ -929,6 +929,22 @@ export const AssociationRouter = createTRPCRouter({
 
     return members;
   }),
+  /* getMembersListByYear: publicProcedure.query(async ({ ctx }) => {
+    const members = await ctx.prisma.member.findMany({
+      include: {
+        legalGuardians: true,
+      },
+      where: {
+        files: {
+          some: {
+            year:
+          }
+        }
+      }
+    });
+
+    return members;
+  }), */
   getFileList: publicProcedure
     .input(
       z.object({
