@@ -220,7 +220,7 @@ export const AssociationRouter = createTRPCRouter({
     });
     return courses;
   }),
-  createLegalGuardian: publicProcedure
+  createOrGetLegalGuardian: publicProcedure
     .input(
       z.object({
         firstname: z

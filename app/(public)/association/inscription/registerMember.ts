@@ -47,7 +47,7 @@ const registerLegalGuardians = async (
 
     for (const lg of legalGuardians) {
       legalGuardiansId.push(
-        await prisma.association.createLegalGuardian({
+        await prisma.association.createOrGetLegalGuardian({
           memberId,
           ...lg,
           mail: lg.mail === "" ? undefined : lg.mail,
