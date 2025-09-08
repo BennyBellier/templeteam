@@ -73,7 +73,7 @@ export default function PostCard({
   }
 
   return (
-    <Link ref={ref} href={`/blog/${post.id}`} className={LinkClass}>
+    <Link ref={ref} href={`/blog/${post.id}`} className={LinkClass} legacyBehavior>
       {BlogCard}
     </Link>
   );

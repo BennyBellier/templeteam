@@ -152,7 +152,7 @@ export function Footer() {
             href="/contact"
             className={socialLinksClass()}
             aria-label="Contact"
-          >
+            legacyBehavior>
             <Mail
               strokeWidth={1.1}
               className={cn(socialLinksIconClass(), "")}
