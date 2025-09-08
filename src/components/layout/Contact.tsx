@@ -32,22 +32,19 @@ export const ContactBar= () => (
       <Link
         href="/Contact"
         className={cn(linkClass())}
-        aria-label="Contactez-nous"
-        legacyBehavior>
+        aria-label="Contactez-nous">
         <Phone strokeWidth={1.1} className={cn(iconClass())} />
       </Link>
       <Link
         href="/Contact"
         className={cn(linkClass())}
-        aria-label="Contactez-nous"
-        legacyBehavior>
+        aria-label="Contactez-nous">
         <Mail strokeWidth={1.1} className={cn(iconClass())} />
       </Link>
       <Link
         href="/Contact"
         className={cn(linkClass())}
-        aria-label="Contactez-nous"
-        legacyBehavior>
+        aria-label="Contactez-nous">
         <MapPin strokeWidth={1.1} className={cn(iconClass())} />
       </Link>
     </div>

@@ -29,8 +29,7 @@ export const ImageLink = ({ src, alt, href, label, _className }: linkProps) => {
     <Link
       ref={ref}
       href={href}
-      className="group relative grid grid-cols-1 grid-rows-1"
-      legacyBehavior>
+      className="group relative grid grid-cols-1 grid-rows-1">
       <Skeleton
         className={cn(
           "absolute z-10 h-full w-full rounded-none",

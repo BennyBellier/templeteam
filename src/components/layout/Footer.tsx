@@ -151,8 +151,7 @@ export function Footer() {
           <Link
             href="/contact"
             className={socialLinksClass()}
-            aria-label="Contact"
-            legacyBehavior>
+            aria-label="Contact">
             <Mail
               strokeWidth={1.1}
               className={cn(socialLinksIconClass(), "")}
