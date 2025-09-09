@@ -1,28 +1,31 @@
 "use server";
 
 import { env } from "@/env.mjs";
-import logger from "@/server/logger";
-import smtpOptions from "@/server/mail";
-import { render } from "@react-email/components";
-import nodemailer from "nodemailer";
-import RegistrationTemplate from "emails/AssociationRegistration";
-import { prisma } from "@/trpc/server";
-import type {
-  AuthorizationState,
-  LegalGuardianState,
-  MemberState,
-} from "@/stores/registerFormStore";
 import {
   associationPath,
   getMemberPhotoPath,
   serverPath,
 } from "@/server/file-manipulations";
+import logger from "@/server/logger";
+import smtpOptions from "@/server/mail";
+import type {
+  AuthorizationState,
+  LegalGuardianState,
+  MemberState,
+} from "@/stores/registerFormStore";
+import { prisma } from "@/trpc/server";
+import { render } from "@react-email/components";
+import RegistrationTemplate from "emails/AssociationRegistration";
+import nodemailer from "nodemailer";
 
 const registerMember = async (
   member: MemberState,
-): Promise<string | undefined> => {
+): Promise<{
+  id: string;
+  new: boolean;
+}> => {
   try {
-    const memberId = await prisma.association.createOrGetMember({
+    const member_record = await prisma.association.createOrGetMember({
       ...member,
       mail: member.mail === "" ? undefined : member.mail,
       phone: member.phone === "" ? undefined : member.phone,
@@ -31,7 +34,7 @@ const registerMember = async (
         member.medicalComment === "" ? undefined : member.medicalComment,
     });
 
-    return memberId;
+    return member_record;
   } catch (e) {
     throw e;
   }
@@ -43,19 +46,22 @@ const registerLegalGuardians = async (
 ) => {
   try {
     // eslint-disable-next-line prefer-const
-    let legalGuardiansId: string[] = [];
+    let legalGuardian_records: {id:string, new: boolean}[] = [];
 
     for (const lg of legalGuardians) {
-      legalGuardiansId.push(
+      legalGuardian_records.push(
         await prisma.association.createOrGetLegalGuardian({
           memberId,
           ...lg,
           mail: lg.mail === "" ? undefined : lg.mail,
+          lastname: "",
+          firstname: "",
+          phone: "",
         }),
       );
     }
 
-    return legalGuardiansId;
+    return legalGuardian_records;
   } catch (e) {
     throw e;
   }
@@ -178,20 +184,18 @@ const sendConfirmationMail = async (memberId: string, fileId: string) => {
   }
 };
 
-type ID = string | undefined;
-
 const registerValidationError = async (
-  memberId: ID,
-  fileId: ID,
-  legalGuardiansId: string[],
+  member: { id: string; new: boolean },
+  fileId: string | undefined,
+  legalGuardians: { id: string; new: boolean }[],
 ) => {
-  await prisma.association.deleteMember({ memberId, fileId, legalGuardiansId });
+  await prisma.association.deleteMember({ member, fileId, legalGuardians });
 };
 
 export {
-  registerMember,
-  registerLegalGuardians,
   registerFile,
-  sendConfirmationMail,
+  registerLegalGuardians,
+  registerMember,
   registerValidationError,
+  sendConfirmationMail,
 };

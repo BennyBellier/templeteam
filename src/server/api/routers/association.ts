@@ -30,48 +30,68 @@ export const AssociationRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        const { firstname, lastname, birthdate, mail, phone } = input;
-        let member = await ctx.prisma.member.findFirst({
-          where: {
-            OR: [
-              {
-                firstname,
-                lastname,
-                birthdate,
-              },
-              {
-                mail,
-              },
-              {
-                phone,
-              },
-            ],
-          },
-        });
-        if (member) {
-          logger.warn({
-            context: "tRPC",
-            requestPath: "association.createMember",
-            data: input,
-            message: `Member already exist with this information`,
-          });
-          return member.id;
-        }
-        member = await ctx.prisma.member.create({
-          data: {
-            ...input,
-          },
+        logger.info({
+          context: "tRPC",
+          requestPath: "association.createMember",
+          message: `Attempting to create or retrieve a member.`,
+          data: input,
         });
 
-        return member.id;
+        return await ctx.prisma.$transaction(async (tx) => {
+
+          const {firstname, lastname, birthdate, mail, phone} = input;
+
+          const existingMember = await tx.member.findFirst({
+            where: {
+              OR: [{ firstname, lastname, birthdate }, { mail }, { phone }],
+            },
+          });
+
+          if (existingMember) {
+            logger.warn({
+              context: "tRPC",
+              requestPath: "association.createMember",
+              message: `Member already exists with provided information.`,
+              data: {
+                id: existingMember.id,
+                firstname: existingMember.firstname,
+                lastname: existingMember.lastname,
+                mail: existingMember.mail,
+                phone: existingMember.phone,
+              },
+            });
+            return { id: existingMember.id, new: false };
+          }
+
+          // Création du membre si aucun trouvé
+          const newMember = await ctx.prisma.member.create({
+            data: {
+              ...input,
+            },
+          });
+
+          logger.info({
+            context: "tRPC",
+            requestPath: "association.createMember",
+            message: `New member created successfully.`,
+            data: {
+              id: newMember.id,
+              firstname: newMember.firstname,
+              lastname: newMember.lastname,
+            },
+          });
+
+          return { id: newMember.id, new: true };
+        });
       } catch (e) {
         logger.error({
           context: "tRPC",
           requestPath: "association.createMember",
-          message: "Failed when trying to add member in DB.",
-          data: input,
+          message: `Error occurred while creating or fetching member.`,
+          data: { error: e instanceof Error ? e.message : e, input },
         });
-        // Gestion des erreurs Prisma et autres erreurs
+
+        // Gestion des erreurs Prisma
         if (
           e instanceof Prisma.PrismaClientKnownRequestError &&
           e.code === "P2002"
@@ -80,7 +100,7 @@ export const AssociationRouter = createTRPCRouter({
             "Un membre avec cette adresse e-mail ou ce numéro de téléphone existe déjà.",
           );
         } else if (e instanceof Error) {
-          throw new Error(e.message); // Autres erreurs personnalisées
+          throw new Error(e.message); // autres erreurs explicites
         } else {
           throw new Error(
             "Une erreur inconnue est survenue lors de la création du membre.",
@@ -238,102 +258,43 @@ export const AssociationRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        logger.info({
-          context: "tRPC",
-          requestPath: "association.createLegalGuardian",
-          message: `Adding legal guardians with member ${input.memberId}.`,
-          data: input,
-        });
+        return await ctx.prisma.$transaction(async (tx) => {
+          const member = await findMemberById(tx, input.memberId);
 
-        const { memberId, firstname, lastname, phone, mail } = input;
-
-        // Search if member to connect exist
-        const member = await ctx.prisma.member.findUnique({
-          where: {
-            id: memberId,
-          },
-        });
-
-        if (!member) {
-          logger.warn({
-            context: "tRPC",
-            requestPath: "association.createLegalGuardian",
-            message: `Failed to add legal guardian with unknown member id.`,
-            data: input,
+          const existing = await tx.legalGuardian.findFirst({
+            where: {
+              OR: [{ phone: input.phone }, { mail: input.mail }],
+            },
           });
-          throw new Error("Le membre spécifié n'existe pas.");
-        }
 
-        // Search existing legal guardians with phone or mail
-        const existingLegalGuardian = await ctx.prisma.legalGuardian.findFirst({
-          where: {
-            OR: [
-              { phone: input.phone }, // Vérifie le numéro de téléphone
-              { mail: input.mail }, // Vérifie l'email
-            ],
-          },
-        });
-
-        if (!existingLegalGuardian) {
-          // Create new legal guardians and link to member
-          const newLegalGuardian = await ctx.prisma.legalGuardian.create({
-            data: {
-              firstname,
-              lastname,
-              phone,
-              mail,
-              members: {
-                connect: {
-                  id: memberId,
-                },
+          if (!existing) {
+            return await createLegalGuardian(
+              tx,
+              {
+                firstname: input.firstname,
+                lastname: input.lastname,
+                phone: input.phone,
+                mail: input.mail,
               },
-            },
-          });
+              member.id,
+            );
+          }
 
-          logger.info({
-            context: "tRPC",
-            requestPath: "association.createLegalGuardian",
-            message: `Create new legal guardians pour le membre ${member.id}.`,
-            data: {
-              ...newLegalGuardian,
-            },
-          });
-          return newLegalGuardian.id; // Return ID of new legal guardians
-        }
-
-        // Update link if legal guardian already exist
-        await ctx.prisma.legalGuardian.update({
-          where: {
-            id: existingLegalGuardian.id,
-          },
-          data: {
-            mail: mail ?? existingLegalGuardian.mail,
-            members: {
-              connect: {
-                id: memberId,
-              },
-            },
-          },
+          return await connectOrUpdateLegalGuardian(
+            tx,
+            existing,
+            member.id,
+            input.mail,
+          );
         });
-
-        logger.info({
-          context: "tRPC",
-          requestPath: "association.createLegalGuardian",
-          data: {
-            memberId,
-            ...existingLegalGuardian,
-          },
-          message: `Connect existing legal guardians pour le membre ${member.id}.`,
-        });
-        return existingLegalGuardian.id; // return ID of existing legalGuardian
       } catch (e) {
         logger.error({
           context: "tRPC",
-          requestPath: "association.createLegalGuardian",
+          requestPath: "createLegalGuardian",
+          message: "Error while creating or connecting legal guardian.",
           data: e,
-          message: `Error append while trying to create or connect legal guardian.`,
         });
-        // Gestion des erreurs Prisma et autres erreurs
+
         if (
           e instanceof Prisma.PrismaClientKnownRequestError &&
           e.code === "P2002"
@@ -341,13 +302,11 @@ export const AssociationRouter = createTRPCRouter({
           throw new Error(
             "Un responsable légal avec ce numéro de téléphone existe déjà.",
           );
-        } else if (e instanceof Error) {
-          throw new Error(e.message); // Autres erreurs personnalisées
-        } else {
-          throw new Error(
-            "Une erreur inconnue est survenue lors de l'ajout du responsable légal.",
-          );
         }
+        if (e instanceof Error) throw new Error(e.message);
+        throw new Error(
+          "Une erreur inconnue est survenue lors de l'ajout du responsable légal.",
+        );
       }
     }),
   createFileForMember: publicProcedure
@@ -613,108 +572,39 @@ export const AssociationRouter = createTRPCRouter({
   deleteMember: publicProcedure
     .input(
       z.object({
-        memberId: z.string().optional(),
+        member: z.object({ id: z.string().uuid(), new: z.boolean() }),
         fileId: z.string().optional(),
-        legalGuardiansId: z.array(z.string().uuid()),
+        legalGuardians: z.array(
+          z.object({ id: z.string().uuid(), new: z.boolean() }),
+        ),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { memberId, legalGuardiansId, fileId } = input;
+      const { member, legalGuardians = [], fileId } = input;
+
       try {
-        logger.info({
-          context: "tRPC",
-          requestPath: "association.deleteMember",
-          message: `Delete member ${memberId}.`,
-          data: input,
-        });
-
-        if (fileId) {
-          // Parse fileId as UUID
-          z.string().uuid().parse(fileId);
-
-          // Delete file associate to fileId
-          const file = await ctx.prisma.file.delete({ where: { id: fileId } });
-
-          logger.info({
-            context: "tRPC",
-            requestPath: "association.deleteMember",
-            message: `File successfully deleted.`,
-            data: file,
-          });
-        }
-
-        if (legalGuardiansId && legalGuardiansId.length > 0) {
-          for (const id of legalGuardiansId) {
-            // Parse id of legalGuardiansId as UUID
-            z.string().uuid().parse(id);
-
-            // Delete legal guardians associate
-            const lg = await ctx.prisma.legalGuardian.findUnique({
-              where: { id },
-              include: { members: true },
-            });
-
-            if (!lg) {
-              throw new Error("Tuteur légal introuvable.");
-            }
-
-            // Check if legal guardians as only member id's as connected member
-            if (lg.members.length === 1 && lg.members[0]?.id === memberId) {
-              await ctx.prisma.legalGuardian.delete({ where: { id } });
-              logger.info({
-                context: "tRPC",
-                requestPath: "association.deleteMember",
-                message: "Legal guardians successfully deleted.",
-                data: lg,
-              });
-            } else {
-              await ctx.prisma.legalGuardian.update({
-                where: { id },
-                data: { members: { disconnect: { id: memberId } } },
-              });
-              logger.info({
-                context: "tRPC",
-                requestPath: "association.deleteMember",
-                message: `Legal guardians deconnected from ${memberId}.`,
-                data: lg,
-              });
-            }
+        await ctx.prisma.$transaction(async (tx) => {
+          for (const lg of legalGuardians) {
+            await deleteOrDisconnectLegalGuardian(tx, lg, member.id);
           }
-        }
 
-        if (memberId) {
-          // Parse memberId as UUID
-          z.string().uuid().parse(memberId);
+          if (fileId) {
+            await deleteFile(tx, fileId);
+          }
 
-          // Delete member associate to memberId
-          const member = await ctx.prisma.member.delete({
-            where: {
-              id: memberId,
-            },
-          });
-
-          logger.info({
-            context: "tRPC",
-            requestPath: "association.deleteMember",
-            message: "Member successfully deleted.",
-            data: member,
-          });
-        }
+          await deleteMember(tx, member);
+        });
       } catch (e) {
         logger.error({
           context: "tRPC",
-          requestPath: "association.deleteMember",
-          message: `Error while trying to delete member.`,
+          message: "[deleteMember] Error while trying to delete member.",
           data: e,
         });
-
-        if (e instanceof Error) {
-          throw new Error(e.message); // Autres erreurs personnalisées
-        } else {
-          throw new Error(
-            "Une erreur inconnue est survenue lors de la suppression du membre.",
-          );
-        }
+        throw new Error(
+          e instanceof Error
+            ? e.message
+            : "Erreur inconnue lors de la suppression du membre.",
+        );
       }
     }),
   getMemberResume: publicProcedure
@@ -974,3 +864,142 @@ export const AssociationRouter = createTRPCRouter({
       return { files, nextCursor };
     }),
 });
+
+async function createLegalGuardian(
+  tx: Prisma.TransactionClient,
+  data: {
+    firstname: string;
+    lastname: string;
+    phone: string;
+    mail?: string;
+  },
+  memberId: string,
+) {
+  const guardian = await tx.legalGuardian.create({
+    data: {
+      ...data,
+      members: {
+        connect: { id: memberId },
+      },
+    },
+  });
+
+  logger.info({
+    context: "tRPC",
+    requestPath: "createLegalGuardian",
+    message: `Created new legal guardian ${guardian.id} linked to member ${memberId}.`,
+    data: guardian,
+  });
+
+  return { id: guardian.id, new: true };
+}
+
+async function connectOrUpdateLegalGuardian(
+  tx: Prisma.TransactionClient,
+  existing: { id: string; mail: string | null },
+  memberId: string,
+  mail?: string,
+) {
+  await tx.legalGuardian.update({
+    where: { id: existing.id },
+    data: {
+      mail: mail ?? existing.mail,
+      members: { connect: { id: memberId } },
+    },
+  });
+
+  logger.info({
+    context: "tRPC",
+    requestPath: "createLegalGuardian",
+    message: `Connected existing legal guardian ${existing.id} to member ${memberId}.`,
+  });
+
+  return { id: existing.id, new: false };
+}
+
+async function deleteOrDisconnectLegalGuardian(
+  tx: Prisma.TransactionClient,
+  lg: { id: string; new: boolean },
+  memberId: string,
+) {
+  // Ne rien faire si pas "nouveau"
+  if (!lg.new) return;
+
+  const record = await tx.legalGuardian.findUnique({
+    where: { id: lg.id },
+    include: { members: true },
+  });
+
+  if (!record) return;
+
+  if (record.members.length === 1 && record.members[0]?.id === memberId) {
+    // Supprimer complètement
+    await tx.legalGuardian.delete({ where: { id: lg.id } });
+    logger.info({
+      context: "tRPC",
+      message: `LegalGuardian ${lg.id} deleted (only linked to member ${memberId})`,
+      requestPath: "deleteOrDisconnectLegalGuardian",
+    });
+  } else {
+    // Juste déconnecter
+    await tx.legalGuardian.update({
+      where: { id: lg.id },
+      data: { members: { disconnect: { id: memberId } } },
+    });
+    logger.info({
+      context: "tRPC",
+      message: `LegalGuardian ${lg.id} disconnected from member ${memberId}`,
+      requestPath: "deleteOrDisconnectLegalGuardian",
+    });
+  }
+}
+
+async function deleteFile(tx: Prisma.TransactionClient, fileId: string) {
+  const deleted = await tx.file.delete({ where: { id: fileId } });
+  logger.info({
+    context: "tRPC",
+    requestPath: "deleteFile",
+    message: `File ${fileId} deleted.`,
+    data: deleted,
+  });
+}
+
+async function findMemberById(tx: Prisma.TransactionClient, memberId: string) {
+  const member = await tx.member.findUnique({ where: { id: memberId } });
+
+  if (!member) {
+    logger.warn({
+      context: "tRPC",
+      requestPath: "createLegalGuardian",
+      message: `Member ${memberId} not found.`,
+    });
+    throw new Error("Le membre spécifié n'existe pas.");
+  }
+
+  return member;
+}
+
+async function deleteMember(
+  tx: Prisma.TransactionClient,
+  member: { id: string; new: boolean },
+) {
+  if (!member.new) {
+    logger.info({
+      context: "tRPC",
+      requestPath: "deleteMember",
+      message: `Member ${member.id} not deleted (flag new=false).`,
+    });
+    return;
+  }
+
+  const deleted = await tx.member.delete({
+    where: { id: member.id },
+  });
+
+  logger.info({
+    context: "tRPC",
+    requestPath: "deleteMember",
+    message: `Member ${member.id} deleted.`,
+    data: deleted,
+  });
+}

@@ -1,5 +1,4 @@
 "use client";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
@@ -9,11 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/ui/typography";
 import { calculateAge, cn } from "@/lib/utils";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
-import { trpc } from "@/trpc/TrpcProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Gender, Prisma } from "@prisma/client";
 import { defineStepper } from "@stepperize/react";
-import { AlertTriangle } from "lucide-react";
-import { Gender } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
@@ -22,7 +19,6 @@ import Courses from "./(StepForms)/Courses";
 import LegalGuardians from "./(StepForms)/LegalGuardians";
 import Member from "./(StepForms)/Member";
 import Resume from "./(StepForms)/Resume";
-import { Prisma } from "@prisma/client";
 import {
   registerFile,
   registerLegalGuardians,
@@ -348,6 +344,7 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
         const address = memberInfo.address.trim().toUpperCase();
         const city = memberInfo.city.trim().toUpperCase();
         const postalCode = memberInfo.postalCode.trim();
+
         if (memberInfo.photo[0]) {
           store.setMember({
             ...memberInfo,
@@ -398,9 +395,9 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
 
       case "resume":
         let toastId,
-          memberId,
           fileId = "";
-        let legalGuardiansId: string[] = [];
+        let member: { id: string; new: boolean } = { id: "", new: false };
+        let legalGuardian_records: { id: string; new: boolean }[] = [];
         try {
           // Check if all required step are filled
           if (!(store.courses && store.member && store.authorization)) {
@@ -422,9 +419,9 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
           // Inform user that we treat validation
           toastId = toast.loading("Traitement de l'inscription...");
 
-          memberId = await registerMember(store.member);
+          member = await registerMember(store.member);
 
-          if (!memberId) {
+          if (member.id.length === 0) {
             toast.error(
               "Erreur lors de l'enregistrement de l'adhérent. Veuillez réessayer.",
               {
@@ -438,7 +435,7 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
           // Adding photo
           const formData = new FormData();
 
-          formData.append("memberId", memberId);
+          formData.append("memberId", member.id);
           formData.append("photo", store.member.photo);
 
           // Call API endpoint to store files
@@ -459,14 +456,14 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
           }
 
           if (store.legalGuardians && store.legalGuardians.length > 0) {
-            legalGuardiansId = await registerLegalGuardians(
-              memberId,
+            legalGuardian_records = await registerLegalGuardians(
+              member.id,
               store.legalGuardians,
             );
           }
 
           fileId = await registerFile(
-            memberId,
+            member.id,
             store.courses,
             store.authorization,
           );
@@ -482,7 +479,7 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
             return;
           }
 
-          await sendConfirmationMail(memberId, fileId);
+          await sendConfirmationMail(member.id, fileId);
 
           toast.success("Inscription réussie !", {
             id: toastId,
@@ -502,7 +499,7 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
               duration: 3000,
             });
           }
-          await registerValidationError(memberId, fileId, legalGuardiansId);
+          await registerValidationError(member, fileId, legalGuardian_records);
         }
         break;
 
