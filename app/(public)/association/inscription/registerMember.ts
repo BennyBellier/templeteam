@@ -52,11 +52,10 @@ const registerLegalGuardians = async (
       legalGuardian_records.push(
         await prisma.association.createOrGetLegalGuardian({
           memberId,
-          ...lg,
           mail: lg.mail === "" ? undefined : lg.mail,
-          lastname: "",
-          firstname: "",
-          phone: "",
+          lastname: lg.lastname,
+          firstname: lg.firstname,
+          phone: lg.phone,
         }),
       );
     }

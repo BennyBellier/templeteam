@@ -38,16 +38,62 @@ export const AssociationRouter = createTRPCRouter({
         });
 
         return await ctx.prisma.$transaction(async (tx) => {
-
-          const {firstname, lastname, birthdate, mail, phone} = input;
-
-          const existingMember = await tx.member.findFirst({
+          let existingMember = await tx.member.findFirst({
             where: {
-              OR: [{ firstname, lastname, birthdate }, { mail }, { phone }],
+              OR: [
+                {
+                  firstname: input.firstname,
+                  lastname: input.lastname,
+                  birthdate: input.birthdate,
+                },
+                { mail: input.mail },
+                { phone: input.phone },
+              ],
             },
           });
 
           if (existingMember) {
+            if (!existingMember.mail && input.mail !== existingMember.mail) {
+              existingMember = await tx.member.update({
+                where: {
+                  id: existingMember.id,
+                },
+                data: {
+                  mail: input.mail,
+                },
+              });
+            }
+
+            if (!existingMember.phone && input.phone !== existingMember.phone) {
+              existingMember = await tx.member.update({
+                where: {
+                  id: existingMember.id,
+                },
+                data: {
+                  phone: input.phone,
+                },
+              });
+            }
+
+            if (
+              existingMember.address !== input.address ||
+              existingMember.postalCode !== input.postalCode ||
+              existingMember.city !== input.city ||
+              existingMember.country !== input.country
+            ) {
+              existingMember = await tx.member.update({
+                where: {
+                  id: existingMember.id,
+                },
+                data: {
+                  address: input.address,
+                  postalCode: input.postalCode,
+                  city: input.city,
+                  country: input.country,
+                },
+              });
+            }
+
             logger.warn({
               context: "tRPC",
               requestPath: "association.createMember",

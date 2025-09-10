@@ -34,13 +34,13 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 if (env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-prisma.$on("query", (e) => {
+/* prisma.$on("query", (e) => {
   logger.debug({
     context: "Prisma",
     message: `${this}`,
     data: e
   });
-});
+}); */
 
 prisma.$on("error", (e) => {
   logger.error({
@@ -50,13 +50,13 @@ prisma.$on("error", (e) => {
   });
 });
 
-prisma.$on("info", (e) => {
+/* prisma.$on("info", (e) => {
   logger.info({
     context: "Prisma",
     message: this + " " + e.message,
     data: e,
   });
-});
+}); */
 
 prisma.$on("warn", (e) => {
   logger.warn({
