@@ -1,10 +1,6 @@
 import { env } from "@/env.mjs";
 import winstonDevConsole from "@epegzz/winston-dev-console";
 import winston from "winston";
-import DailyRotationFile from "winston-daily-rotate-file";
-
-/* const { combine, timestamp, json, colorize, align, printf, errors } =
-  winston.format; */
 
 const logLevels = {
   fatal: 0,
@@ -19,22 +15,14 @@ const winstonLogger = winston.createLogger({
   levels: logLevels,
   level: env.NODE_ENV === "production" ? (env.LOG_LEVEL ?? "info") : "debug",
   transports: [
-    env.NODE_ENV === "production"
-      ? new DailyRotationFile({
-          filename: "app-%DATE%.log",
-          dirname: env.LOG_FOLDER ?? ".next/logs/",
-          level: env.LOG_LEVEL ?? "info",
-          datePattern: "DD-MM-YYYY",
-          maxSize: "20m",
-          maxFiles: "7d",
-        })
-      : new winston.transports.File({
-          filename: "app.log",
-          dirname: env.LOG_FOLDER ?? "logs/",
-          maxsize: 5 * 1024 * 1024,
-          maxFiles: 3,
-          level: "info"
-        }),
+    new winston.transports.File({
+      filename: "app.log", // fichier principal
+      dirname: env.LOG_FOLDER ?? "logs/", // dossier
+      maxsize: 1 * 1024 * 1024 * 1024, // 1 Go
+      maxFiles: 10, // conserve 10 fichiers max
+      tailable: true, // conserve toujours le dernier en "app.log"
+      level: env.LOG_LEVEL ?? "info",
+    }),
   ],
   exceptionHandlers: [
     new winston.transports.File({ filename: "logs/exception.log" }),
@@ -57,8 +45,16 @@ if (env.NODE_ENV !== "production") {
 
 export interface LogParams {
   message: string;
-  context: "Prisma" | "tRPC" | "API" | "Authentication" | "nodemailer" | "AssociationRegistration" | "FileManipulation" | "NextCached";
-  requestPath?: string,
+  context:
+    | "Prisma"
+    | "tRPC"
+    | "API"
+    | "Authentication"
+    | "nodemailer"
+    | "AssociationRegistration"
+    | "FileManipulation"
+    | "NextCached";
+  requestPath?: string;
   data?: unknown;
   userId?: string;
   requestId?: string;
