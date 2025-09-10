@@ -487,6 +487,7 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
           });
           store.reset();
           stepper.reset();
+          form.reset();
         } catch (e) {
           if (e instanceof Error) {
             toast.error(e.message, {
