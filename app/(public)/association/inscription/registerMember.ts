@@ -3,6 +3,7 @@
 import { calculateAge, type Result } from "@/lib/utils";
 import {
   moveFromTmpToMemberFolder,
+  rmTmpFile,
 } from "@/server/file/file-manipulations";
 import logger from "@/server/logger";
 import { prisma } from "@/trpc/server";
@@ -46,11 +47,13 @@ export const registerMemberForYear = async (
       phone: member.phone,
     });
 
-    if (already)
+    if (already) {
+      if (photo) await rmTmpFile(photo);
       return {
         ok: false,
         error: `Il existe déjà une inscription au nom de ${member.lastname} ${member.firstname} pour cette saison.`,
       };
+    }
 
     // Convert Courses from Record<...> to String[]
     const courses = Object.keys(courseRecords)
@@ -105,6 +108,8 @@ export const registerMemberForYear = async (
       },
       error: e,
     });
+
+    if (photo) await rmTmpFile(photo);
 
     return {
       ok: false,

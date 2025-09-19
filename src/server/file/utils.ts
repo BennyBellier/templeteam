@@ -86,6 +86,18 @@ export function mv(src: string, dest: string): void {
   })
 }
 
+export function rm(path: string) {
+  fs.unlink(path, function (err) {
+    if (err) throw err
+    logger.debug({
+      context: "FileManipulation",
+      requestPath: "rm",
+      file: path,
+      message: "File successfully deleted",
+    });
+  })
+}
+
 export function folderExist(...path: string[]): boolean {
   return fs.existsSync(serverPath(...path));
 }

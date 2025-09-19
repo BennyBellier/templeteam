@@ -24,7 +24,7 @@ const winstonLogger = winston.createLogger({
   ),
   transports: [
     new winston.transports.File({
-      filename: "app.log", // fichier principal
+      filename: `app${new Date().toISOString().split('T')[0]}.log`, // fichier principal
       dirname: env.LOG_FOLDER ?? "logs/", // dossier
       maxsize: 1 * 1024 * 1024 * 1024, // 1 Go
       maxFiles: 10, // conserve 10 fichiers max

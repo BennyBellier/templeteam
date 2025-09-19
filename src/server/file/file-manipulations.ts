@@ -6,7 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { membersPath, tempPath } from "./constants";
-import { folderExist, mkdir, mv, serverPath } from "./utils";
+import { folderExist, mkdir, mv, rm, serverPath } from "./utils";
 
 export async function storeFileInTmp(file: File): Promise<string> {
   if (!folderExist(env.TEMP_FOLDER)) {
@@ -21,6 +21,15 @@ export async function storeFileInTmp(file: File): Promise<string> {
   fs.writeFileSync(filePath, buffer);
 
   return filename;
+}
+
+export async function rmTmpFile(filename: string) {
+  if (!folderExist(env.TEMP_FOLDER)) {
+    return;
+  }
+
+  const filePath = serverPath(env.TEMP_FOLDER, filename);
+  rm(filePath);
 }
 
 /**

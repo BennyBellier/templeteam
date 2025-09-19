@@ -149,8 +149,6 @@ export default function RegisterForm({ courses }: { courses: CoursesProps[] }) {
 
         if (!photo_filename) return;
 
-        console.log(store.member);
-
         const res = await handleResult(
           registerMemberForYear({
             member: store.member,
