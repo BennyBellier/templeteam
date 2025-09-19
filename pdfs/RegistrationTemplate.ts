@@ -1,34 +1,38 @@
 "use server";
 
-import { PDFDocument, PDFImage, drawText, rgb } from "pdf-lib";
-import fs from "fs";
-import path from "path";
+import { calculateMembershipPrice } from "@/lib/utils";
+import { associationPath, serverPath } from "@/server/file";
+import {
+  getMemberPhotoPath,
+  writeMemberFile,
+} from "@/server/file/file-manipulations";
+import { prisma } from "@/trpc/server";
 import fontkit from "@pdf-lib/fontkit";
 import { Gender } from "@prisma/client";
-import { calculateMembershipPrice } from "@/lib/utils";
-import { associationPath, getMemberPhotoPath, serverPath, writeMemberFile } from "@/server/file-manipulations";
+import fs from "fs";
+import path from "path";
+import { PDFDocument, type PDFImage, rgb } from "pdf-lib";
 import z from "zod";
-import { prisma } from "@/trpc/server";
 
 const RegistrationPDFProps = z.string().uuid();
 
-export async function generateRegistrationPDF(
-  id: string,
-): Promise<Buffer> {
-    const {data: memberId, success} = RegistrationPDFProps.safeParse(id);
+export async function generateRegistrationPDF(id: string): Promise<Buffer> {
+  const { data: memberId, success } = RegistrationPDFProps.safeParse(id);
 
-    if (!success) {
-        throw new Error(`Le paramètre ID n'est pas de type UUID.`);
-    }
+  if (!success) {
+    throw new Error(`Le paramètre ID n'est pas de type UUID.`);
+  }
 
-    const data = await prisma.association.getMemberRegistrationFileInfo({ memberId });
+  const data = await prisma.association.getMemberRegistrationFileInfo({
+    memberId,
+  });
 
-    if (!data || !data.files[0]) {
-        throw new Error(`Aucun fichiers existant pour le membre ${memberId}`);
-    }
+  if (!data || !data.files[0]) {
+    throw new Error(`Aucun fichiers existant pour le membre ${memberId}`);
+  }
   try {
     const uint8Array = fs.readFileSync(
-        serverPath(associationPath, "Template_dossier_inscription_2024-2025.pdf")
+      serverPath(associationPath, "Template_dossier_inscription_2024-2025.pdf"),
     );
     const pdfDoc = await PDFDocument.load(uint8Array);
 
@@ -36,7 +40,12 @@ export async function generateRegistrationPDF(
 
     const pages = pdfDoc.getPages();
 
-    const { width, height } = pages[0]?.getSize()!;
+    if (!pages || pages.length < 1)
+      throw new Error("Echec du chargement du fichier pdf");
+
+    const { height } = pages[0]
+      ? pages[0].getSize()
+      : { height: 0 };
 
     // Charger la police d'écriture
     const centuryGothicPath = path.join(
@@ -50,13 +59,13 @@ export async function generateRegistrationPDF(
       "centurygothic_bold.ttf",
     );
 
-    var centuryGothicBytes = fs.readFileSync(centuryGothicPath); // Read the font file
+    const centuryGothicBytes = fs.readFileSync(centuryGothicPath); // Read the font file
     const centuryGothic = await pdfDoc.embedFont(centuryGothicBytes);
 
-    var centuryGothicBoldBytes = fs.readFileSync(centuryGothicBoldPath); // Read the font file
+    const centuryGothicBoldBytes = fs.readFileSync(centuryGothicBoldPath); // Read the font file
     const centuryGothicBold = await pdfDoc.embedFont(centuryGothicBoldBytes);
 
-    var page = pages[0];
+    let page = pages[0];
 
     page?.setFont(centuryGothic);
     page?.setFontSize(11);
@@ -88,28 +97,31 @@ export async function generateRegistrationPDF(
     const genDate = new Date();
 
     if (data.photo) {
-        const photoBytes = fs.readFileSync(getMemberPhotoPath(memberId, data.photo))
-        let photoImage: PDFImage | null = null;
-        if (data.photo.endsWith(".png")) {
-            photoImage = await pdfDoc.embedPng(photoBytes);
-        } else if (data.photo.endsWith(".jpg") || data.photo.endsWith(".jpeg")) {
-            photoImage = await pdfDoc.embedJpg(photoBytes);
-        }
+      const photoBytes = fs.readFileSync(
+        getMemberPhotoPath(memberId, data.photo),
+      );
+      let photoImage: PDFImage | null = null;
+      if (data.photo.endsWith(".png")) {
+        photoImage = await pdfDoc.embedPng(photoBytes);
+      } else if (data.photo.endsWith(".jpg") || data.photo.endsWith(".jpeg")) {
+        photoImage = await pdfDoc.embedJpg(photoBytes);
+      }
 
-        if (!photoImage){ throw new Error("Invalid photo format");}
+      if (!photoImage) {
+        throw new Error("Invalid photo format");
+      }
 
-        const photoHeight = 85;
-        const photoDims = photoImage.scale(1);
-        const photoAspectRatio = photoDims.width / photoDims.height;
-        const photoProportionalWidth = photoHeight / photoAspectRatio;
-        page?.drawImage(photoImage, {
-            x: 460,
-            y: height - 147,
-            width: photoProportionalWidth,
-            height: photoHeight,
-          });
+      const photoHeight = 85;
+      const photoDims = photoImage.scale(1);
+      const photoAspectRatio = photoDims.width / photoDims.height;
+      const photoProportionalWidth = photoHeight / photoAspectRatio;
+      page?.drawImage(photoImage, {
+        x: 460,
+        y: height - 147,
+        width: photoProportionalWidth,
+        height: photoHeight,
+      });
     }
-
 
     page?.drawText(data.lastname, {
       x: licenseeXOffset,
@@ -174,9 +186,7 @@ export async function generateRegistrationPDF(
       color: rgb(0, 0, 0),
     });
 
-    const phone = data.phone
-      ? "0" + data.phone.slice(4)
-      : "Non renseigné";
+    const phone = data.phone ? "0" + data.phone.slice(4) : "Non renseigné";
 
     page?.drawText(phone, {
       x: licenseeXOffset,
@@ -290,7 +300,10 @@ export async function generateRegistrationPDF(
     });
 
     const coursesPrice = data.files[0]?.courses.map((course) => course.price);
-    const paymentAmount = calculateMembershipPrice(data.files[0]?.createdAt <= new Date("2024-09-07 08:00:00.00000"), coursesPrice);
+    const paymentAmount = calculateMembershipPrice(
+      data.files[0]?.createdAt <= new Date("2024-09-07 08:00:00.00000"),
+      coursesPrice,
+    );
 
     page?.drawText(`${paymentAmount.toFixed(2)} €`, {
       x: 450,
@@ -322,8 +335,8 @@ export async function generateRegistrationPDF(
 
       await prisma.association.addFileFilename({
         fileId: data.files[0].id,
-        filename
-      })
+        filename,
+      });
     } catch (err) {
       console.error("Error writing PDF file:", err);
     }

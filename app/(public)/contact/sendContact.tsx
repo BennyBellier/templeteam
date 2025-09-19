@@ -1,17 +1,15 @@
 "use server";
 
 import { env } from "@/env.mjs";
-import smtpOptions from "@/server/mail";
+import logger from "@/server/logger";
+import smtpOptions from "@/server/mailer";
 import { render } from "@react-email/components";
-import { type InputType } from "./contactForm";
 import ContactTemplate from "emails/ContactTemplate";
 import TextContactTemplate from "emails/TextContactTemplate";
-import logger from "@/server/logger";
 import nodemailer from "nodemailer";
+import { type InputType } from "./contactForm";
 
-export const send = async (
-  data: InputType,
-) => {
+export const send = async (data: InputType) => {
   try {
     const transporter = nodemailer.createTransport({ ...smtpOptions });
 

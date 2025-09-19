@@ -47,13 +47,8 @@ export const env = createEnv({
     MEMBER_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
     FILE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
 
-    FILE_YEAR: z.preprocess((str) => {
-      if (typeof str === "string") {
-        const year = str.split("/")[0];
-        return new Date(`${year}-09-01`);
-      }
-      return str; // Si ce n'est pas une chaîne, retournez-la directement
-    }, z.date()),
+    FILE_SEASON: z.string(),
+    TEMP_FOLDER: z.string().default("tmp"),
     STATIC_FOLDER: z.string().default("static"),
     ASSOCIATION_FOLDER: z.string().default("association"),
     ASSOCIATION_MEMBERS_FOLDER: z.string().default("members"),
@@ -95,7 +90,8 @@ export const env = createEnv({
     REFERENCE_PAGINATION_SIZE: process.env.REFERENCES_PAGINATION,
     MEMBER_PAGINATION_SIZE: process.env.MEMBER_PAGINATION_SIZE,
     FILE_PAGINATION_SIZE: process.env.FILE_PAGINATION_SIZE,
-    FILE_YEAR: process.env.FILE_YEAR,
+    FILE_SEASON: process.env.FILE_SEASON,
+    TEMP_FOLDER: process.env.TEMP_FOLDER,
     STATIC_FOLDER: process.env.STATIC_FOLDER,
     ASSOCIATION_FOLDER: process.env.ASSOCIATION_FOLDER,
     ASSOCIATION_MEMBERS_FOLDER: process.env.ASSOCIATION_MEMBERS_FOLDER,

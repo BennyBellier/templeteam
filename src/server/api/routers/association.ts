@@ -1,12 +1,128 @@
 import { env } from "@/env.mjs";
-import { calculateAge, phoneRegex } from "@/lib/utils";
+import { calculateAge, calculateMembershipPrice } from "@/lib/utils";
 import logger from "@/server/logger";
-import { Gender, Prisma } from "@prisma/client";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import {
+  checkCoursesExist,
+  createFile,
+  getFile,
+  getMemberByIndex,
+  hasPreviousSeasonFile,
+  upsertLegalGuardian,
+  upsertMember,
+} from "./association/helpers";
+import {
+  CreateFileInputSchema,
+  isMemberHaveFileSchema,
+  seasonSchema,
+} from "./association/types";
 
 export const AssociationRouter = createTRPCRouter({
-  createOrGetMember: publicProcedure
+  isMemberHaveFile: publicProcedure
+    .input(isMemberHaveFileSchema)
+    .query(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.$transaction(async (tx): Promise<boolean> => {
+          const member = await getMemberByIndex(tx, { ...input });
+
+          if (!member) return false;
+
+          const file = await getFile(tx, input.season, member.id);
+
+          return file !== null;
+        });
+      } catch (err) {
+        logger.error({
+          router: "Association",
+          procedure: "isMemberHaveFile",
+          input: {
+            season: input.season,
+            firstname: input.firstname,
+            lastname: input.lastname,
+          },
+          message: "isMemberHaveFile failed",
+          error: err,
+        });
+
+        if (err instanceof TRPCError) throw err;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "Erreur lors de la vérification d'éligibilité à l'inscription.",
+        });
+      }
+    }),
+  registerMemberWithFile: publicProcedure
+    .input(CreateFileInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      try {
+        const {
+          member,
+          photo,
+          legalGuardians = [],
+          season,
+          courses,
+          undersigner,
+          signature,
+        } = input;
+
+        const result = await ctx.prisma.$transaction(async (tx) => {
+          const member_fetch = await upsertMember(tx, member, photo);
+
+          if (!member_fetch)
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Erreur lors de l'enregistrement de l'adhérent",
+            });
+
+          await upsertLegalGuardian(tx, legalGuardians, member_fetch.id);
+
+          await checkCoursesExist(tx, courses);
+
+          await createFile(
+            tx,
+            { season, courses, undersigner, signature },
+            member_fetch.id,
+          );
+
+          return { memberId: member_fetch.id };
+        });
+
+        logger.info({
+          router: "Association",
+          procedure: "registerMemberWithFile",
+          input: {
+            season: input.season,
+            firstname: input.member.firstname,
+            lastname: input.member.lastname,
+          },
+          message: `Succesfully register member.`,
+        });
+
+        return result;
+      } catch (err) {
+        logger.error({
+          router: "Association",
+          procedure: "registerMemberWithFile",
+          input: {
+            season: input.season,
+            firstname: input.member.firstname,
+            lastname: input.member.lastname,
+          },
+          message: "registerMemberWithFile failed",
+          error: err,
+        });
+
+        if (err instanceof TRPCError) throw err;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erreur lors de la création du dossier.",
+        });
+      }
+    }),
+  /* createOrGetMember: publicProcedure
     .input(
       z.object({
         lastname: z.string().trim().toUpperCase(),
@@ -187,7 +303,7 @@ export const AssociationRouter = createTRPCRouter({
         });
         throw new Error("Impossible d'ajouter la photo, veuillez réessayer.");
       }
-    }),
+    }), */
   addFileMedic: publicProcedure
     .input(
       z.object({
@@ -198,9 +314,9 @@ export const AssociationRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         logger.info({
+          message: `Add medic to file ${input.fileId}.`,
           context: "tRPC",
           requestPath: "association.addMemberMedic",
-          message: `Add medic to file ${input.fileId}.`,
           data: input,
         });
 
@@ -286,7 +402,7 @@ export const AssociationRouter = createTRPCRouter({
     });
     return courses;
   }),
-  createOrGetLegalGuardian: publicProcedure
+  /* createOrGetLegalGuardian: publicProcedure
     .input(
       z.object({
         firstname: z
@@ -305,7 +421,7 @@ export const AssociationRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       try {
         return await ctx.prisma.$transaction(async (tx) => {
-          const member = await findMemberById(tx, input.memberId);
+          const member = await getMemberById(tx, input.memberId);
 
           const existing = await tx.legalGuardian.findFirst({
             where: {
@@ -496,12 +612,11 @@ export const AssociationRouter = createTRPCRouter({
           );
         }
       }
-    }),
-  getConfirmationMailInformations: publicProcedure
-    .input(z.object({ memberId: z.string().uuid(), fileId: z.string().uuid() }))
+    }), */
+  getConfirmationMailInformationsForSeason: publicProcedure
+    .input(z.object({ memberId: z.string().uuid(), season: seasonSchema }))
     .query(async ({ ctx, input }) => {
-      // Get all informations about registration with memberId and fileId
-      const member = await ctx.prisma.member.findFirst({
+      const member = await ctx.prisma.member.findUnique({
         select: {
           firstname: true,
           lastname: true,
@@ -517,8 +632,12 @@ export const AssociationRouter = createTRPCRouter({
           photo: true,
           files: {
             where: {
-              id: input.fileId,
+              AND: {
+                season: input.season,
+                memberId: input.memberId,
+              }
             },
+            orderBy: { createdAt: "desc" },
             select: {
               courses: {
                 select: {
@@ -540,15 +659,17 @@ export const AssociationRouter = createTRPCRouter({
         where: { id: input.memberId },
       });
 
-      // Member doesn't exist
       if (!member) {
-        throw new Error("Le membre n'a pas pu être inscrit.");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Membre introuvable.",
+        });
       }
 
-      // Check if member is Adult or not
-      const isAdult = calculateAge(member.birthdate) >= 18;
+      const isAdult = member.birthdate
+        ? calculateAge(member.birthdate) >= 18
+        : false;
 
-      // Informations about the members
       const memberInfo = {
         firstname: member.firstname,
         lastname: member.lastname,
@@ -564,58 +685,52 @@ export const AssociationRouter = createTRPCRouter({
         photo: member.photo,
       };
 
-      // informations about legalGuardians
-      const legalGuardians = member.legalGuardians.map((legalGuardian) => ({
-        firstname: legalGuardian.firstname,
-        lastname: legalGuardian.lastname,
-        phone: legalGuardian.phone,
-        mail: legalGuardian.mail,
+      const legalGuardians = member.legalGuardians.map((lg) => ({
+        firstname: lg.firstname,
+        lastname: lg.lastname,
+        phone: lg.phone,
+        mail: lg.mail,
       }));
 
-      // Email for send registration confirmation
+      // Détermination du destinataire du mail
       let mailTo: string | null = null;
-
-      // If member is adult, use member.mail
       if (isAdult && member.mail) {
         mailTo = member.mail;
       } else if (!isAdult) {
-        // member not adult, search for legals guardians mail
-        const legalGuardianWithMail = legalGuardians.find(
-          (val) => val.mail !== null,
-        );
-
-        // if legal guardians don't have email, using member email
-        mailTo = legalGuardianWithMail?.mail ?? member.mail;
-        if (!mailTo) {
-          throw new Error(
-            "Aucun mail n'est renseigné, impossible d'envoyer la confirmation.",
-          );
-        }
-      } else {
-        throw new Error(
-          "Aucun mail n'est renseigné, impossible d'envoyer la confirmation.",
-        );
+        mailTo =
+          legalGuardians.find((val) => !!val.mail)?.mail ?? member.mail ?? null;
       }
 
-      // Member doesn't have file with this fileId
+      if (!mailTo) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Impossible d’envoyer la confirmation : aucun email disponible.",
+        });
+      }
+
       if (!member.files[0]) {
-        throw new Error("Aucun dossier n'a été généré pour ce membre.");
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Aucun dossier trouvé pour ce membre et cette saison.",
+        });
       }
 
       const file = member.files[0];
 
-      // Calcul rate of his membership
-      const price = file.courses.reduce((sum, course) => sum + course.price, 0);
+      const hadFile = await hasPreviousSeasonFile(ctx.prisma, input.memberId, input.season);
+      const selectedCoursesPrices = file.courses.map(({price}) => price);
+      const price = calculateMembershipPrice(hadFile, selectedCoursesPrices);
 
       return {
         mailTo,
         price,
         ...memberInfo,
         legalGuardians,
-        courses: file.courses.map((course) => course.name),
+        courses: file.courses.map((c) => c.name),
       };
     }),
-  deleteMember: publicProcedure
+  /* deleteMember: publicProcedure
     .input(
       z.object({
         member: z.object({ id: z.string().uuid(), new: z.boolean() }),
@@ -652,7 +767,7 @@ export const AssociationRouter = createTRPCRouter({
             : "Erreur inconnue lors de la suppression du membre.",
         );
       }
-    }),
+    }), */
   getMemberResume: publicProcedure
     .input(
       z.object({
@@ -751,7 +866,7 @@ export const AssociationRouter = createTRPCRouter({
           photo: true,
           files: {
             where: {
-              year: input.year ?? env.FILE_YEAR,
+              season: input.year ?? env.FILE_SEASON,
             },
             select: {
               medicalCertificate: true,
@@ -803,7 +918,7 @@ export const AssociationRouter = createTRPCRouter({
         mail: true,
         files: {
           where: {
-            year: env.FILE_YEAR,
+            season: env.FILE_SEASON,
           },
           select: {
             courses: {
@@ -846,8 +961,8 @@ export const AssociationRouter = createTRPCRouter({
 
       await ctx.prisma.file.update({
         where: {
-          year_memberId: {
-            year: env.FILE_YEAR,
+          season_memberId: {
+            season: env.FILE_SEASON,
             memberId: input.memberId,
           },
         },
@@ -865,22 +980,6 @@ export const AssociationRouter = createTRPCRouter({
 
     return members;
   }),
-  /* getMembersListByYear: publicProcedure.query(async ({ ctx }) => {
-    const members = await ctx.prisma.member.findMany({
-      include: {
-        legalGuardians: true,
-      },
-      where: {
-        files: {
-          some: {
-            year:
-          }
-        }
-      }
-    });
-
-    return members;
-  }), */
   getFileList: publicProcedure
     .input(
       z.object({
@@ -911,7 +1010,7 @@ export const AssociationRouter = createTRPCRouter({
     }),
 });
 
-async function createLegalGuardian(
+/* async function createLegalGuardian(
   tx: Prisma.TransactionClient,
   data: {
     firstname: string;
@@ -1008,24 +1107,9 @@ async function deleteFile(tx: Prisma.TransactionClient, fileId: string) {
     message: `File ${fileId} deleted.`,
     data: deleted,
   });
-}
+} */
 
-async function findMemberById(tx: Prisma.TransactionClient, memberId: string) {
-  const member = await tx.member.findUnique({ where: { id: memberId } });
-
-  if (!member) {
-    logger.warn({
-      context: "tRPC",
-      requestPath: "createLegalGuardian",
-      message: `Member ${memberId} not found.`,
-    });
-    throw new Error("Le membre spécifié n'existe pas.");
-  }
-
-  return member;
-}
-
-async function deleteMember(
+/* async function deleteMember(
   tx: Prisma.TransactionClient,
   member: { id: string; new: boolean },
 ) {
@@ -1048,4 +1132,4 @@ async function deleteMember(
     message: `Member ${member.id} deleted.`,
     data: deleted,
   });
-}
+} */

@@ -43,7 +43,7 @@ import { useFormContext } from "react-hook-form";
 import SignatureCanvas from "react-signature-canvas";
 import { z } from "zod";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
-import { AuthorizationSchema } from "../Form";
+import { AuthorizationSchema } from "../formUtils";
 import Image from "next/image";
 
 const labelClassName = cn(

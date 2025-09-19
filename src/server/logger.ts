@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { env } from "@/env.mjs";
 import winstonDevConsole from "@epegzz/winston-dev-console";
 import winston from "winston";
@@ -14,6 +16,12 @@ const logLevels = {
 const winstonLogger = winston.createLogger({
   levels: logLevels,
   level: env.NODE_ENV === "production" ? (env.LOG_LEVEL ?? "info") : "debug",
+  format: winston.format.combine(
+    winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+    winston.format.errors({ stack: true }),
+    winston.format.splat(),
+    winston.format.json(),
+  ),
   transports: [
     new winston.transports.File({
       filename: "app.log", // fichier principal
@@ -43,40 +51,18 @@ if (env.NODE_ENV !== "production") {
   );
 }
 
-export interface LogParams {
+type LogInput = {
   message: string;
-  context:
-    | "Prisma"
-    | "tRPC"
-    | "API"
-    | "Authentication"
-    | "nodemailer"
-    | "AssociationRegistration"
-    | "FileManipulation"
-    | "NextCached";
-  requestPath?: string;
-  data?: unknown;
-  userId?: string;
-  requestId?: string;
-}
-
-const formatLog =
-  (level: "debug" | "info" | "warn" | "error" | "fatal") =>
-  ({ message, context, data, userId, requestId }: LogParams) => {
-    winstonLogger.log(level, message, {
-      context,
-      data,
-      userId,
-      requestId,
-    });
-  };
+  [key: string]: unknown;
+};
 
 const logger = {
-  fatal: formatLog("fatal"),
-  warn: formatLog("warn"),
-  error: formatLog("error"),
-  info: formatLog("info"),
-  debug: formatLog("debug"),
+  fatal: (input: LogInput) => winstonLogger.log("fatal", input.message, input),
+  error: (input: LogInput) => winstonLogger.log("error", input.message, input),
+  warn: (input: LogInput) => winstonLogger.log("warn", input.message, input),
+  info: (input: LogInput) => winstonLogger.log("info", input.message, input),
+  debug: (input: LogInput) => winstonLogger.log("debug", input.message, input),
+  trace: (input: LogInput) => winstonLogger.log("trace", input.message, input),
 };
 
 export default logger;

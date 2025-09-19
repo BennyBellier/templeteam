@@ -1,16 +1,14 @@
 /* eslint-disable */
+import { env } from "@/env.mjs";
 import { BlogCategory } from "@prisma/client";
 import { clsx, type ClassValue } from "clsx";
 import { differenceInYears, isBefore } from "date-fns";
+import toast from "react-hot-toast";
 import { twMerge } from "tailwind-merge";
-import { env } from "@/env.mjs";
+import z from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-export function delay(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function categoryToText(category: BlogCategory) {
@@ -63,7 +61,7 @@ export function getCountriesNames(lang = "fr") {
     });
 }
 
-export const phoneRegex = new RegExp(/^\+33 [67](?: [0-9]{2}){4}$/);
+export const phoneRegex = new RegExp(/^\+33 (?:0)?[67](?: [0-9]{2}){4}$/);
 
 export const calculateAge = (input: string | Date): number => {
   const today = new Date();
@@ -95,16 +93,19 @@ export const displayTime = (date: Date) => {
   return `${hours}:${minutes}`;
 };
 
-export function fileToBase64(file: File): Promise<string> {
+/* export function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = (error) => reject(error);
   });
-}
+} */
 
-export const calculateMembershipPrice = (oldMember: boolean, courses: number[]) => {
+export const calculateMembershipPrice = (
+  oldMember: boolean,
+  courses: number[],
+) => {
   if (oldMember) {
     return courses.reduce((sum, price) => sum + price, 0);
   }
@@ -112,4 +113,36 @@ export const calculateMembershipPrice = (oldMember: boolean, courses: number[]) 
     env.INSURANCE_MEMBERSHIP_PRICE +
     courses.reduce((sum, price) => sum + price, 0)
   );
+};
+
+export const resultSchema = <T extends z.ZodTypeAny>(data: T) =>
+  z.union([
+    z.object({ ok: z.literal(true), data }),
+    z.object({ ok: z.literal(false), error: z.string() }),
+  ]);
+
+export type Result<T> = { ok: true; data: T } | { ok: false; error: string };
+
+export async function handleResult<T>(
+  promise: Promise<Result<T>>,
+  toastId?: string,
+  duration?: number,
+): Promise<T | null> {
+  const res = await promise;
+  if (!res.ok) {
+    toast.error(res.error, {
+      id: toastId,
+      duration: duration ?? 5000,
+    });
+    return null;
+  }
+  return res.data;
+}
+
+export function getPreviousSeason(season: string): string {
+  const [start, end] = season.split("/").map(Number);
+  if (!start || !end) {
+    throw new Error(`Invalid season format: ${season}`);
+  }
+  return `${start - 1}/${end - 1}`;
 }
