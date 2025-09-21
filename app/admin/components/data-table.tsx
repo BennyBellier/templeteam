@@ -1,5 +1,4 @@
 "use client";
-import { DataTablePagination } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -17,7 +16,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getExpandedRowModel,
   useReactTable,

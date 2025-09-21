@@ -7,7 +7,7 @@ import { ImageWithLoader } from "../features/withLoader/ImageWithLoader";
 import { memo } from "react";
 
 export type ReferenceCardProps = {
-  reference: inferRouterOutputs<AppRouter>["references"]["get"]["items"][number];
+  reference: inferRouterOutputs<AppRouter>["site"]["references"]["get"]["items"][number];
 };
 
 const ReferenceCard = (props: ReferenceCardProps) => {

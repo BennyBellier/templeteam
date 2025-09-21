@@ -26,14 +26,14 @@ export default function Legal() {
       <LayoutHeader>
         <LayoutTitle>Politique de confidentialité</LayoutTitle>
         <LayoutDescription>
-          Découvrez la politique de confidentialité de l'association Temple Team
+          Découvrez la politique de confidentialité de l&apos;association Temple Team
           pour comprendre comment nous protégeons vos données personnelles et
           respectons la réglementation en vigueur.
         </LayoutDescription>
       </LayoutHeader>
       <LayoutSection className="items-start space-y-2">
         <Typography>
-          L'association <strong>Temple Team</strong> est soucieuse de protéger
+          L&apos;association <strong>Temple Team</strong> est soucieuse de protéger
           la vie privée et les données personnelles de ses utilisateurs. Nous
           nous engageons à respecter les lois en vigueur relatives à la
           protection des données personnelles, notamment le Règlement général
@@ -46,7 +46,7 @@ export default function Legal() {
           Lorsque vous utilisez notre site web, nous pouvons collecter certaines
           données personnelles vous concernant, telles que votre nom, votre
           adresse e-mail, votre numéro de téléphone, votre adresse IP ou
-          d'autres informations similaires. Nous ne transférons ni ne vendons
+          d&apos;autres informations similaires. Nous ne transférons ni ne vendons
           ces données à des tiers.
         </Typography>
       </LayoutSection>
@@ -64,19 +64,19 @@ export default function Legal() {
       <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Cookies</Typography>
         <Typography>
-          Le site web de Temple Team ne génère qu'un seul cookie qui a
-          simplement pour but de retenir le thème d'affichage que l'utilisateur
+          Le site web de Temple Team ne génère qu&apos;un seul cookie qui a
+          simplement pour but de retenir le thème d&apos;affichage que l&apos;utilisateur
           a sélectionné en dernier. Ces cookies ne sont pas implantés pour
-          collecter des informations sur vous à d'autres fins, comme le
+          collecter des informations sur vous à d&apos;autres fins, comme le
           marketing ou les analyses. Toutefois, la page de contact utilise des
           cookies tiers de Google pour faire fonctionner la carte interactive.
           Ces cookies tiers sont utilisés pour stocker des informations sur
-          l'emplacement géographique de l'utilisateur, afin de pouvoir afficher
+          l&apos;emplacement géographique de l&apos;utilisateur, afin de pouvoir afficher
           la carte interactive correctement. Temple Team ne collecte ni ne
           transfère à aucun destinataire les données personnelles collectées par
           ces cookies tiers. Si vous avez des questions sur les cookies utilisés
           sur le site web de Temple Team, veuillez envoyer un e-mail à
-          contact@templeteam.fr avec en début d'en-tête "[Confidentialité]".
+          contact@templeteam.fr avec en début d&apos;en-tête &quot;[Confidentialité]&quot;.
         </Typography>
       </LayoutSection>
       <LayoutSection className="items-start space-y-2">
@@ -93,18 +93,18 @@ export default function Legal() {
       <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Vos droits</Typography>
         <Typography>
-          Vous disposez d'un droit d'accès, de rectification, de suppression, de
-          limitation et d'opposition au traitement de vos données personnelles.
+          Vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression, de
+          limitation et d&apos;opposition au traitement de vos données personnelles.
           Pour exercer ces droits ou pour toute question relative à la
           protection des données personnelles, vous pouvez nous contacter à
-          l'adresse e-mail suivante :{" "}
+          l&apos;adresse e-mail suivante :{" "}
           <strong>
             <a href="mailto:contact@templeteam.fr?subject=[Confidentialité]">
               contact@templeteam.fr
             </a>
           </strong>{" "}
-          en indiquant <strong>"[Confidentialité] Votre objet"</strong> dans
-          l'objet de votre message.
+          en indiquant <strong>&quot;[Confidentialité] Votre objet&quot;</strong> dans
+          l&apos;objet de votre message.
         </Typography>
       </LayoutSection>
       <LayoutSection className="items-start space-y-2">
@@ -122,8 +122,8 @@ export default function Legal() {
       <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Lois applicables</Typography>
         <Typography>
-          Le site web de l'association Temple Team est soumis aux lois en
-          vigueur en France. Tout litige relatif à l'utilisation du site web
+          Le site web de l&apos;association Temple Team est soumis aux lois en
+          vigueur en France. Tout litige relatif à l&apos;utilisation du site web
           sera soumis à la compétence des tribunaux français.
         </Typography>
       </LayoutSection>

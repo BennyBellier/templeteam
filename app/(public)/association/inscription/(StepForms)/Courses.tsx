@@ -23,7 +23,6 @@ import { Rocket } from "lucide-react";
 import { Prisma } from "@prisma/client";
 import type { CoursesSchema } from "../formUtils";
 import type { z } from "zod";
-import { Skeleton } from "@/components/ui/skeleton";
 
 /* --------------------------------------------------------
             Localisation element for First Form

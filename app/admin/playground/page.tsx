@@ -5,8 +5,8 @@ import { generateRegistrationPDF } from "pdfs/RegistrationTemplate";
 
 export default function Playground() {
 
-  function handleClick(event: React.MouseEvent<HTMLButtonElement>) {
-    generateRegistrationPDF('983a4503-cdbc-47f1-958e-dd2fb446719c');
+  function handleClick(_event: React.MouseEvent<HTMLButtonElement>) {
+    void generateRegistrationPDF('983a4503-cdbc-47f1-958e-dd2fb446719c');
   }
 
   return (

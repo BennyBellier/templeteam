@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Register() {
-  const courses = await prisma.association.getCourses();
+  const courses = await prisma.association.courses.getCourses();
 
   return (
     <Layout>

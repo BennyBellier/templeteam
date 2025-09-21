@@ -6,6 +6,7 @@ import { z } from "zod";
 export const seasonSchema = z
   .string()
   .regex(/^\d{4}\/\d{4}$/)
+  .optional()
   .default(env.FILE_SEASON);
 
 export const isMemberHaveFileSchema = z.object({

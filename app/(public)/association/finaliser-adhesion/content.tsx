@@ -74,7 +74,7 @@ export const Content = () => {
   }
 
   const { data, isLoading, isError } =
-    trpc.association.getMemberResume.useQuery({ memberId });
+    trpc.association.registration.getMemberResume.useQuery({ memberId });
 
   if (isLoading) {
     return (

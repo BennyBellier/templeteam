@@ -3,7 +3,7 @@ import { calculateAge, calculateMembershipPrice } from "@/lib/utils";
 import logger from "@/server/logger";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import {
   checkCoursesExist,
   createFile,
@@ -12,14 +12,14 @@ import {
   hasPreviousSeasonFile,
   upsertLegalGuardian,
   upsertMember,
-} from "./association/helpers";
+} from "./helpers";
 import {
   CreateFileInputSchema,
   isMemberHaveFileSchema,
   seasonSchema,
-} from "./association/types";
+} from "./types";
 
-export const AssociationRouter = createTRPCRouter({
+export const RegistrationRouter = createTRPCRouter({
   isMemberHaveFile: publicProcedure
     .input(isMemberHaveFileSchema)
     .query(async ({ ctx, input }) => {
@@ -122,188 +122,6 @@ export const AssociationRouter = createTRPCRouter({
         });
       }
     }),
-  /* createOrGetMember: publicProcedure
-    .input(
-      z.object({
-        lastname: z.string().trim().toUpperCase(),
-        firstname: z
-          .string()
-          .trim()
-          .transform((value) => value[0]?.toUpperCase() + value.slice(1)),
-        birthdate: z
-          .date()
-          .min(new Date(1970, 1, 1))
-          .max(new Date()),
-        gender: z.nativeEnum(Gender),
-        mail: z.string().trim().email().optional(),
-        phone: z.string().trim().regex(phoneRegex).optional(),
-        address: z.string().trim(),
-        city: z.string().trim().toUpperCase(),
-        postalCode: z.string().trim(),
-        country: z.string().trim().toUpperCase(),
-        medicalComment: z.string().trim().optional(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      try {
-        logger.info({
-          context: "tRPC",
-          requestPath: "association.createMember",
-          message: `Attempting to create or retrieve a member.`,
-          data: input,
-        });
-
-        return await ctx.prisma.$transaction(async (tx) => {
-          let existingMember = await tx.member.findFirst({
-            where: {
-              OR: [
-                {
-                  firstname: input.firstname,
-                  lastname: input.lastname,
-                  birthdate: input.birthdate,
-                },
-                { mail: input.mail },
-                { phone: input.phone },
-              ],
-            },
-          });
-
-          if (existingMember) {
-            if (!existingMember.mail && input.mail !== existingMember.mail) {
-              existingMember = await tx.member.update({
-                where: {
-                  id: existingMember.id,
-                },
-                data: {
-                  mail: input.mail,
-                },
-              });
-            }
-
-            if (!existingMember.phone && input.phone !== existingMember.phone) {
-              existingMember = await tx.member.update({
-                where: {
-                  id: existingMember.id,
-                },
-                data: {
-                  phone: input.phone,
-                },
-              });
-            }
-
-            if (
-              existingMember.address !== input.address ||
-              existingMember.postalCode !== input.postalCode ||
-              existingMember.city !== input.city ||
-              existingMember.country !== input.country
-            ) {
-              existingMember = await tx.member.update({
-                where: {
-                  id: existingMember.id,
-                },
-                data: {
-                  address: input.address,
-                  postalCode: input.postalCode,
-                  city: input.city,
-                  country: input.country,
-                },
-              });
-            }
-
-            logger.warn({
-              context: "tRPC",
-              requestPath: "association.createMember",
-              message: `Member already exists with provided information.`,
-              data: {
-                id: existingMember.id,
-                firstname: existingMember.firstname,
-                lastname: existingMember.lastname,
-                mail: existingMember.mail,
-                phone: existingMember.phone,
-              },
-            });
-            return { id: existingMember.id, new: false };
-          }
-
-          // Création du membre si aucun trouvé
-          const newMember = await ctx.prisma.member.create({
-            data: {
-              ...input,
-            },
-          });
-
-          logger.info({
-            context: "tRPC",
-            requestPath: "association.createMember",
-            message: `New member created successfully.`,
-            data: {
-              id: newMember.id,
-              firstname: newMember.firstname,
-              lastname: newMember.lastname,
-            },
-          });
-
-          return { id: newMember.id, new: true };
-        });
-      } catch (e) {
-        logger.error({
-          context: "tRPC",
-          requestPath: "association.createMember",
-          message: `Error occurred while creating or fetching member.`,
-          data: { error: e instanceof Error ? e.message : e, input },
-        });
-
-        // Gestion des erreurs Prisma
-        if (
-          e instanceof Prisma.PrismaClientKnownRequestError &&
-          e.code === "P2002"
-        ) {
-          throw new Error(
-            "Un membre avec cette adresse e-mail ou ce numéro de téléphone existe déjà.",
-          );
-        } else if (e instanceof Error) {
-          throw new Error(e.message); // autres erreurs explicites
-        } else {
-          throw new Error(
-            "Une erreur inconnue est survenue lors de la création du membre.",
-          );
-        }
-      }
-    }),
-  addMemberPhoto: publicProcedure
-    .input(
-      z.object({
-        memberId: z.string().uuid(),
-        photoFilename: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      try {
-        logger.info({
-          context: "tRPC",
-          requestPath: "association.addMemberPhoto",
-          message: `Add photo to member ${input.memberId}.`,
-          data: input,
-        });
-
-        return await ctx.prisma.member.update({
-          where: {
-            id: input.memberId,
-          },
-          data: {
-            photo: input.photoFilename,
-          },
-        });
-      } catch (e) {
-        logger.error({
-          context: "tRPC",
-          requestPath: "association.addMemberPhoto",
-          message: `Failed when trying to add photo to member ${input.memberId}.`,
-          data: e,
-        });
-        throw new Error("Impossible d'ajouter la photo, veuillez réessayer.");
-      }
-    }), */
   addFileMedic: publicProcedure
     .input(
       z.object({
@@ -376,243 +194,6 @@ export const AssociationRouter = createTRPCRouter({
         );
       }
     }),
-  getCourses: publicProcedure.query(async ({ ctx }) => {
-    const courses = await ctx.prisma.course.findMany({
-      select: {
-        name: true,
-        description: true,
-        info: true,
-        sessions: {
-          select: {
-            id: true,
-            dayOfWeek: true,
-            startHour: true,
-            endHour: true,
-            location: {
-              select: {
-                place: true,
-                city: true,
-                postalCode: true,
-                query: true,
-              },
-            },
-          },
-        },
-      },
-    });
-    return courses;
-  }),
-  /* createOrGetLegalGuardian: publicProcedure
-    .input(
-      z.object({
-        firstname: z
-          .string()
-          .trim()
-          .transform((value) => value[0]?.toUpperCase() + value.slice(1)),
-        lastname: z.string().trim().toUpperCase(),
-        phone: z
-          .string()
-          .trim()
-          .regex(phoneRegex, "Numéro de téléphone invalide."),
-        mail: z.string().email("Adresse e-mail invalide.").optional(),
-        memberId: z.string().uuid("Identifiant de membre invalide."),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      try {
-        return await ctx.prisma.$transaction(async (tx) => {
-          const member = await getMemberById(tx, input.memberId);
-
-          const existing = await tx.legalGuardian.findFirst({
-            where: {
-              OR: [{ phone: input.phone }, { mail: input.mail }],
-            },
-          });
-
-          if (!existing) {
-            return await createLegalGuardian(
-              tx,
-              {
-                firstname: input.firstname,
-                lastname: input.lastname,
-                phone: input.phone,
-                mail: input.mail,
-              },
-              member.id,
-            );
-          }
-
-          return await connectOrUpdateLegalGuardian(
-            tx,
-            existing,
-            member.id,
-            input.mail,
-          );
-        });
-      } catch (e) {
-        logger.error({
-          context: "tRPC",
-          requestPath: "createLegalGuardian",
-          message: "Error while creating or connecting legal guardian.",
-          data: e,
-        });
-
-        if (
-          e instanceof Prisma.PrismaClientKnownRequestError &&
-          e.code === "P2002"
-        ) {
-          throw new Error(
-            "Un responsable légal avec ce numéro de téléphone existe déjà.",
-          );
-        }
-        if (e instanceof Error) throw new Error(e.message);
-        throw new Error(
-          "Une erreur inconnue est survenue lors de l'ajout du responsable légal.",
-        );
-      }
-    }),
-  createFileForMember: publicProcedure
-    .input(
-      z.object({
-        memberId: z.string().uuid("Identifiant de membre invalide."),
-        year: z.date().optional(),
-        courses: z.array(z.string()),
-        undersigner: z.string().trim(),
-        signature: z.string(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      try {
-        logger.info({
-          context: "tRPC",
-          requestPath: "association.createFileForMember",
-          data: input,
-          message: `Create File for member ${input.memberId}.`,
-        });
-        const { memberId, year, courses, undersigner, signature } = input;
-
-        // Search if member to connect exist
-        const member = await ctx.prisma.member.findUnique({
-          where: {
-            id: memberId,
-          },
-        });
-
-        if (!member) {
-          logger.warn({
-            context: "tRPC",
-            requestPath: "association.createFileForMember",
-            message: `Failed to add folder with unknown member id.`,
-            data: input,
-          });
-          throw new Error("Le membre spécifié n'existe pas.");
-        }
-
-        const fileExists = await ctx.prisma.file.findUnique({
-          where: {
-            year_memberId: {
-              year: year ?? env.FILE_YEAR,
-              memberId,
-            },
-          },
-        });
-
-        if (fileExists) {
-          const yearString = `${(year ?? env.FILE_YEAR).getFullYear()}/${(year ?? env.FILE_YEAR).getFullYear() + 1}`;
-
-          logger.warn({
-            context: "tRPC",
-            requestPath: "association.createFileForMember",
-            message: `Member ${memberId} already can only have a file for ${yearString}.`,
-            data: { year: yearString, ...input },
-          });
-          throw new Error(
-            `Un dossier pour l'année ${yearString} existe déjà pour le membre ${member.firstname} ${member.lastname}.`,
-          );
-        }
-
-        // Search if all courses exists
-        const coursesCheck = await ctx.prisma.course.findMany({
-          where: {
-            name: {
-              in: courses,
-            },
-          },
-        });
-
-        if (coursesCheck.length !== courses.length) {
-          const coursesFind = new Set(
-            coursesCheck.map((course) => course.name),
-          );
-          const coursesNotFound: string[] = courses.filter(
-            (course) => !coursesFind.has(course),
-          );
-          logger.warn({
-            context: "tRPC",
-            requestPath: "association.createFileForMember",
-            message: `Courses for this file creation are unknown.`,
-            data: courses,
-          });
-          throw new Error(
-            `Les cours suivants ne sont pas reconnus : ${coursesNotFound.join(" ")}`,
-          );
-        }
-
-        // File creation
-        const file = await ctx.prisma.file.create({
-          data: {
-            year: year ?? env.FILE_YEAR,
-            courses: {
-              connect: courses.map((course) => ({
-                name: course,
-              })),
-            },
-            undersigner,
-            signature,
-            member: {
-              connect: {
-                id: memberId,
-              },
-            },
-          },
-        });
-
-        // File creation successfull
-        logger.info({
-          context: "tRPC",
-          requestPath: "association.createFileForMember",
-          message: `File successfully created for member ${memberId}.`,
-          data: {
-            year: year ?? env.FILE_YEAR,
-            ...input,
-            signature: signature ? signature.substring(0, 15) : "noSignature",
-          },
-        });
-        return file.id;
-      } catch (e) {
-        logger.error({
-          context: "tRPC",
-          requestPath: "association.createFileForMember",
-          message: `Error while trying to create file for member ${input.memberId}.`,
-          data: e,
-        });
-        // Gestion des erreurs Prisma et autres erreurs
-        if (
-          e instanceof Prisma.PrismaClientKnownRequestError &&
-          e.code === "P2002"
-        ) {
-          throw new Error(
-            `Il existe déjà un dossier pour ce membre et cette année.`,
-          );
-        } else if (e instanceof Error) {
-          throw new Error(e.message); // Autres erreurs personnalisées
-        } else {
-          throw new Error(
-            "Une erreur inconnue est survenue lors de la création du dossier.",
-          );
-        }
-      }
-    }), */
   getConfirmationMailInformationsForSeason: publicProcedure
     .input(z.object({ memberId: z.string().uuid(), season: seasonSchema }))
     .query(async ({ ctx, input }) => {
@@ -635,7 +216,7 @@ export const AssociationRouter = createTRPCRouter({
               AND: {
                 season: input.season,
                 memberId: input.memberId,
-              }
+              },
             },
             orderBy: { createdAt: "desc" },
             select: {
@@ -718,8 +299,12 @@ export const AssociationRouter = createTRPCRouter({
 
       const file = member.files[0];
 
-      const hadFile = await hasPreviousSeasonFile(ctx.prisma, input.memberId, input.season);
-      const selectedCoursesPrices = file.courses.map(({price}) => price);
+      const hadFile = await hasPreviousSeasonFile(
+        ctx.prisma,
+        input.memberId,
+        input.season,
+      );
+      const selectedCoursesPrices = file.courses.map(({ price }) => price);
       const price = calculateMembershipPrice(hadFile, selectedCoursesPrices);
 
       return {

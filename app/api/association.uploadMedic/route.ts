@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     const medicUUID = await writeMemberFileMedic(memberId, medic);
 
-    await prisma.association.addFileMedic({
+    await prisma.association.registration.addFileMedic({
       fileId,
       medicFilename: medicUUID,
     });

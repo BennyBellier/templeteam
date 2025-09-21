@@ -39,7 +39,7 @@ export const registerMemberForYear = async (
 
   try {
     // Check if not already exist file for this year for this member
-    const already = await prisma.association.isMemberHaveFile({
+    const already = await prisma.association.registration.isMemberHaveFile({
       lastname: member.lastname,
       firstname: member.firstname,
       birthdate: new Date(member.birthdate),
@@ -61,7 +61,7 @@ export const registerMemberForYear = async (
       .filter((key): key is string => key !== null);
 
     // Register Member + File un DB (encapsulate)
-    const { memberId } = await prisma.association.registerMemberWithFile({
+    const { memberId } = await prisma.association.registration.registerMemberWithFile({
       member: { ...member, birthdate: new Date(member.birthdate) },
       photo,
       legalGuardians,

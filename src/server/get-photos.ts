@@ -9,7 +9,7 @@ export const preloadAlbums = () => {
 
 export const getPhotos = cache(async () => {
   try {
-    const photos = await prisma.photos.get();
+    const photos = await prisma.site.photos.get();
 
 
     console.debug({
@@ -18,7 +18,7 @@ export const getPhotos = cache(async () => {
       data: photos,
       message: `Find ${photos.length} photos.`,
     });
-    
+
     return photos;
   } catch (error) {
     logger.error({

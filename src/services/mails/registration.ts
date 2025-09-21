@@ -11,7 +11,7 @@ import RegistrationTemplate from "emails/AssociationRegistration";
 
 export async function sendConfirmationMail(memberId: string) {
   const memberFile =
-    await prisma.association.getConfirmationMailInformationsForSeason({
+    await prisma.association.registration.getConfirmationMailInformationsForSeason({
       memberId,
     });
 

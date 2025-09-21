@@ -20,7 +20,7 @@ export default function RestrictedAccess() {
                 </CardTitle>
             </CardHeader>
             <Typography as={CardContent}>
-                Vous n'avez pas la permission d'accéder à cette page.
+                Vous n&apos;avez pas la permission d&apos;accéder à cette page.
             </Typography>
             <CardFooter>
                 <Button onClick={() => router.back()}>

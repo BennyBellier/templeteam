@@ -2,7 +2,7 @@ import "server-only";
 
 import { prisma } from "@/trpc/server";
 import { cache } from "react";
-import type { CategoryEnum } from "./api/routers/blog";
+import type { CategoryEnum } from "./api/routers/site/blog";
 import logger from "./logger";
 
 export const preloadBlogPosts = () => {
@@ -12,7 +12,7 @@ export const preloadBlogPosts = () => {
 export const getBlogPosts = cache(
   async (category?: CategoryEnum, page?: number) => {
     try {
-      const posts = await prisma.blogposts.get({ category, page });
+      const posts = await prisma.site.blogposts.get({ category, page });
 
       logger.debug({
         context: "NextCached",

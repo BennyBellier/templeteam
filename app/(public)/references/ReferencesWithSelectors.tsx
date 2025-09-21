@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export const CategorySelector = memo(function CategorySelector() {
   const { category: currentCategory, setCategory } = useReferenceCategory();
-  const { data, isLoading } = trpc.references.getCategory.useQuery();
+  const { data, isLoading } = trpc.site.references.getCategory.useQuery();
 
   const handleCategory = useCallback((newCategory: number) => {
     if (currentCategory === newCategory) setCategory(null);
@@ -59,7 +59,7 @@ export default function ReferencesWithSelectors() {
   const isInView = useInView(buttonRef, {});
 
   const { data, fetchNextPage, hasNextPage, isFetching, isError, error } =
-    trpc.references.get.useInfiniteQuery(
+    trpc.site.references.get.useInfiniteQuery(
       {
         category,
       },
