@@ -20,7 +20,7 @@ type TeamMembersDB = {
 
 export const getTeamMembers = cache(async () => {
   try {
-    const members = await prisma.teamMembers.get();
+    const members = await prisma.site.teamMembers.get();
     const teamMembers = members.map((member: TeamMembersDB) => ({
       ...member,
       videos: member.videos.map((video: TeamMembersVideo) => video.path),

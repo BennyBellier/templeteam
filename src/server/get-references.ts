@@ -10,7 +10,7 @@ export const preloadReferences = () => {
 
 export const getReferences = cache(async () => {
   try {
-    const references = await prisma.references.getAll();
+    const references = await prisma.site.references.getAll();
 
     logger.debug({
       context: "NextCached",

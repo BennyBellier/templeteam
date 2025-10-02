@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Loader } from "@/components/ui/loader";
 import { Textarea } from "@/components/ui/textarea";
 import { Typography } from "@/components/ui/typography";
-import { cn } from "@/lib/utils";
+import { cn, handleResult } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AtSign,
@@ -33,17 +33,8 @@ import {
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { z } from "zod";
 import { send } from "./sendContact";
-
-const formSchema = z.object({
-  name: z.string({ required_error: "Veuillez renseigner votre nom." }),
-  mail: z
-    .string({ required_error: "Veuillez renseigner votre email." })
-    .email("Adresse email invalide."),
-  subject: z.string({ required_error: "Veuillez renseigner le sujet." }),
-  message: z.string({ required_error: "Veuillez renseigner un message." }),
-});
+import { type ContactFormInput, ContactFormSchema } from "./types";
 
 const inputClass = cn(
   " h-14 bg-background object-bottom pl-9 pr-2 pt-5 text-base",
@@ -57,11 +48,10 @@ const buttonContentClass = cn(
   "flex flex-row items-center gap-2 group-hover:scale-90 group-focus-visible:scale-90 transition-transform",
 );
 
-export type InputType = z.infer<typeof formSchema>;
-
 export const ContactForm = () => {
-  const form = useForm<InputType>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<ContactFormInput>({
+    mode: "onTouched",
+    resolver: zodResolver(ContactFormSchema),
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -70,40 +60,31 @@ export const ContactForm = () => {
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
 
-  async function onSubmit(values: InputType) {
+  async function onSubmit(values: ContactFormInput) {
     setIsSending(true);
-    let toastId = undefined;
-    try {
-      toastId = toast.loading("Envoie du message en cours...");
-      await send(values);
 
-      toast.success("Nous avons bien reçu votre message !", {
-        id: toastId,
-        duration: 5000,
-      });
+    const toastId = toast.loading("Envoie du message en cours...");
 
-      form.reset({
-        mail: "",
-        message: "",
-        name: "",
-        subject: "",
-      });
+    const res = await handleResult(send(values), toastId);
 
-      setIsSent(true);
-      
-    } catch (e) {
-      if (e instanceof Error) {
-        toast.error(e.message, {
-          id: toastId,
-          duration: 3000,
-        });
-      } else {
-        toast.error("Un problème est survenu. Veuillez réessayer.", {
-          id: toastId,
-          duration: 3000,
-        });
-      }
+    if (!res) {
+      setIsSending(false);
+      return;
     }
+
+    toast.success(res, {
+      id: toastId,
+      duration: 3000,
+    });
+
+    form.reset({
+      mail: "",
+      message: "",
+      name: "",
+      subject: "",
+    });
+
+    setIsSent(true);
     setIsSending(false);
   }
 

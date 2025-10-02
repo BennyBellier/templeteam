@@ -49,7 +49,7 @@ export function CategorySelector() {
 export default function BlogPost() {
   const { category } = useBlogCategory();
   const { data, fetchNextPage, hasNextPage, isFetching, isError, error } =
-    trpc.blogposts.get.useInfiniteQuery(
+    trpc.site.blogposts.get.useInfiniteQuery(
       { category },
       {
         getNextPageParam: (lastPage) => lastPage.nextCursor,

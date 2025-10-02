@@ -1,20 +1,17 @@
-import { Typography } from "@/components/ui/typography";
-import {
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getPhoneData } from "@/components/ui/phone-input";
+import { Typography } from "@/components/ui/typography";
 import { useRegisterFormStore } from "@/stores/registerFormStore";
 import { Gender } from "@prisma/client";
-import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
-import { Badge } from "@/components/ui/badge";
 import { useMemo } from "react";
-import { getPhoneData } from "@/components/ui/phone-input";
 
 export default function Resume() {
-  const { courses, member, legalGuardians, authorization } = useRegisterFormStore((state) => state);
+  const { courses, member, legalGuardians, authorization } =
+    useRegisterFormStore((state) => state);
 
   const photo = useMemo(
     () => (member ? URL.createObjectURL(member?.photo) : ""),
@@ -55,7 +52,8 @@ export default function Resume() {
               {member?.lastname} {member?.firstname}
             </Typography>
             <Typography variant="muted">
-              Né(e) le {new Date(member?.birthdate ?? "").toLocaleDateString()} - {gender}
+              Né(e) le {new Date(member?.birthdate ?? "").toLocaleDateString()}{" "}
+              - {gender}
             </Typography>
           </div>
         </div>
@@ -68,7 +66,9 @@ export default function Resume() {
               Email
             </Typography>
             <Typography variant="small">
-              {member?.mail ?? "Non renseigné"}
+              {member?.mail && member?.mail !== ""
+                ? member?.mail
+                : "Non renseigné"}
             </Typography>
           </div>
           <div>
@@ -79,7 +79,7 @@ export default function Resume() {
               Téléphone
             </Typography>
             <Typography variant="small">
-              {member?.phone
+              {member?.phone && member?.phone.length > 3
                 ? "0" + getPhoneData(member?.phone).nationalNumber
                 : "Non renseigné"}
             </Typography>

@@ -1,12 +1,10 @@
-import { type inferReactQueryProcedureOptions } from "@trpc/react-query";
-import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
-import { blogPostsRouter } from "./routers/blog";
-import { photosRouter } from "./routers/photos";
-import { referencesRouter } from "./routers/references";
-import { teamMembersRouter } from "./routers/team";
+import { type inferReactQueryProcedureOptions } from "@trpc/react-query";
+import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
+
+import { AdministrationRouter } from "./routers/administration";
 import { AssociationRouter } from "./routers/association";
-import { TreasurerRouter } from "./routers/treasurer";
+import { SiteRouter } from "./routers/site";
 
 /**
  * This is the primary router for your server.
@@ -15,11 +13,8 @@ import { TreasurerRouter } from "./routers/treasurer";
  */
 export const appRouter = createTRPCRouter({
   association: AssociationRouter,
-  treasurer: TreasurerRouter,
-  references: referencesRouter,
-  teamMembers: teamMembersRouter,
-  photos: photosRouter,
-  blogposts: blogPostsRouter,
+  site: SiteRouter,
+  administration: AdministrationRouter,
 });
 
 // export type definition of API

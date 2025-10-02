@@ -23,7 +23,7 @@ export default async function TreasurerDashboard() {
     return <RestrictedAccess />;
   }
 
-  const fileWithNoPayment = await prisma.treasurer.getFilesWithNoPayment();
+  const fileWithNoPayment = await prisma.association.treasurer.getFilesWithNoPayment();
 
   return (
     <Card className="h-full">

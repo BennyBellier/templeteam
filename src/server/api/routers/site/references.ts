@@ -1,33 +1,25 @@
 import { env } from "@/env.mjs";
-import { BlogCategory } from "@prisma/client";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../../trpc";
 
-export const CategoryEnum = z.nativeEnum(BlogCategory);
-export type CategoryEnum = z.infer<typeof CategoryEnum>;
-
-export const blogPostsRouter = createTRPCRouter({
+export const referencesRouter = createTRPCRouter({
   get: publicProcedure
     .input(
       z.object({
-        category: CategoryEnum.optional(),
+        category: z.number().nullable(),
         page: z.number().min(0).default(0),
-        cursor: z.string().nullish(),
+        cursor: z.string().nullish().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { category, page, cursor } = input;
-      const take = env.BLOG_PAGINATION_SIZE;
+      const take = env.REFERENCE_PAGINATION_SIZE;
       const skip = page * take;
 
       const items =
-        (await ctx.prisma.blogPosts.findMany({
+        (await ctx.prisma.references.findMany({
           where: {
-            published: { lte: new Date() },
-            ...(category !== BlogCategory.ALL && { category: category }),
-          },
-          orderBy: {
-            published: "desc",
+            ...(category !== null && { categoryId: category }),
           },
           take: take + 1,
           skip,
@@ -41,4 +33,10 @@ export const blogPostsRouter = createTRPCRouter({
       }
       return { items, nextCursor };
     }),
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.references.findMany();
+  }),
+  getCategory: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.referenceCategory.findMany();
+  }),
 });

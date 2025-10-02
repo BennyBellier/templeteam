@@ -47,6 +47,12 @@
 
     --hero-banner-aside: 354.915 87% 60%;
 
+    --chart-1: oklch(56.707% 0.15174 299.037);
+    --chart-2: oklch(65.583% 0.17928 340.965);
+    --chart-3: oklch(64.089% 0.21218 21.221);
+    --chart-4: oklch(77.562% 0.13646 40.025);
+    --chart-5: oklch(95.42% 0.15613 108.653);
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -90,6 +96,12 @@
     --ring: 355 85% 65%;
 
     --hero-banner-aside: 354.915 87% 60%;
+
+    --chart-1: oklch(56.707% 0.15174 299.037);
+    --chart-2: oklch(65.583% 0.17928 340.965);
+    --chart-3: oklch(64.089% 0.21218 21.221);
+    --chart-4: oklch(77.562% 0.13646 40.025);
+    --chart-5: oklch(95.42% 0.15613 108.653);
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;

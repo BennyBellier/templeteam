@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useFieldArray, useFormContext } from "react-hook-form";
-import { type LegalGuardiansSchema } from "../Form";
+import type { LegalGuardiansSchema } from "../formUtils";
 import type { z } from "zod";
 import { CirclePlus, Trash2 } from "lucide-react";
 

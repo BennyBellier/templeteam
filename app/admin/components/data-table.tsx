@@ -1,5 +1,4 @@
 "use client";
-import { DataTablePagination } from "@/components/ui/data-table";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -17,7 +16,6 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   getExpandedRowModel,
   useReactTable,
@@ -25,16 +23,16 @@ import {
 import { useState } from "react";
 import { v4 as uuid4 } from "uuid";
 import { cn } from "@/lib/utils";
-import type { MemberWithLegalGuardians } from "./columns";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Phone, Stethoscope } from "lucide-react";
 import type { LegalGuardian } from "@prisma/client";
+import { type RouterOutputs } from "@/server/api/root";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<MemberWithLegalGuardians>[];
-  data: MemberWithLegalGuardians[];
+  columns: ColumnDef<RouterOutputs["association"]["dashboard"]["getSeasonMemberList"][number]>[];
+  data: RouterOutputs["association"]["dashboard"]["getSeasonMemberList"];
 }
 
 export function DataTable<TData, TValue>({
@@ -64,10 +62,10 @@ export function DataTable<TData, TValue>({
         <Input
           placeholder="Filtrer par nom/prénom..."
           value={
-            (table.getColumn("firstname")?.getFilterValue() as string) ?? ""
+            (table.getColumn("name")?.getFilterValue() as string) ?? ""
           }
           onChange={(event) =>
-            table.getColumn("firstname")?.setFilterValue(event.target.value)
+            table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="ml-4 max-w-sm"
         />
@@ -129,7 +127,7 @@ export function DataTable<TData, TValue>({
                             </Alert>
                           )}
                           <LegalContactAlert
-                            legualGuardians={row.original.legalGuardians}
+                            legualGuardians={row.original.guardians}
                           />
                         </div>
                       </TableCell>

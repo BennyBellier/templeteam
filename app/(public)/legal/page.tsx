@@ -26,27 +26,27 @@ export default function Legal() {
       <LayoutHeader>
         <LayoutTitle>Mentions légales</LayoutTitle>
         <LayoutDescription>
-          Consultez les mentions légales du site de l'association Temple Team
-          pour en savoir plus sur nos conditions d'utilisation et les
+          Consultez les mentions légales du site de l&apos;association Temple
+          Team pour en savoir plus sur nos conditions d&apos;utilisation et les
           obligations légales à respecter.
         </LayoutDescription>
       </LayoutHeader>
-      <LayoutSection className="space-y-2 items-start">
+      <LayoutSection className="items-start space-y-2">
         <Typography>
-          Le présent site web, accessible à l'adresse{" "}
+          Le présent site web, accessible à l&apos;adresse{" "}
           <a href="https://templeteam.fr">https://www.templeteam.fr</a>, est
-          édité par l'association <strong>Temple Team</strong> (loi 1901),
-          domiciliée au Gymnase Pierre de Couvertin, 6 Rue George Sand 38500
+          édité par l&apos;association <strong>Temple Team</strong> (loi 1901),
+          domiciliée au Gymnase Pierre de Coubertin, 6 Rue George Sand 38500
           Voiron.
         </Typography>
         <Typography>
           Directeur de la publication : Mr. Benjamin BELLIER
         </Typography>
       </LayoutSection>
-      <LayoutSection className="space-y-2 items-start">
+      <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Conception et hébergement</Typography>
         <Typography>
-          Le site web de l'association Temple Team a été conçu par Benjamin
+          Le site web de l&apos;association Temple Team a été conçu par Benjamin
           Bellier
           <br />
           Github:{" "}
@@ -62,7 +62,7 @@ export default function Legal() {
           <a href="mailto:benny.bellier@gmail.com">benny.bellier@gmail.com</a>
           <br />
           <br />
-          L'hébergement du site web est assuré par :
+          L&apos;hébergement du site web est assuré par :
           <br />
           <a
             href="https://www.o2switch.fr/"
@@ -75,7 +75,7 @@ export default function Legal() {
               height="98"
               viewBox="0 0 436 98"
               fill="none"
-              className="w-fit h-12 flex"
+              className="flex h-12 w-fit"
             >
               <g clip-path="url(#clip0_10_62)">
                 <path
@@ -121,17 +121,18 @@ export default function Legal() {
           </a>
         </Typography>
       </LayoutSection>
-      <LayoutSection className="space-y-2 items-start">
+      <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Images</Typography>
         <Typography>
-          Les images utilisées sur le site web de l'association Temple Team sont
-          soit la propriété de l'association Temple Team, soit utilisées avec
-          l'accord de leurs propriétaires. Toute utilisation non autorisée des
-          images est interdite et peut entraîner des poursuites.
+          Les images utilisées sur le site web de l&apos;association Temple Team
+          sont soit la propriété de l&apos;association Temple Team, soit
+          utilisées avec l&apos;accord de leurs propriétaires. Toute utilisation
+          non autorisée des images est interdite et peut entraîner des
+          poursuites.
         </Typography>
       </LayoutSection>
-      <LayoutSection className="space-y-2 items-start">
-        <Typography variant="h3">Conditions d'utilisation</Typography>
+      <LayoutSection className="items-start space-y-2">
+        <Typography variant="h3">Conditions d&apos;utilisation</Typography>
         <Typography>
           En utilisant ce site, le visiteur reconnaît avoir eu la possibilité de
           prendre connaissance des conditions d’utilisation.
@@ -162,45 +163,46 @@ export default function Legal() {
           provenant directement ou indirectement de ce dernier.
         </Typography>
       </LayoutSection>
-      <LayoutSection className="space-y-2 items-start">
+      <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Avis de non-responsabilité</Typography>
         <Typography>
-          Le site web de l'association Temple Team contient des liens vers
-          d'autres sites web. L'association n'est pas responsable du contenu de
-          ces sites web et ne peut garantir l'exactitude ou la fiabilité des
-          informations qui y figurent. L'utilisation de ces sites web se fait
-          aux risques et périls de l'utilisateur.
+          Le site web de l&apos;association Temple Team contient des liens vers
+          d&apos;autres sites web. L&apos;association n&apos;est pas responsable
+          du contenu de ces sites web et ne peut garantir l&apos;exactitude ou
+          la fiabilité des informations qui y figurent. L&apos;utilisation de
+          ces sites web se fait aux risques et périls de l&apos;utilisateur.
         </Typography>
       </LayoutSection>
-      <LayoutSection className="space-y-2 items-start">
+      <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Droits de propriété</Typography>
         <Typography>
-          Le site web de l'association Temple Team, ainsi que son contenu
+          Le site web de l&apos;association Temple Team, ainsi que son contenu
           (textes, images, logos, etc.) sont la propriété exclusive de
-          l'association ou de ses partenaires, et sont protégés par les lois en
-          vigueur relatives à la propriété intellectuelle. Toute reproduction,
-          représentation, modification, publication ou adaptation, partielle ou
-          intégrale, du site web ou de son contenu, sans l'autorisation
-          préalable et écrite de l'association ou de ses partenaires, est
-          strictement interdite et peut entraîner des poursuites.
+          l&apos;association ou de ses partenaires, et sont protégés par les
+          lois en vigueur relatives à la propriété intellectuelle. Toute
+          reproduction, représentation, modification, publication ou adaptation,
+          partielle ou intégrale, du site web ou de son contenu, sans
+          l&apos;autorisation préalable et écrite de l&apos;association ou de
+          ses partenaires, est strictement interdite et peut entraîner des
+          poursuites.
         </Typography>
       </LayoutSection>
-      <LayoutSection className="space-y-2 items-start">
+      <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Crédits photos et sources</Typography>
         <Typography>
-          Les photos utilisées sur le site web de l'association Temple Team sont
-          créditées lorsque cela est possible. Si vous constatez une erreur ou
-          une omission dans la mention des crédits photos ou des sources,
-          n'hésitez pas à nous contacter à l'adresse{" "}
+          Les photos utilisées sur le site web de l&apos;association Temple Team
+          sont créditées lorsque cela est possible. Si vous constatez une erreur
+          ou une omission dans la mention des crédits photos ou des sources,
+          n&apos;hésitez pas à nous contacter à l&apos;adresse{" "}
           <a href="mailto:contact@templeteam.fr">contact@templeteam.fr</a>.
         </Typography>
       </LayoutSection>
-      <LayoutSection className="space-y-2 items-start">
+      <LayoutSection className="items-start space-y-2">
         <Typography variant="h3">Lois applicables</Typography>
         <Typography>
-          Le site web de l'association Temple Team est soumis aux lois en
-          vigueur en France. Tout litige relatif à l'utilisation du site web
-          sera soumis à la compétence des tribunaux français.
+          Le site web de l&apos;association Temple Team est soumis aux lois en
+          vigueur en France. Tout litige relatif à l&apos;utilisation du site
+          web sera soumis à la compétence des tribunaux français.
         </Typography>
       </LayoutSection>
     </Layout>

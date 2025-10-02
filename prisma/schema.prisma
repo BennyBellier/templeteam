@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-1.0.x"]
 }
 
@@ -198,10 +198,11 @@ model LegalGuardian {
 
 model File {
   id                 String         @id @default(uuid())
-  year               DateTime
+  season             String         @default("2024/2025")
   filename           String?
   paymentMethod      PaymentMethod?
   paymentDetails     String?
+  paymentStatus      PaymentStatus  @default(Overdue)
   paymentAmout       Float?
   undersigner        String
   signature          String
@@ -213,9 +214,10 @@ model File {
   createdAt          DateTime       @default(now())
   updatedAt          DateTime       @updatedAt
 
-  @@unique([year(sort: Desc), memberId])
+  @@unique([season(sort: Desc), memberId])
   @@index([memberId])
-  @@index([year, memberId])
+  @@index([season])
+  @@index([season, memberId])
   @@index([paymentMethod])
   @@index([createdAt])
 }
@@ -338,4 +340,14 @@ enum PaymentMethod {
   Transfer
   Cheque
   Card
+}
+
+enum PaymentStatus {
+  Paid
+  Overdue
+  PendingCollection
+  InPart33
+  InPart50
+  InPart66
+  ToBeCashed
 }

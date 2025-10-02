@@ -124,7 +124,7 @@ export const treasurerProcedure = t.procedure.use(({ ctx, next }) => {
           session: { ...ctx.session, user: ctx.session.user },
         },
       });
-  
+
     default:
       throw new TRPCError({ code: "UNAUTHORIZED" });
   }

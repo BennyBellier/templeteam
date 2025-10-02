@@ -1,11 +1,11 @@
 "use server";
 
-import { type NextRequest, NextResponse } from "next/server";
-import { zfd } from "zod-form-data";
-import { z } from "zod";
-import { writeMemberFileMedic } from "@/server/file-manipulations";
-import { prisma } from "@/trpc/server";
+import { writeMemberFileMedic } from "@/server/file/file-manipulations";
 import logger from "@/server/logger";
+import { prisma } from "@/trpc/server";
+import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { zfd } from "zod-form-data";
 
 const loggerMetadata = { type: "api", endpoint: "association.UploadFile" };
 
@@ -31,7 +31,7 @@ export async function POST(req: NextRequest) {
 
     const medicUUID = await writeMemberFileMedic(memberId, medic);
 
-    await prisma.association.addFileMedic({
+    await prisma.association.registration.addFileMedic({
       fileId,
       medicFilename: medicUUID,
     });
@@ -58,7 +58,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         status: "error",
-        message: "Erreur interne lors de l'enregistrement du certificat médical.",
+        message:
+          "Erreur interne lors de l'enregistrement du certificat médical.",
         details: e,
       },
       { status: 500 },

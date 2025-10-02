@@ -1,200 +1,122 @@
 "use server";
 
-import { env } from "@/env.mjs";
+import { calculateAge, type Result } from "@/lib/utils";
 import {
-  associationPath,
-  getMemberPhotoPath,
-  serverPath,
-} from "@/server/file-manipulations";
+  moveFromTmpToMemberFolder,
+  rmTmpFile,
+} from "@/server/file/file-manipulations";
 import logger from "@/server/logger";
-import smtpOptions from "@/server/mail";
-import type {
-  AuthorizationState,
-  LegalGuardianState,
-  MemberState,
-} from "@/stores/registerFormStore";
+import { sendConfirmationMail } from "@/services/mails";
 import { prisma } from "@/trpc/server";
-import { render } from "@react-email/components";
-import RegistrationTemplate from "emails/AssociationRegistration";
-import nodemailer from "nodemailer";
+import {
+  RegisterMemberForSeasonSchema,
+  type RegisterMemberForSeasonInput,
+} from "./formUtils";
 
-const registerMember = async (
-  member: MemberState,
-): Promise<{
-  id: string;
-  new: boolean;
-}> => {
+export const registerMemberForYear = async (
+  input: RegisterMemberForSeasonInput,
+): Promise<Result<string>> => {
+  const parsed = RegisterMemberForSeasonSchema.safeParse(input);
+
+  if (!parsed.success)
+    return { ok: false, error: "Veuillez vérifier les informations saisies." };
+
+  const { member, photo, legalGuardians, authorization, courseRecords } =
+    parsed.data;
+
+  if (!courseRecords || !member || !authorization) {
+    return { ok: false, error: "Une étape n'a pas été remplie..." };
+  }
+
+  const isAdult = calculateAge(member.birthdate) >= 18;
+  if (!isAdult && (!legalGuardians || legalGuardians.length === 0)) {
+    return {
+      ok: false,
+      error:
+        "Veuillez renseigner au moins un responsable légal pour un adhérent mineur.",
+    };
+  }
+
   try {
-    const member_record = await prisma.association.createOrGetMember({
-      ...member,
-      mail: member.mail === "" ? undefined : member.mail,
-      phone: member.phone === "" ? undefined : member.phone,
+    // Check if not already exist file for this year for this member
+    const already = await prisma.association.registration.isMemberHaveFile({
+      lastname: member.lastname,
+      firstname: member.firstname,
       birthdate: new Date(member.birthdate),
-      medicalComment:
-        member.medicalComment === "" ? undefined : member.medicalComment,
+      mail: member.mail,
+      phone: member.phone,
     });
 
-    return member_record;
-  } catch (e) {
-    throw e;
-  }
-};
-
-const registerLegalGuardians = async (
-  memberId: string,
-  legalGuardians: LegalGuardianState[],
-) => {
-  try {
-    // eslint-disable-next-line prefer-const
-    let legalGuardian_records: {id:string, new: boolean}[] = [];
-
-    for (const lg of legalGuardians) {
-      legalGuardian_records.push(
-        await prisma.association.createOrGetLegalGuardian({
-          memberId,
-          mail: lg.mail === "" ? undefined : lg.mail,
-          lastname: lg.lastname,
-          firstname: lg.firstname,
-          phone: lg.phone,
-        }),
-      );
+    if (already) {
+      if (photo) await rmTmpFile(photo);
+      return {
+        ok: false,
+        error: `Il existe déjà une inscription au nom de ${member.lastname} ${member.firstname} pour cette saison.`,
+      };
     }
 
-    return legalGuardian_records;
-  } catch (e) {
-    throw e;
-  }
-};
-
-const registerFile = async (
-  memberId: string,
-  courses: Record<string, boolean>,
-  authorization: AuthorizationState,
-) => {
-  try {
-    const coursesArray = Object.keys(courses)
-      .map((key) => (courses[key] ? key : null))
+    // Convert Courses from Record<...> to String[]
+    const courses = Object.keys(courseRecords)
+      .map((key) => (courseRecords[key] ? key : null))
       .filter((key): key is string => key !== null);
 
-    const file = await prisma.association.createFileForMember({
-      memberId,
-      courses: coursesArray,
-      undersigner: authorization.undersigner,
-      signature: authorization.signature,
-    });
+    // Register Member + File un DB (encapsulate)
+    const { memberId } =
+      await prisma.association.registration.registerMemberWithFile({
+        member: { ...member, birthdate: new Date(member.birthdate) },
+        photo,
+        legalGuardians,
+        courses,
+        signature: authorization.signature,
+        undersigner: authorization.undersigner,
+      });
 
-    return file;
-  } catch (e) {
-    throw e;
-  }
-};
-
-const sendConfirmationMail = async (memberId: string, fileId: string) => {
-  try {
-    // Initialize nodemailer
-    const transporter = nodemailer.createTransport({ ...smtpOptions });
-
-    transporter.verify(function (error, success) {
-      if (error ?? !success) {
-        logger.error({
-          message: "Server can't take our messages.",
-          context: "nodemailer",
-          data: error,
-        });
-        throw new Error(
-          "Nous rencontrons actuellement un problème avec notre service d'e-mail. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.",
-        );
-      } else {
-        logger.debug({
-          message: "Server is ready to take our messages",
-          context: "nodemailer",
-        });
-      }
-    });
-
-    const memberFile = await prisma.association.getConfirmationMailInformations(
-      { memberId, fileId },
-    );
-
-    // eslint-disable-next-line @typescript-eslint/await-thenable, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call
-    const htmlContent = await render(RegistrationTemplate(memberFile));
-
-    const payload = {
-      from: `Temple Team <${env.REGISTER_MAIL}>`,
-      subject: `Confirmation de l'inscription de ${memberFile.lastname} ${memberFile.firstname}`,
-      replyTo: env.NOREPLY_MAIL,
-      html: htmlContent,
-      attachments: [
-        {
-          path: serverPath(associationPath, "certificat_medical.pdf"),
-        },
-        {
-          filename: memberFile.photo ?? undefined,
-          path: memberFile.photo
-            ? getMemberPhotoPath(memberId, memberFile.photo)
-            : undefined,
-          cid: memberFile.photo ? "photo" : undefined,
-        },
-      ],
-    };
-
-    let mailSended: string | undefined;
-
-    // Mail to member
-    transporter.sendMail(
-      {
-        ...payload,
-        to: memberFile.mailTo,
-      },
-      (error, info) => {
-        if (error) {
-          logger.error({
-            message: `Failed to send message to ${memberFile.mailTo}`,
-            context: "nodemailer",
-            data: error,
-          });
-          throw new Error(
-            "Une erreur s'est produite lors de l'envoie du mail de confirmation. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.",
-            { cause: "RegistrationConfirmationSendMail" },
-          );
-        } else {
-          logger.info({
-            message: `Message successfully send to ${memberFile.mailTo}`,
-            context: "nodemailer",
-            data: info,
-          });
-          mailSended = info.response;
-        }
-      },
-    );
-
-    return mailSended;
-  } catch (e) {
-    if (e instanceof Error && e.cause !== "RegistrationConfirmationSendMail") {
+    try {
+      // Move photo from tmp to member folder
+      if (photo) await moveFromTmpToMemberFolder(memberId, photo);
+    } catch (moveErr) {
       logger.error({
-        message:
-          "Error while trying to send association registration confirmation to member.",
-        context: "nodemailer",
-        requestId: "RegistrationConfirmation",
-        data: e,
+        message: `Failed to move photo from tmp/ for member ${memberId}`,
+        error: moveErr,
       });
     }
-    throw e;
+
+    // Send confirmation mail
+    try {
+      await sendConfirmationMail(memberId);
+    } catch (mailErr) {
+      logger.error({
+        context: "AssociationRegistration",
+        step: "sendMail",
+        message: `Failed to send confirmation mail`,
+        memberId,
+        error: mailErr,
+      });
+      return {
+        ok: false,
+        error:
+          "L'inscription a été enregistrée, mais l'envoi du mail a échoué. Contactez le support.",
+      };
+    }
+  } catch (e) {
+    logger.error({
+      context: "AssociationRegistration",
+      step: "global",
+      message: "Failed to register member.",
+      input: {
+        firstname: member.firstname,
+        lastname: member.lastname,
+      },
+      error: e,
+    });
+
+    if (photo) await rmTmpFile(photo);
+
+    return {
+      ok: false,
+      error:
+        "Erreur lors de l'inscription. Veuillez réessayer ou contacter le support si le problème persiste.",
+    };
   }
-};
-
-const registerValidationError = async (
-  member: { id: string; new: boolean },
-  fileId: string | undefined,
-  legalGuardians: { id: string; new: boolean }[],
-) => {
-  await prisma.association.deleteMember({ member, fileId, legalGuardians });
-};
-
-export {
-  registerFile,
-  registerLegalGuardians,
-  registerMember,
-  registerValidationError,
-  sendConfirmationMail,
+  return { ok: true, data: "Inscription réussie !" };
 };

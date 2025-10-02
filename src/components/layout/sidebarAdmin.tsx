@@ -22,13 +22,18 @@ const data = {
   navMain: [
     {
       title: "Adhérents",
-      url: "/admin",
-      items: [{ title: "Liste des adhérents", url: "" }],
+      url: "/admin/members",
+      items: [],
     },
     {
       title: "Trésorerie",
       url: "/admin/tresorerie",
       items: []
+    },
+    {
+      title: "Développeur",
+      url: "/admin/dev",
+      items: [{title: "Logs", url:"/admin/logs"}]
     }
   ],
 };
@@ -46,7 +51,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">TempleTeam</span>
-                  <span className="">v1.0.0</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -71,7 +75,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           asChild
                           // isActive={item.isActive}
                         >
-                          <a href={`/${item.url}`}>{item.title}</a>
+                          <a href={`${item.url}`}>{item.title}</a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
                     ))}

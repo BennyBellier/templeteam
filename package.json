@@ -96,6 +96,7 @@
     "react-hot-toast": "^2.5.1",
     "react-phone-number-input": "^3.4.11",
     "react-signature-canvas": "^1.0.7",
+    "recharts": "^2.15.4",
     "server-only": "^0.0.1",
     "sharp": "^0.33.5",
     "superjson": "^2.2.2",
@@ -141,5 +142,8 @@
   "ct3aMetadata": {
     "initVersion": "7.30.0"
   },
-  "packageManager": "npm@10.4.0"
+  "packageManager": "npm@10.4.0",
+  "overrides": {
+    "react-is": "^19.0.0-rc-69d4b800-20241021"
+  }
 }

@@ -23,12 +23,12 @@ export function useReferences() {
 }
 
 export const ReferencesProvider: FC<PropsWithChildren> = ({ children }) => {
-  const { data: references, isLoading } = trpc.references.getAll.useQuery();
- 
+  const { data: references, isLoading } = trpc.site.references.getAll.useQuery();
+
   return (
-    <ReferencesContext.Provider value={{ 
-      references, 
-      isLoading 
+    <ReferencesContext.Provider value={{
+      references,
+      isLoading
     }}>
       {children}
     </ReferencesContext.Provider>
