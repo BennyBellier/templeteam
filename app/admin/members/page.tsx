@@ -2,8 +2,8 @@ import { prisma } from "@/trpc/server";
 import type { Metadata } from "next";
 
 import { Typography } from "@/components/ui/typography";
-import { MemberChartPie } from "./components/chart-pie";
-import { OverallContributionChartJauge } from "./components/due-paid";
+import { MembersTable } from "./components/members-tables";
+
 
 export const metadata: Metadata = {
   title: "Administration | Temple Team",
@@ -15,17 +15,14 @@ export const metadata: Metadata = {
   category: "sports",
 };
 
-export default async function AdminDashboard() {
+export default async function AdminMembersList() {
   const season = await prisma.association.getCurrentSeason();
 
   return (
     <>
-      <Typography variant="h2">Tableau de bord</Typography>
+      <Typography variant="h2">Adhérents</Typography>
       <Typography variant="lead">Saison {season}</Typography>
-      <div className="flex flex-wrap gap-4 justify-around">
-        <MemberChartPie season={season} />
-        <OverallContributionChartJauge season={season} />
-      </div>
+      <MembersTable />
     </>
   );
 }

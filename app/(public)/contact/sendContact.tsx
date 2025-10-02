@@ -1,78 +1,41 @@
 "use server";
 
-import { env } from "@/env.mjs";
+import { type Result } from "@/lib/utils";
 import logger from "@/server/logger";
-import smtpOptions from "@/server/mailer";
-import { render } from "@react-email/components";
-import ContactTemplate from "emails/ContactTemplate";
-import TextContactTemplate from "emails/TextContactTemplate";
-import nodemailer from "nodemailer";
-import { type InputType } from "./contactForm";
+import { sendContactMail } from "@/services/mails/contact";
+import { type ContactFormInput, ContactFormSchema } from "./types";
 
-export const send = async (data: InputType) => {
+
+export const send = async (
+  input: ContactFormInput,
+): Promise<Result<string>> => {
+  const parsed = ContactFormSchema.safeParse(input);
+
+  if (!parsed.success)
+    return {
+      ok: false,
+      error: "Veuillez vérifier les informations saisies.",
+    };
+
+  const { name, mail, subject, message } = parsed.data;
+
+  // Send confirmation mail
   try {
-    const transporter = nodemailer.createTransport({ ...smtpOptions });
-
-    transporter.verify(function (error, success) {
-      if (error ?? !success) {
-        logger.error({
-          message: "Server can't take our messages.",
-          context: "nodemailer",
-          data: error,
-        });
-        throw new Error(
-          "Nous rencontrons actuellement un problème avec notre service d'e-mail. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.",
-        );
-      } else {
-        logger.debug({
-          message: "Server is ready to take our messages",
-          context: "nodemailer",
-        });
-      }
+    await sendContactMail(name, mail, subject, message);
+  } catch (mailErr) {
+    logger.error({
+      context: "ContactForm",
+      step: "sendMail",
+      message: `Failed to send contact mail`,
+      name,
+      error: mailErr,
     });
-
-    let mailSended: string | undefined;
-
-    transporter.sendMail(
-      {
-        from: `Temple Team <env.CONTACT_FROM_MAIL>`,
-        to: env.CONTACT_FROM_MAIL,
-        subject: data.subject,
-        replyTo: data.mail,
-        text: await render(TextContactTemplate(data), { plainText: true }),
-        html: await render(ContactTemplate(data)),
-      },
-      (error, info) => {
-        if (error) {
-          logger.error({
-            message: `Failed to send contact message`,
-            context: "nodemailer",
-            data: error,
-          });
-          throw new Error(
-            "Une erreur s'est produite lors de l'envoie du mail de confirmation. Veuillez réessayer plus tard ou contacter notre support si le problème persiste.",
-            { cause: "ContactSendMail" },
-          );
-        } else {
-          logger.info({
-            message: "Message successfully send",
-            context: "nodemailer",
-            data: info,
-          });
-          mailSended = info.response;
-        }
-      },
-    );
-    return mailSended;
-  } catch (e) {
-    if (e instanceof Error && e.cause !== "RegistrationConfirmationSendMail") {
-      logger.error({
-        message: "Error while trying to send contact message.",
-        context: "nodemailer",
-        requestId: "ContactSendMail",
-        data: e,
-      });
-    }
-    throw e;
+    return {
+      ok: false,
+      error:
+        "Une erreur s'est produite lors de l'envoie du mail de confirmation. Veuillez réessayer plus tard.",
+    };
   }
+
+  return { ok: true, data: "Nous avons bien reçu votre message !" };
 };

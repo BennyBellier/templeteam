@@ -15,47 +15,20 @@ import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartToo
 import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
 
-export const description = "A donut chart with text";
-
-/* const chartConfig = {
-  members: {
-    label: "Adhérents",
-  },
-  "Temple Run": {
-    label: "Chrome",
-    color: "var(--chart-1)",
-  },
-  "Temple Gym Junior": {
-    label: "Safari",
-    color: "var(--chart-2)",
-  },
-  Temple Gym: {
-    label: "Firefox",
-    color: "var(--chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig; */
-
-export function MemberChartPie() {
-  const fetch = trpc.association.dashboard.getSeasonPieInformation.useQuery({});
+export function MemberChartPie({ season }: { season: string }) {
+  const fetch = trpc.association.dashboard.getSeasonPieInformation.useQuery({season});
 
   return (
-    <Card className="flex flex-col w-64 h-[274px]">
+    <Card className="flex h-[274px] w-64 flex-col">
       <CardHeader className="items-center pb-0">
         <CardTitle>Adhérents</CardTitle>
-        <CardDescription>Saison 2025/2026</CardDescription>
       </CardHeader>
       <CardContent
-        className={cn("flex-1 pb-0", fetch.isLoading && "animate-pulse")}
+        className={cn("flex-1 pb-0 items-center", fetch.isLoading && "animate-pulse")}
       >
-        {(!fetch.isLoading && fetch.data) && <MemberChartPieContent data={fetch.data} />}
+        {!fetch.isLoading && fetch.data && (
+          <MemberChartPieContent data={fetch.data} />
+        )}
       </CardContent>
     </Card>
   );
@@ -70,7 +43,6 @@ const MemberChartPieContent = ({
     totalMembers: number;
   };
 }) => {
-  console.log(data);
   return (
     <ChartContainer
       config={data.chartConfig}

@@ -1,5 +1,11 @@
 import { type ChartConfig } from "@/components/ui/chart";
+import { calculateAge } from "@/lib/utils";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  getMemberPhotoPath,
+  getMemberPhotoPlaceholderPath,
+} from "@/server/file";
+import { PaymentStatus, Prisma } from "@prisma/client";
 import z from "zod";
 import { seasonSchema } from "./types";
 
@@ -87,7 +93,7 @@ export const DashboardRouter = createTRPCRouter({
         return {
           course: val.name,
           members: val._count.Files,
-          fill: `var(--chart-${idx + 1})`
+          fill: `var(--chart-${idx + 1})`,
         };
       });
 
@@ -99,4 +105,120 @@ export const DashboardRouter = createTRPCRouter({
         totalMembers: total,
       };
     }),
+
+  getSeasonMemberList: protectedProcedure
+    .input(
+      z.object({
+        season: seasonSchema,
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { season } = input;
+
+      const seasonMembersList = Prisma.validator<Prisma.FileFindManyArgs>()({
+        select: {
+          medicalCertificate: true,
+          paymentStatus: true,
+          member: {
+            select: {
+              id: true,
+              photo: true,
+              firstname: true,
+              lastname: true,
+              gender: true,
+              birthdate: true,
+              mail: true,
+              phone: true,
+              medicalComment: true,
+              legalGuardians: {
+                select: {
+                  firstname: true,
+                  lastname: true,
+                  phone: true,
+                },
+              },
+            },
+          },
+          courses: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      const fetch = await ctx.prisma.file.findMany({
+        ...seasonMembersList,
+        where: {
+          season,
+        },
+      });
+
+      return fetch.map(
+        ({ member, courses, medicalCertificate, paymentStatus }) => {
+          const photo: string = member.photo
+            ? getMemberPhotoPath(member.id, member.photo)
+            : getMemberPhotoPlaceholderPath();
+          const age = calculateAge(member.birthdate);
+
+          return {
+            id: member.id,
+            photo,
+            name: `${member.firstname} ${member.lastname}`,
+            gender: member.gender,
+            age,
+            mail: member.mail,
+            phone: member.phone,
+            courses: courses.map(({ name }) => name),
+            medicalComment: member.medicalComment,
+            medicalCertificate: medicalCertificate ? true : false,
+            payment: paymentStatus,
+            emergencyContact: member.legalGuardians.map(
+              ({ firstname, lastname, phone }) => {
+                return {
+                  name: `${firstname} ${lastname}`,
+                  phone: phone,
+                };
+              },
+            ),
+          };
+        },
+      );
+    }),
+
+  getOverallContributionStatus: protectedProcedure
+    .input(
+      z.object({
+        season: seasonSchema,
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const paid = await ctx.prisma.file.count({
+        where: {
+          AND: {
+            season: input.season,
+            paymentStatus: PaymentStatus.Paid,
+          },
+        },
+      });
+
+      const total = await ctx.prisma.file.count({
+        where: {
+          AND: {
+            season: input.season,
+          },
+        },
+      });
+
+      return { chartData: [{ paid, overdue: total - paid }], total };
+    }),
+
+  /* getReEnrolmentRate: protectedProcedure
+    .input(
+      z.object({
+        season: seasonSchema,
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+    }), */
 });

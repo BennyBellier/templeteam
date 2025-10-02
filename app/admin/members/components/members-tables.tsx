@@ -1,5 +1,10 @@
 "use client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -8,30 +13,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { type RouterOutputs } from "@/server/api/root";
+import { trpc } from "@/trpc/TrpcProvider";
+import type { LegalGuardian } from "@prisma/client";
 import {
   type ColumnDef,
   type ColumnFiltersState,
   type SortingState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getSortedRowModel,
-  getExpandedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Phone } from "lucide-react";
 import { useState } from "react";
-import { v4 as uuid4 } from "uuid";
-import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Phone, Stethoscope } from "lucide-react";
-import type { LegalGuardian } from "@prisma/client";
-import { type RouterOutputs } from "@/server/api/root";
+import { columns } from "./columns";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<RouterOutputs["association"]["dashboard"]["getSeasonMemberList"][number]>[];
+  columns: ColumnDef<
+    RouterOutputs["association"]["dashboard"]["getSeasonMemberList"][number]
+  >[];
   data: RouterOutputs["association"]["dashboard"]["getSeasonMemberList"];
 }
 
@@ -61,96 +65,85 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center space-x-2">
         <Input
           placeholder="Filtrer par nom/prénom..."
-          value={
-            (table.getColumn("name")?.getFilterValue() as string) ?? ""
-          }
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="ml-4 max-w-sm"
         />
       </div>
-      <ScrollArea className="max-h-full flex-1">
-        <Table className="max-h-full w-full">
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <>
-                  <TableRow
-                    onClick={() => row.toggleExpanded()}
-                    key={uuid4()}
-                    data-state={row.getIsSelected() && "selected"}
-                    className={cn(
-                      row.getIsExpanded() && "border-none bg-muted/50",
-                    )}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Liste des adhérents</CardTitle>
+          <Badge variant="secondary">{data.length} membres</Badge>
+        </CardHeader>
+        <CardContent>
+          <ScrollArea className="max-h-full flex-1">
+            <Table className="max-h-full w-full">
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                        </TableHead>
+                      );
+                    })}
                   </TableRow>
-                  {/* this render the expanded row */}
-                  {row.getIsExpanded() && (
-                    <TableRow key={uuid4()} className="bg-muted/50">
-                      <TableCell colSpan={columns.length} className="h-24">
-                        {/* You can create a seperate component to display the expanded data */}
-                        <div className="grid px-10 grid-cols-3 gap-4">
-                          {row.original.medicalComment && (
-                            <Alert className="h-fit w-fit self-center justify-self-center">
-                              <Stethoscope className="h-4 w-4" />
-                              <AlertTitle>Contact d&apos;urgence</AlertTitle>
-                              <AlertDescription className="flex flex-col gap-1">
-                                {row.original.medicalComment}
-                              </AlertDescription>
-                            </Alert>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
                           )}
-                          <LegalContactAlert
-                            legualGuardians={row.original.guardians}
-                          />
-                        </div>
-                      </TableCell>
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  )}
-                </>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Aucun résultat.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </ScrollArea>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={columns.length}
+                      className="h-24 text-center"
+                    >
+                      Aucun résultat.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+        </CardContent>
+      </Card>
       {/* <DataTablePagination table={table} /> */}
     </>
   );
+}
+
+export function MembersTable() {
+  const fetch = trpc.association.dashboard.getSeasonMemberList.useQuery({});
+
+  if (fetch.isLoading || !fetch.data) {
+    return <div className="h-16 animate-pulse" />;
+  }
+
+  return <DataTable columns={columns} data={fetch.data} />;
 }
 
 function LegalContactAlert({

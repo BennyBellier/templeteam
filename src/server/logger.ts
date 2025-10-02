@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { env } from "@/env.mjs";
 import winstonDevConsole from "@epegzz/winston-dev-console";
+import path from "path";
 import winston from "winston";
 
 const logLevels = {
@@ -15,7 +16,7 @@ const logLevels = {
 
 const winstonLogger = winston.createLogger({
   levels: logLevels,
-  level: env.NODE_ENV === "production" ? (env.LOG_LEVEL ?? "info") : "debug",
+  level: env.NODE_ENV === "production" ? env.LOG_LEVEL : "debug",
   format: winston.format.combine(
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
     winston.format.errors({ stack: true }),
@@ -24,8 +25,8 @@ const winstonLogger = winston.createLogger({
   ),
   transports: [
     new winston.transports.File({
-      filename: `app${new Date().toISOString().split('T')[0]}.log`, // fichier principal
-      dirname: env.LOG_FOLDER ?? "logs/", // dossier
+      filename: `app${new Date().toISOString().split("T")[0]}.log`, // fichier principal
+      dirname: path.join(process.cwd(), env.LOG_FOLDER),
       maxsize: 1 * 1024 * 1024 * 1024, // 1 Go
       maxFiles: 10, // conserve 10 fichiers max
       tailable: true, // conserve toujours le dernier en "app.log"
@@ -33,10 +34,14 @@ const winstonLogger = winston.createLogger({
     }),
   ],
   exceptionHandlers: [
-    new winston.transports.File({ filename: "logs/exception.log" }),
+    new winston.transports.File({
+      filename: path.join(process.cwd(), env.LOG_FOLDER, "exception.log"),
+    }),
   ],
   rejectionHandlers: [
-    new winston.transports.File({ filename: "logs/rejections.log" }),
+    new winston.transports.File({
+      filename: path.join(process.cwd(), env.LOG_FOLDER, "rejections.log"),
+    }),
   ],
   exitOnError: false,
 });

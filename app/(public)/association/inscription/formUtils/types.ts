@@ -1,11 +1,8 @@
-import { Gender, Prisma } from "@prisma/client";
-import z from "zod";
-import {
-  AuthorizationSchema,
-  LegalGuardianSchema,
-} from "./schemas";
 import { getPhoneData } from "@/components/ui/phone-input";
 import { calculateAge } from "@/lib/utils";
+import { Gender, Prisma } from "@prisma/client";
+import z from "zod";
+import { AuthorizationSchema, LegalGuardianSchema } from "./schemas";
 
 const coursesProps = Prisma.validator<Prisma.CourseDefaultArgs>()({
   select: {
@@ -119,7 +116,7 @@ const MemberRegistrationSchema = z
     }
   });
 
-export const RegisterMemberForYearSchema = z.object({
+export const RegisterMemberForSeasonSchema = z.object({
   member: MemberRegistrationSchema.optional(),
   photo: z.string().optional(),
   legalGuardians: LegalGuardianSchema.array().optional(),
@@ -127,6 +124,6 @@ export const RegisterMemberForYearSchema = z.object({
   courseRecords: z.record(z.boolean()).optional(),
 });
 
-export type RegisterMemberForYearInput = z.infer<
-  typeof RegisterMemberForYearSchema
+export type RegisterMemberForSeasonInput = z.infer<
+  typeof RegisterMemberForSeasonSchema
 >;

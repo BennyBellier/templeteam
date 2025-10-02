@@ -80,8 +80,8 @@ export async function moveFromTmpToMemberFolder(
       message: `Failed to move file`,
       src,
       dest,
-      err: error
-    })
+      err: error,
+    });
     return "";
   }
 }
@@ -160,7 +160,7 @@ export async function writeMemberFile(
   return filename;
 }
 
-export const getMemberPhotoPath = (memberId: string, photoFileName: string) =>
+export const getMemberPhotoPath = (memberId: string, photoFileName: string): string =>
   serverPath(
     membersPath,
     memberId,
@@ -168,7 +168,10 @@ export const getMemberPhotoPath = (memberId: string, photoFileName: string) =>
     photoFileName,
   );
 
-export const getMemberMedicPath = (memberId: string, medicFileName: string) =>
+export const getMemberPhotoPlaceholderPath = () : string =>
+  serverPath(membersPath, env.ASSOCIATION_MEMBER_PHOTO_PLACEHOLDER_NAME);
+
+export const getMemberMedicPath = (memberId: string, medicFileName: string): string  =>
   serverPath(
     membersPath,
     memberId,

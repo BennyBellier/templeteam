@@ -6,15 +6,15 @@ import {
   rmTmpFile,
 } from "@/server/file/file-manipulations";
 import logger from "@/server/logger";
+import { sendConfirmationMail } from "@/services/mails";
 import { prisma } from "@/trpc/server";
 import {
-  type RegisterMemberForYearInput,
-  RegisterMemberForYearSchema as RegisterMemberForSeasonSchema,
+  RegisterMemberForSeasonSchema,
+  type RegisterMemberForSeasonInput,
 } from "./formUtils";
-import { sendConfirmationMail } from "@/services/mails";
 
 export const registerMemberForYear = async (
-  input: RegisterMemberForYearInput,
+  input: RegisterMemberForSeasonInput,
 ): Promise<Result<string>> => {
   const parsed = RegisterMemberForSeasonSchema.safeParse(input);
 
@@ -61,14 +61,15 @@ export const registerMemberForYear = async (
       .filter((key): key is string => key !== null);
 
     // Register Member + File un DB (encapsulate)
-    const { memberId } = await prisma.association.registration.registerMemberWithFile({
-      member: { ...member, birthdate: new Date(member.birthdate) },
-      photo,
-      legalGuardians,
-      courses,
-      signature: authorization.signature,
-      undersigner: authorization.undersigner,
-    });
+    const { memberId } =
+      await prisma.association.registration.registerMemberWithFile({
+        member: { ...member, birthdate: new Date(member.birthdate) },
+        photo,
+        legalGuardians,
+        courses,
+        signature: authorization.signature,
+        undersigner: authorization.undersigner,
+      });
 
     try {
       // Move photo from tmp to member folder

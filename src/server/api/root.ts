@@ -2,6 +2,7 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 import { type inferReactQueryProcedureOptions } from "@trpc/react-query";
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
 
+import { AdministrationRouter } from "./routers/administration";
 import { AssociationRouter } from "./routers/association";
 import { SiteRouter } from "./routers/site";
 
@@ -13,6 +14,7 @@ import { SiteRouter } from "./routers/site";
 export const appRouter = createTRPCRouter({
   association: AssociationRouter,
   site: SiteRouter,
+  administration: AdministrationRouter,
 });
 
 // export type definition of API

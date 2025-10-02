@@ -35,13 +35,13 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className="group/html ltr max-h-screen"
+      className="group/html ltr max-h-dvh"
       data-scroll="0"
       suppressHydrationWarning
     >
       <body
         className={cn(
-          " max-h-screen font-sans antialiased",
+          " max-h-dvh font-sans antialiased",
           fontSans.variable,
           fontCaption.variable,
         )}
@@ -50,7 +50,7 @@ export default function RootLayout({
           <Providers>
           <div
             id="main-content"
-            className="flex h-screen max-h-screen min-h-screen w-full flex-col overflow-hidden"
+            className="flex h-dvh max-h-dvh min-h-screen w-full flex-col overflow-hidden"
           >
             {children}
           </div>

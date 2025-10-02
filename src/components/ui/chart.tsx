@@ -138,7 +138,7 @@ function ChartTooltipContent({
     const itemConfig = getPayloadConfigFromPayload(config, item, key);
     const value =
       !labelKey && typeof label === "string"
-        ? config[label]?.label ?? label
+        ? (config[label]?.label ?? label)
         : itemConfig?.label;
 
     if (labelFormatter) {
@@ -284,7 +284,7 @@ function ChartLegendContent({
       {payload
         .filter((item) => item.type !== "none")
         .map((item) => {
-          const key = `${nameKey ?? item.dataKey as string ?? "value"}`;
+          const key = `${nameKey ?? (item.dataKey as string) ?? "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
 
           return (
@@ -346,9 +346,7 @@ function getPayloadConfigFromPayload(
     ] as string;
   }
 
-  return configLabelKey in config
-    ? config[configLabelKey]
-    : config[key];
+  return configLabelKey in config ? config[configLabelKey] : config[key];
 }
 
 export {
