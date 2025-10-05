@@ -1,9 +1,8 @@
-import { prisma } from "@/trpc/server";
 import type { Metadata } from "next";
 
-import { Typography } from "@/components/ui/typography";
-import { MemberChartPie } from "./components/chart-pie";
-import { OverallContributionChartJauge } from "./components/due-paid";
+import { MemberChartPie } from "../components/chart-pie";
+import { OverallContributionChartJauge } from "../components/due-paid";
+import { AdminPageTitle } from "../components/page-title";
 
 export const metadata: Metadata = {
   title: "Administration | Temple Team",
@@ -16,15 +15,14 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminDashboard() {
-  const season = await prisma.association.getCurrentSeason();
-
   return (
     <>
-      <Typography variant="h2">Tableau de bord</Typography>
-      <Typography variant="lead">Saison {season}</Typography>
-      <div className="flex flex-wrap gap-4 justify-around">
-        <MemberChartPie season={season} />
-        <OverallContributionChartJauge season={season} />
+      <AdminPageTitle title="Tableau de bord" />
+      <div className="container flex flex-1 flex-col gap-4 px-4 py-4 sm:px-6 sm:py-5 lg:py-6">
+        <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+          <MemberChartPie />
+          <OverallContributionChartJauge />
+        </div>
       </div>
     </>
   );

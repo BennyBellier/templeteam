@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useSeasons } from "@/providers/SeasonProvider";
 import { type RouterOutputs } from "@/server/api/root";
 import { trpc } from "@/trpc/TrpcProvider";
 import type { LegalGuardian } from "@prisma/client";
@@ -137,7 +138,10 @@ export function DataTable<TData, TValue>({
 }
 
 export function MembersTable() {
-  const fetch = trpc.association.dashboard.getSeasonMemberList.useQuery({});
+  const { currentSeason } = useSeasons();
+  const fetch = trpc.association.dashboard.getSeasonMemberList.useQuery({
+    season: currentSeason ?? undefined,
+  });
 
   if (fetch.isLoading || !fetch.data) {
     return <div className="h-16 animate-pulse" />;

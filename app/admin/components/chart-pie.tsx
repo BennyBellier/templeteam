@@ -6,17 +6,19 @@ import { Label, Pie, PieChart } from "recharts";
 import {
   Card,
   CardContent,
-  CardDescription,
-  // CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { trpc } from "@/trpc/TrpcProvider";
+import { useSeasons } from "@/providers/SeasonProvider";
 
-export function MemberChartPie({ season }: { season: string }) {
-  const fetch = trpc.association.dashboard.getSeasonPieInformation.useQuery({season});
+export function MemberChartPie() {
+  const { currentSeason } = useSeasons();
+  const fetch = trpc.association.dashboard.getSeasonPieInformation.useQuery({
+    season: currentSeason ?? undefined,
+  });
 
   return (
     <Card className="flex h-[274px] w-64 flex-col">

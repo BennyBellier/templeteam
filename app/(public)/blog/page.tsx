@@ -10,7 +10,7 @@ import BlogPost, { CategorySelector } from "./BlogPostWithSelectors";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog | Temple Team",
+  title: "Blog",
   description: "Obtenez les dernières informations sur l'équipe, les derniers articles et bien plus encore.",
   authors: {
     name: "BELLIER Benjamin",

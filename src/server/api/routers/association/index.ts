@@ -1,5 +1,9 @@
 import { env } from "@/env.mjs";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import { CoursesRouter } from "./courses";
 import { DashboardRouter } from "./dashboard";
 import { RegistrationRouter } from "./registration";
@@ -13,5 +17,28 @@ export const AssociationRouter = createTRPCRouter({
 
   getCurrentSeason: publicProcedure.query(() => {
     return env.FILE_SEASON;
+  }),
+
+  getSeasons: protectedProcedure.query(async ({ ctx }) => {
+    const seasonsFetch = await ctx.prisma.file.findMany({
+      distinct: "season",
+      select: {
+        season: true,
+      },
+      orderBy: {
+        season: "desc"
+      }
+    });
+
+    const seasons = seasonsFetch.flatMap(({ season }) => season);
+
+    if (!seasons.includes(env.FILE_SEASON)) {
+      seasons.unshift(env.FILE_SEASON);
+    }
+
+    return {
+      seasons,
+      currentSeason: env.FILE_SEASON,
+    };
   }),
 });

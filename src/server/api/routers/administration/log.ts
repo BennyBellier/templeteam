@@ -9,7 +9,7 @@ interface LogEntry {
   level: "info" | "error" | "warn" | "debug";
   message: string;
   [key: string]: unknown;
-  timestamp?: string;
+  timestamp: string;
 }
 
 export const LogsRouter = createTRPCRouter({
@@ -44,6 +44,7 @@ export const LogsRouter = createTRPCRouter({
             context: "",
             level: "warn",
             message: "",
+            timestamp: new Date().toISOString(),
           });
         }
       }
@@ -57,7 +58,7 @@ export const LogsRouter = createTRPCRouter({
       const tb = b.timestamp
         ? new Date(b.timestamp).getTime()
         : Number.MAX_SAFE_INTEGER;
-      return ta - tb;
+      return tb - ta;
     });
 
     const lastLogs = allLogs.slice(-1000);

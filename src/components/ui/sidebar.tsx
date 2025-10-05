@@ -15,8 +15,7 @@ import { cn } from "@/lib/utils";
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
-import { AccessibleIcon } from "./accessible-icon";
-import { Menu } from "lucide-react";
+import { PanelLeftIcon } from "lucide-react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -278,17 +277,15 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn("size-7", className)}
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}
     >
-      <AccessibleIcon label="Toggle Sidebar">
-        <Menu />
-      </AccessibleIcon>
-      {/* <span className="sr-only">Toggle Sidebar</span> */}
+        <PanelLeftIcon className="size-5" />
+      <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );
 });

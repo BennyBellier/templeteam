@@ -16,7 +16,7 @@ import { NavigationLinks } from "@/lib/site-config";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
 
-export function AppSidebar() {
+export function AppPublicSidebar() {
   return (
     <Sidebar side="right" variant="inset">
       <SidebarContent>

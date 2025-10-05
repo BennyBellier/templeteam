@@ -8,6 +8,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
+import { useSeasons } from "@/providers/SeasonProvider";
 import { trpc } from "@/trpc/TrpcProvider";
 import { Label, PolarRadiusAxis, RadialBar, RadialBarChart } from "recharts";
 
@@ -22,10 +23,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function OverallContributionChartJauge({ season }: { season: string }) {
+export function OverallContributionChartJauge() {
+  const { currentSeason } = useSeasons();
   const fetch =
     trpc.association.dashboard.getOverallContributionStatus.useQuery({
-      season,
+      season: currentSeason ?? undefined,
     });
 
   return (

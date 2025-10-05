@@ -191,7 +191,6 @@ export const FileUploader = forwardRef<
         onValueChange(newValues);
 
         if (rejectedFiles.length > 0) {
-          console.log(rejectedFiles);
           rejectedFiles.map((rejectedFile) => {
             if (rejectedFile.errors[0]?.code === "file-too-large") {
               toast.error(

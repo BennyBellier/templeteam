@@ -15,6 +15,7 @@ import { Loader } from "@/components/ui/loader";
 import LoginErrors from "@/lib/loginErrors";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { throttle } from "lodash";
 import { Ban } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -23,11 +24,12 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { z } from "zod";
 import { ShowHide } from "./ShowHide";
-import { throttle } from "lodash";
 
 // Schema definition for form validation using Zod
 const formSchema = z.object({
-  identifier: z.string({ required_error: "Veuillez saisir une adresse mail ou un nom d'utilisateur."}),
+  identifier: z.string({
+    required_error: "Veuillez saisir une adresse mail ou un nom d'utilisateur.",
+  }),
   password: z.string({ required_error: "Veuillez saisir le mot de passe." }),
 });
 
@@ -62,9 +64,11 @@ export function Login({ callbackUrl }: Props) {
       form.resetField("password");
       toastId = toast.loading("Connexion en cours");
 
-      const response = await signIn("credentials", {...values, redirect: false,  callback: "/admin"});
-
-      console.log(response)
+      const response = await signIn("credentials", {
+        ...values,
+        redirect: false,
+        callback: "/admin",
+      });
 
       if (response) {
         if (!response.ok) {
@@ -103,7 +107,7 @@ export function Login({ callbackUrl }: Props) {
             id: toastId,
             duration: 3000,
           });
-          router.push(callbackUrl ?? "/admin");
+          router.push(callbackUrl ?? "/admin/dashboard");
         }
       }
     } catch (error) {
