@@ -36,7 +36,13 @@ export const LogsRouter = createTRPCRouter({
         if (line.trim().length === 0) continue;
         try {
           const parsed = JSON.parse(line) as LogEntry;
-          allLogs.push(parsed);
+
+          const safeLog: LogEntry = {
+            timestamp: parsed.timestamp ?? new Date("1970-01-01").toISOString(),
+            ...parsed,
+          };
+
+          allLogs.push(safeLog);
         } catch {
           allLogs.push({
             error: "Invalid JSON",
