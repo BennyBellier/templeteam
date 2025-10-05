@@ -17,7 +17,7 @@ export function MemberCard({ member }: MemberCardProps) {
         <div className="flex items-start gap-5">
           <Avatar className="h-24 w-24 border-4 border-white shadow-xl ring-2 ring-primary/20">
             <AvatarImage
-              src={member.photo || "/placeholder.svg"}
+              src={member.photo}
               alt={member.name}
             />
             <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-2xl font-bold text-primary-foreground">

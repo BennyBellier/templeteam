@@ -1,13 +1,11 @@
 import { type ChartConfig } from "@/components/ui/chart";
 import { calculateAge } from "@/lib/utils";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import {
-  getMemberPhotoPath,
-  getMemberPhotoPlaceholderPath,
-} from "@/server/file";
 import { PaymentStatus, Prisma } from "@prisma/client";
 import z from "zod";
 import { seasonSchema } from "./types";
+import path from "path";
+import { paths } from "@/server/fs/paths";
 
 export const DashboardRouter = createTRPCRouter({
   getSeasonMemberCount: protectedProcedure
@@ -156,9 +154,9 @@ export const DashboardRouter = createTRPCRouter({
 
       return fetch.map(
         ({ member, courses, medicalCertificate, paymentStatus }) => {
-          const photo: string = member.photo
-            ? getMemberPhotoPath(member.id, member.photo)
-            : getMemberPhotoPlaceholderPath();
+          const photo = member.photo
+            ? paths.members.photos(member.id).public(member.photo)
+            : undefined;
           const age = calculateAge(member.birthdate);
 
           return {

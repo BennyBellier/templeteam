@@ -2,9 +2,9 @@
 
 import { calculateAge, type Result } from "@/lib/utils";
 import {
-  moveFromTmpToMemberFolder,
+  moveFromTmpToMemberPhotoFolder,
   rmTmpFile,
-} from "@/server/file/file-manipulations";
+} from "@/server/fs/files-manipulation";
 import logger from "@/server/logger";
 import { sendConfirmationMail } from "@/services/mails";
 import { prisma } from "@/trpc/server";
@@ -73,7 +73,7 @@ export const registerMemberForYear = async (
 
     try {
       // Move photo from tmp to member folder
-      if (photo) await moveFromTmpToMemberFolder(memberId, photo);
+      if (photo) await moveFromTmpToMemberPhotoFolder(memberId, photo);
     } catch (moveErr) {
       logger.error({
         message: `Failed to move photo from tmp/ for member ${memberId}`,

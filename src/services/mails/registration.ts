@@ -2,18 +2,20 @@
 import "server-only";
 
 import { env } from "@/env.mjs";
-import { associationPath, getMemberPhotoPath, serverPath } from "@/server/file";
 import logger from "@/server/logger";
 import MailService from "@/server/mailer";
 import { prisma } from "@/trpc/server";
 import { render } from "@react-email/render";
 import RegistrationTemplate from "emails/AssociationRegistration";
+import { paths, STATIC_FILES } from "@/server/fs/paths";
 
 export async function sendConfirmationMail(memberId: string) {
   const memberFile =
-    await prisma.association.registration.getConfirmationMailInformationsForSeason({
-      memberId,
-    });
+    await prisma.association.registration.getConfirmationMailInformationsForSeason(
+      {
+        memberId,
+      },
+    );
 
   const htmlContent = await render(RegistrationTemplate(memberFile));
 
@@ -25,12 +27,12 @@ export async function sendConfirmationMail(memberId: string) {
     html: htmlContent,
     attachments: [
       {
-        path: serverPath(associationPath, "certificat_medical.pdf"),
+        path: STATIC_FILES.certificatMedical.server,
       },
       memberFile.photo
         ? {
             filename: memberFile.photo,
-            path: getMemberPhotoPath(memberId, memberFile.photo),
+            path: paths.members.photos(memberId).server(memberFile.photo),
             cid: "photo",
           }
         : {},

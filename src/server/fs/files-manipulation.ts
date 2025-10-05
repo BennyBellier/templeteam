@@ -5,31 +5,32 @@ import logger from "@/server/logger";
 import * as fs from "fs";
 import * as path from "path";
 import { v4 as uuidv4 } from "uuid";
-import { membersPath, tempPath } from "./constants";
-import { folderExist, mkdir, mv, rm, serverPath } from "./utils";
+import { folderExist, mkdir, mv, rm, serverPath } from "./fileOps";
+import { paths } from "./paths";
 
 export async function storeFileInTmp(file: File): Promise<string> {
-  if (!folderExist(env.TEMP_FOLDER)) {
-    mkdir(serverPath(env.TEMP_FOLDER), true);
+  if (!folderExist(paths.temp.server())) {
+    mkdir(serverPath(paths.temp.server()), true);
   }
 
   // Generate filename and file path
   const filename = `${uuidv4()}${path.extname(file.name)}`;
-  const filePath = serverPath(env.TEMP_FOLDER, filename);
+  const dest = paths.temp.server(filename);
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(filePath, buffer);
+  fs.writeFileSync(dest, buffer);
 
   return filename;
 }
 
 export async function rmTmpFile(filename: string) {
-  if (!folderExist(env.TEMP_FOLDER)) {
+  if (!folderExist(paths.temp.server())) {
     return;
   }
 
-  const filePath = serverPath(env.TEMP_FOLDER, filename);
-  rm(filePath);
+  const dest = paths.temp.server(filename);
+
+  rm(dest);
 }
 
 /**
@@ -37,9 +38,8 @@ export async function rmTmpFile(filename: string) {
  * @param id - id of the member in table Member
  */
 export function generateMemberFolder(id: string): void {
-  if (!folderExist(membersPath, id)) {
-    const memberPath = serverPath(membersPath, id);
-
+  const memberPath = paths.members.root(id).server();
+  if (!folderExist(memberPath)) {
     mkdir(path.join(memberPath, env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER), true);
     mkdir(path.join(memberPath, env.ASSOCIATION_MEMBERS_MEDICS_FOLDER), true);
     mkdir(path.join(memberPath, env.ASSOCIATION_MEMBERS_FILES_FOLDER), true);
@@ -53,7 +53,7 @@ export function generateMemberFolder(id: string): void {
   }
 }
 
-export async function moveFromTmpToMemberFolder(
+export async function moveFromTmpToMemberPhotoFolder(
   memberId: string,
   filename: string,
 ): Promise<string> {
@@ -61,15 +61,11 @@ export async function moveFromTmpToMemberFolder(
   generateMemberFolder(memberId);
 
   // Get source file (in temp folder)
-  const src = serverPath(tempPath, filename);
+  const src = paths.temp.server(filename);
 
   // Get destination in member folder
-  const dest = serverPath(
-    membersPath,
-    memberId,
-    env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER,
-    filename,
-  );
+  const dest = paths.members.photos(memberId).server(filename);
+
   try {
     mv(src, dest);
     return dest;
@@ -111,7 +107,7 @@ export async function moveFromTmpToMemberFolder(
   fs.writeFileSync(filePath, buffer);
 
   return filename;
-} */
+} */ 
 
 export async function writeMemberFileMedic(
   memberId: string,
@@ -120,16 +116,9 @@ export async function writeMemberFileMedic(
   // Check and generate if member folder does not exist
   generateMemberFolder(memberId);
 
-  // Get members/{id}/photo folder path
-  const memberMedicPath = serverPath(
-    membersPath,
-    memberId,
-    env.ASSOCIATION_MEMBERS_MEDICS_FOLDER,
-  );
-
   // Generate filename and file path for the photo
   const filename = `${uuidv4()}_${Date.now()}${path.extname(file.name)}`;
-  const filePath = path.join(memberMedicPath, filename);
+  const filePath = paths.members.medical(memberId).server(filename);
 
   const buffer = Buffer.from(await file.arrayBuffer());
   fs.writeFileSync(filePath, buffer);
@@ -144,37 +133,11 @@ export async function writeMemberFile(
   // Check and generate if member folder does not exist
   generateMemberFolder(memberId);
 
-  // Get members/{id}/photo folder path
-  const memberFilePath = serverPath(
-    membersPath,
-    memberId,
-    env.ASSOCIATION_MEMBERS_FILES_FOLDER,
-  );
-
   // Generate filename and file path for the photo
   const filename = `${uuidv4()}_${Date.now()}.pdf}`;
-  const filePath = path.join(memberFilePath, filename);
+  const filePath = paths.members.photos(memberId).server(filename);
 
   fs.writeFileSync(filePath, file);
 
   return filename;
 }
-
-export const getMemberPhotoPath = (memberId: string, photoFileName: string): string =>
-  serverPath(
-    membersPath,
-    memberId,
-    env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER,
-    photoFileName,
-  );
-
-export const getMemberPhotoPlaceholderPath = () : string =>
-  serverPath(membersPath, env.ASSOCIATION_MEMBER_PHOTO_PLACEHOLDER_NAME);
-
-export const getMemberMedicPath = (memberId: string, medicFileName: string): string  =>
-  serverPath(
-    membersPath,
-    memberId,
-    env.ASSOCIATION_MEMBERS_MEDICS_FOLDER,
-    medicFileName,
-  );

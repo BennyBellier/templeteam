@@ -1,6 +1,6 @@
 "use server";
 
-import { storeFileInTmp } from "@/server/file/file-manipulations";
+import { storeFileInTmp } from "@/server/fs/files-manipulation";
 import logger from "@/server/logger";
 import { type NextRequest, NextResponse } from "next/server";
 import { zfd } from "zod-form-data";
@@ -24,10 +24,7 @@ export async function POST(req: NextRequest) {
     const { file } = parsed.data;
     const tmp_filename = await storeFileInTmp(file);
 
-    return NextResponse.json(
-      { ok: true, data: tmp_filename },
-      { status: 200 },
-    );
+    return NextResponse.json({ ok: true, data: tmp_filename }, { status: 200 });
   } catch (e) {
     logger.error({
       context: "API",

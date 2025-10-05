@@ -1,11 +1,10 @@
 "use server";
 
 import { calculateMembershipPrice } from "@/lib/utils";
-import { associationPath, serverPath } from "@/server/file";
 import {
-  getMemberPhotoPath,
   writeMemberFile,
-} from "@/server/file/file-manipulations";
+} from "@/server/fs/files-manipulation";
+import { paths, STATIC_FILES } from "@/server/fs/paths";
 import { prisma } from "@/trpc/server";
 import fontkit from "@pdf-lib/fontkit";
 import { Gender } from "@prisma/client";
@@ -32,7 +31,7 @@ export async function generateRegistrationPDF(id: string): Promise<Buffer> {
   }
   try {
     const uint8Array = fs.readFileSync(
-      serverPath(associationPath, "Template_dossier_inscription_2024-2025.pdf"),
+      STATIC_FILES.File.server,
     );
     const pdfDoc = await PDFDocument.load(uint8Array);
 
@@ -43,9 +42,7 @@ export async function generateRegistrationPDF(id: string): Promise<Buffer> {
     if (!pages || pages.length < 1)
       throw new Error("Echec du chargement du fichier pdf");
 
-    const { height } = pages[0]
-      ? pages[0].getSize()
-      : { height: 0 };
+    const { height } = pages[0] ? pages[0].getSize() : { height: 0 };
 
     // Charger la police d'écriture
     const centuryGothicPath = path.join(
@@ -98,7 +95,7 @@ export async function generateRegistrationPDF(id: string): Promise<Buffer> {
 
     if (data.photo) {
       const photoBytes = fs.readFileSync(
-        getMemberPhotoPath(memberId, data.photo),
+        paths.members.photos(memberId).server(data.photo)
       );
       let photoImage: PDFImage | null = null;
       if (data.photo.endsWith(".png")) {

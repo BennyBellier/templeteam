@@ -1,8 +1,8 @@
 import "server-only";
 
+import logger from "@/server/logger";
 import * as fs from "fs";
 import * as path from "path";
-import logger from "@/server/logger";
 
 export function serverPath(...paths: string[]): string {
   return path.join(process.cwd(), ...paths);
@@ -75,29 +75,29 @@ export function rmdir(path: string, recursive: boolean): void {
 
 export function mv(src: string, dest: string): void {
   fs.rename(src, dest, function (err) {
-    if (err) throw err
+    if (err) throw err;
     logger.debug({
       context: "FileManipulation",
       requestPath: "mv",
       src,
       dest,
-      message: "File successfully moved"
+      message: "File successfully moved",
     });
-  })
+  });
 }
 
 export function rm(path: string) {
   fs.unlink(path, function (err) {
-    if (err) throw err
+    if (err) throw err;
     logger.debug({
       context: "FileManipulation",
       requestPath: "rm",
       file: path,
       message: "File successfully deleted",
     });
-  })
+  });
 }
 
-export function folderExist(...path: string[]): boolean {
-  return fs.existsSync(serverPath(...path));
+export function folderExist(path: fs.PathLike): boolean {
+  return fs.existsSync(path);
 }
