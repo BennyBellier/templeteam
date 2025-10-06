@@ -49,7 +49,8 @@
     "src/**/*.ts",
     "src/components/**/*.tsx",
     "src/components/**/*.ts",
-    ".vscode/(public)/page.tsx"
+    ".vscode/(public)/page.tsx",
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }

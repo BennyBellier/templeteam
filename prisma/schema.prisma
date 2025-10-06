@@ -22,6 +22,7 @@ model User {
   sessions      Session[]
 
   @@map("user")
+  @@index([email])
 }
 
 model Session {
@@ -37,6 +38,8 @@ model Session {
   updatedAt      DateTime @updatedAt
 
   @@map("session")
+  @@index([userId, token])
+  @@index([token])
 }
 
 model Account {
@@ -60,6 +63,7 @@ model Account {
 
   @@unique([providerId, accountId])
   @@map("account")
+  @@index([userId])
 }
 
 model Verification {

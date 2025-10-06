@@ -34,6 +34,8 @@ export default function SignIn(props: {params: Params, searchParams: SearchParam
 
 export default function SignInPage() {
   return (
-    <SignIn />
+    <div className="container flex justify-center items-center h-dvh">
+      <SignIn />
+    </div>
   )
 }
