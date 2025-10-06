@@ -18,11 +18,13 @@ model User {
   banned        Boolean?
   banReason     String?
   banExpires    DateTime?
+  createdAt     DateTime
+  updatedAt     DateTime
   accounts      Account[]
   sessions      Session[]
 
-  @@map("user")
   @@index([email])
+  @@map("user")
 }
 
 model Session {
@@ -34,12 +36,12 @@ model Session {
   userId         String
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   impersonatedBy String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime
+  updatedAt      DateTime
 
-  @@map("session")
   @@index([userId, token])
   @@index([token])
+  @@map("session")
 }
 
 model Account {
@@ -57,22 +59,22 @@ model Account {
   // type                 String
   // token_type           String?
   // session_state        String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  createdAt             DateTime
+  updatedAt             DateTime
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId])
-  @@map("account")
   @@index([userId])
+  @@map("account")
 }
 
 model Verification {
-  id         String    @id
+  id         String   @id
   identifier String
   value      String
   expiresAt  DateTime
-  createdAt  DateTime?
-  updatedAt  DateTime?
+  createdAt  DateTime
+  updatedAt  DateTime
 
   @@map("verification")
 }

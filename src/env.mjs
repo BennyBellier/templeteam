@@ -51,10 +51,6 @@ export const env = createEnv({
       .string()
       .default("placeholder.jpg"),
     INSURANCE_MEMBERSHIP_PRICE: z.coerce.number().default(20),
-
-    ADMIN_MAIL: z.string().email(),
-    ADMIN_NAME: z.string(),
-    ADMIN_PASSWORD: z.string().min(8),
   },
 
   /**
@@ -109,9 +105,6 @@ export const env = createEnv({
     INSURANCE_MEMBERSHIP_PRICE: process.env.INSURANCE_MEMBERSHIP_PRICE,
     ASSOCIATION_MEMBER_PHOTO_PLACEHOLDER_NAME:
       process.env.ASSOCIATION_MEMBER_PHOTO_PLACEHOLDER_NAME,
-    ADMIN_MAIL: process.env.ADMIN_MAIL,
-    ADMIN_NAME: process.env.ADMIN_NAME,
-    ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

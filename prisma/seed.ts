@@ -1,4 +1,4 @@
-import { Gender, Role } from "@prisma/client";
+import { Gender } from "@prisma/client";
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { env } from "@/env.mjs";
 import { faker } from "@faker-js/faker";
@@ -243,7 +243,7 @@ const main = async () => {
         },
         files: {
           create: {
-            year: new Date("2024-09-01"),
+            season: new Date("2024/2025"),
             medicalCertificate: faker.system.commonFileName("jpg"),
             undersigner: faker.person.fullName(),
             signature: "signature.png",

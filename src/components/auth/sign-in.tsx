@@ -1,13 +1,20 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { signIn } from "@/server/auth-client";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -18,89 +25,91 @@ export default function SignIn() {
   return (
     <Card className="max-w-md">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
+        <CardTitle className="text-lg md:text-xl">Se connecter</CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          Enter your email below to login to your account
+          Entrez votre adresse e-mail ci-dessous pour vous connecter à votre
+          compte.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4">
           <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                required
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                }}
-                value={email}
-              />
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@exemple.com"
+              required
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+              value={email}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <div className="flex items-center">
+              <Label htmlFor="password">Mot de passe</Label>
             </div>
 
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Mot de passe"
+              autoComplete="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-              </div>
-
-              <Input
-                id="password"
-                type="password"
-                placeholder="password"
-                autoComplete="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-                <Checkbox
-                  id="remember"
-                  onClick={() => {
-                    setRememberMe(!rememberMe);
-                  }}
-                />
-                <Label htmlFor="remember">Remember me</Label>
-              </div>
-
-
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="remember"
+              onClick={() => {
+                setRememberMe(!rememberMe);
+              }}
+            />
+            <Label htmlFor="remember">Se souvenir de moi</Label>
+          </div>
 
           <Button
-              type="submit"
-              className="w-full"
-              disabled={loading}
-              onClick={async () => {
-                await signIn.email(
+            type="submit"
+            className="w-full"
+            disabled={loading}
+            onClick={async () => {
+              await signIn.email(
                 {
-                    email,
-                    password
+                  email,
+                  password,
+                  rememberMe,
+                  callbackURL: "/admin/dashboard",
                 },
                 {
-                  onRequest: (ctx) => {
+                  onRequest: () => {
                     setLoading(true);
                   },
-                  onResponse: (ctx) => {
+                  onResponse: () => {
                     setLoading(false);
+                    toast.success("Connecté");
+                  },
+                  onError: () => {
+                    setLoading(false);
+                    toast.error("Mail ou mot de passe incorrecte.", {
+                      duration: 5000,
+                    });
                   },
                 },
-                );
-              }}
-            >
-              {loading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <p> Login </p>
-              )}
-              </Button>
-
-
-
-
+              );
+            }}
+          >
+            {loading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <p> Se connecter </p>
+            )}
+          </Button>
         </div>
       </CardContent>
-
     </Card>
   );
 }

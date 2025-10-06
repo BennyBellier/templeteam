@@ -1,7 +1,7 @@
 /* import { use } from "react";
 import { Login } from "@/components/features/Form/Login"; */
-import type { Metadata } from "next";
 import SignIn from "@/components/auth/sign-in";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Connexion",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     name: "BELLIER Benjamin",
     url: "https://github.com/BennyBellier",
   },
-  category: "sports"
+  category: "sports",
 };
 
 /* type Params = Promise<{ error: string, callbackUrl: string }>;
@@ -34,8 +34,8 @@ export default function SignIn(props: {params: Params, searchParams: SearchParam
 
 export default function SignInPage() {
   return (
-    <div className="container flex justify-center items-center h-dvh">
+    <div className="container flex h-dvh items-center justify-center">
       <SignIn />
     </div>
-  )
+  );
 }
