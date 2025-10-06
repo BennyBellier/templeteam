@@ -1,10 +1,12 @@
 import { prisma } from "@/server/db";
 import bcrypt from "bcrypt";
 import { auth } from "@/server/auth"
+import { env } from "@/env.mjs";
 
 async function main() {
-    const email = "contact@templeteam.fr"
-    const password = await bcrypt.hash("password", 10);
+    const email = env.ADMIN_MAIL;
+    const name = env.ADMIN_NAME;
+    const password = await bcrypt.hash(env.ADMIN_PASSWORD, 10);
     
     const existing = await prisma.user.findUnique({ where : { email }});
     if (existing) {
@@ -16,6 +18,7 @@ async function main() {
         body: {
           email,
           password,
+          name,
           role: "Developer",
         },
       });
