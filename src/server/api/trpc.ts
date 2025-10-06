@@ -11,8 +11,9 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
-import { getServerAuthSession } from "@/server/auth";
+import { getUser } from "@/server/auth-session";
 import { prisma } from "@/server/db";
+import { auth } from "../auth";
 
 /**
  * 1. CONTEXT
@@ -27,11 +28,11 @@ import { prisma } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const session = await getServerAuthSession();
+  const user = await getUser();
 
   return {
     prisma,
-    session,
+    user,
     ...opts,
   };
 };
@@ -96,36 +97,31 @@ export const publicProcedure = t.procedure;
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session?.user) {
+  if (!ctx.user) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
-    ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
-    },
+    ctx,
   });
 });
 
 /**
  * Protected (authenticated) procedure for user with Developer, President or Treasurer role
  */
-export const treasurerProcedure = t.procedure.use(({ ctx, next }) => {
-  if (!ctx.session?.user) {
+export const treasurerProcedure = t.procedure.use(async ({ ctx, next }) => {
+  const canManageTreasury = await auth.api.userHasPermission({
+    body: {
+      userId: ctx.user?.id,
+      permission: {
+        treasury: ["read"]
+      }
+    }
+  })
+  if (!canManageTreasury) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  switch (ctx.session.user.role) {
-    case "Developer":
-    case "President":
-    case "Treasurer":
-      return next({
-        ctx: {
-          session: { ...ctx.session, user: ctx.session.user },
-        },
-      });
-
-    default:
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
+  return next({
+    ctx,
+  });
 });

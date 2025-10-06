@@ -1,12 +1,20 @@
-import LoginErrors from "@/lib/loginErrors";
 import { prisma } from "@/server/db";
-import logger from "@/server/logger";
-import { compare } from "bcrypt";
-import { type NextAuthOptions, getServerSession } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { z } from "zod";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { admin } from "better-auth/plugins";
+import {
+  ac,
+  developerRole,
+  presidentRole,
+  treasurerRole,
+  secretaryRole,
+  memberRole,
+} from "@/server/permissions";
+import { nextCookies } from "better-auth/next-js";
+import { env } from "@/env.mjs";
 
-export const authOptions: NextAuthOptions = {
+
+/* export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -96,4 +104,29 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export const getServerAuthSession = () => getServerSession(authOptions);
+export const getServerAuthSession = () => getServerSession(authOptions); */
+
+export const auth = betterAuth({
+  secret: env.BETTER_AUTH_SECRET,
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  emailAndPassword: {
+    enabled: true,
+  },
+  plugins: [
+    admin({
+      ac,
+      roles: {
+        Developer: developerRole,
+        President: presidentRole,
+        Treasurer: treasurerRole,
+        Secretary: secretaryRole,
+        Member: memberRole,
+      },
+      defaultRole: "Member",
+      adminRoles: ["Developer", "President"],
+    }),
+    nextCookies(),
+  ],
+});

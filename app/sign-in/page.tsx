@@ -1,6 +1,7 @@
-import { use } from "react";
-import { Login } from "@/components/features/Form/Login";
+/* import { use } from "react";
+import { Login } from "@/components/features/Form/Login"; */
 import type { Metadata } from "next";
+import SignIn from "@/components/auth/sign-in";
 
 export const metadata: Metadata = {
   title: "Connexion",
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   category: "sports"
 };
 
-type Params = Promise<{ error: string, callbackUrl: string }>;
+/* type Params = Promise<{ error: string, callbackUrl: string }>;
 type SearchParams = Promise<Record<string, string> | undefined>;
 
 export type SignInProps = Promise<{
@@ -28,4 +29,11 @@ export default function SignIn(props: {params: Params, searchParams: SearchParam
         />
       </section>
   );
+}
+ */
+
+export default function SignInPage() {
+  return (
+    <SignIn />
+  )
 }

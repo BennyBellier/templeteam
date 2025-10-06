@@ -82,33 +82,6 @@ export async function moveFromTmpToMemberPhotoFolder(
   }
 }
 
-/**
- *
- */
-/* export async function writeMemberPhoto(
-  id: string,
-  file: File,
-): Promise<string> {
-  // Check and generate if member folder does not exist
-  generateMemberFolder(id);
-
-  // Get members/{id}/photo folder path
-  const memberPhotoPath = serverPath(
-    membersPath,
-    id,
-    env.ASSOCIATION_MEMBERS_PHOTOS_FOLDER,
-  );
-
-  // Generate filename and file path for the photo
-  const filename = `${uuidv4()}_${Date.now()}${path.extname(file.name)}`;
-  const filePath = path.join(memberPhotoPath, filename);
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(filePath, buffer);
-
-  return filename;
-} */ 
-
 export async function writeMemberFileMedic(
   memberId: string,
   file: File,
