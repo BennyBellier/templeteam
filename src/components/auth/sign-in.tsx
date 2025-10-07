@@ -90,10 +90,12 @@ export default function SignIn() {
                   },
                   onResponse: () => {
                     setLoading(false);
+                    
+                  },
+                  onSuccess: () => {
                     toast.success("Connecté");
                   },
                   onError: () => {
-                    setLoading(false);
                     toast.error("Mail ou mot de passe incorrecte.", {
                       duration: 5000,
                     });
