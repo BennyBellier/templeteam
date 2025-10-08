@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+/* import { Card, CardContent } from "@/components/ui/card";
 import { prisma } from "@/trpc/server";
 import type { Metadata } from "next";
 import { getServerAuthSession } from "@/server/auth";
@@ -32,3 +32,4 @@ export default async function TreasurerDashboard() {
     </Card>
   );
 }
+ */
