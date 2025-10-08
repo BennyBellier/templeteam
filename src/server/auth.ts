@@ -1,18 +1,17 @@
+import { env } from "@/env.mjs";
 import { prisma } from "@/server/db";
-import { betterAuth } from "better-auth";
-import { prismaAdapter } from "better-auth/adapters/prisma";
-import { admin } from "better-auth/plugins";
 import {
   ac,
   developerRole,
-  presidentRole,
-  treasurerRole,
-  secretaryRole,
   memberRole,
+  presidentRole,
+  secretaryRole,
+  treasurerRole,
 } from "@/server/permissions";
+import { betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
 import { nextCookies } from "better-auth/next-js";
-import { env } from "@/env.mjs";
-
+import { admin } from "better-auth/plugins";
 
 /* export const authOptions: NextAuthOptions = {
   // adapter: PrismaAdapter(prisma),
@@ -108,6 +107,7 @@ export const getServerAuthSession = () => getServerSession(authOptions); */
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
