@@ -82,21 +82,33 @@ export async function moveFromTmpToMemberPhotoFolder(
   }
 }
 
-export async function writeMemberFileMedic(
+export async function moveFromTmpToMemberFileMedicFolder(
   memberId: string,
-  file: File,
+  filename: string,
 ): Promise<string> {
   // Check and generate if member folder does not exist
   generateMemberFolder(memberId);
 
-  // Generate filename and file path for the photo
-  const filename = `${uuidv4()}_${Date.now()}${path.extname(file.name)}`;
-  const filePath = paths.members.medical(memberId).server(filename);
+  // Get source file (in temp folder)
+  const src = paths.temp.server(filename);
 
-  const buffer = Buffer.from(await file.arrayBuffer());
-  fs.writeFileSync(filePath, buffer);
+  // Get destination in member folder
+  const dest = paths.members.medical(memberId).server(filename);
 
-  return filename;
+  try {
+    mv(src, dest);
+    return dest;
+  } catch (error) {
+    logger.error({
+      context: "FileManipulation",
+      procedure: "moveFromTmpToMemberFileMedicFolder",
+      message: `Failed to move file`,
+      src,
+      dest,
+      err: error,
+    });
+    return "";
+  }
 }
 
 export async function writeMemberFile(

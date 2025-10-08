@@ -1,31 +1,31 @@
 // services/mails/endOfTrials.ts
 import "server-only";
 
+import { env } from "@/env.mjs";
 import logger from "@/server/logger";
 import MailService from "@/server/mailer";
+import { prisma } from "@/trpc/server";
 import { render } from "@react-email/render";
 import EndOfTrialTemplate from "emails/EndOfTrials";
-import { prisma } from "@/trpc/server";
-import { env } from "@/env.mjs";
 
-export async function sendEndOfTrailsMail(memberId: string) {
-  // Retrieve contact mail 
+export async function sendEndOfTrialsMail(memberId: string) {
+  // Retrieve contact mail
   const mailTo = await prisma.association.member.getContactMail({ memberId });
 
   // Retrieve mail data and generate HtmlContent
   const data = await prisma.association.mail.getEndOfTrialsForMember({
     memberId,
   });
-  const htmlContent = await render(EndOfTrialTemplate({...data, memberId}));
+  const htmlContent = await render(EndOfTrialTemplate({ ...data, memberId }));
 
   // Generate payload
   const payload = {
-      from: `Temple Team <${env.REGISTER_MAIL}>`,
-      to: mailTo,
-      subject: `Fin des cours d'essaie, cotisation, règlement !`,
-      replyTo: env.NOREPLY_MAIL,
-      html: htmlContent,
-    };
+    from: `Temple Team <${env.REGISTER_MAIL}>`,
+    to: mailTo,
+    subject: `Fin des cours d'essaie, cotisation, règlement !`,
+    replyTo: env.NOREPLY_MAIL,
+    html: htmlContent,
+  };
 
   try {
     const mailService = new MailService();

@@ -25,7 +25,7 @@ const typographyVariants = cva("", {
   variants: {
     variant: {
       title:
-        "scroll-m-20 text-4xl md:text-5xl font-extrabold tracking-widest lg:text-6xl font-caption uppercase",
+        "scroll-m-20 text-4xl md:text-5xl font-extrabold tracking-widest lg:text-6xl font-caption uppercase text-center",
       description:
         "scroll-m-20 text-xl md:text-xl lg:text-xl font-light tracking-wide transition-colors text-center",
       h1: "scroll-m-20 text-3xl md:text-4xl font-extrabold tracking-tight lg:text-5xl font-caption",
@@ -46,7 +46,8 @@ const typographyVariants = cva("", {
       postCardTitle:
         "scroll-m-20 text-lg md:text-2xl lg:text-3xl font-semibold tracking-tight transition-colors first:mt-0 font-caption",
       postCardContent: "",
-      postCardReadTime: "self-end flex gap-1 text-base font-light leading-none items-center justify-center",
+      postCardReadTime:
+        "self-end flex gap-1 text-base font-light leading-none items-center justify-center",
     },
   },
   defaultVariants: {

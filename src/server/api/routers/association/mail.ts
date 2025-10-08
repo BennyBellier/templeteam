@@ -1,10 +1,10 @@
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import z from "zod";
-import { seasonSchema } from "./types";
-import { contributionCalculation, getMemberById, isNewMember } from "./helpers";
-import { TRPCError } from "@trpc/server";
-import logger from "@/server/logger";
 import { calculateAge } from "@/lib/utils";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import logger from "@/server/logger";
+import { TRPCError } from "@trpc/server";
+import z from "zod";
+import { contributionCalculation, isNewMember } from "./helpers";
+import { seasonSchema } from "./types";
 
 export const MailRouter = createTRPCRouter({
   getEndOfTrialsForMember: protectedProcedure
@@ -98,5 +98,55 @@ export const MailRouter = createTRPCRouter({
           message: "Erreur lors de la récupération des données.",
         });
       }
+    }),
+  getMembersMailContact: protectedProcedure
+    .input(z.object({ season: seasonSchema }))
+    .query(async ({ ctx, input }) => {
+      const files = await ctx.prisma.file.findMany({
+        where: {
+          season: input.season,
+        },
+        select: {
+          member: {
+            select: {
+              id: true,
+              firstname: true,
+              lastname: true,
+              mail: true,
+              birthdate: true,
+              legalGuardians: {
+                select: {
+                  mail: true,
+                },
+              },
+            },
+          },
+          courses: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+
+      return files.map((file) => {
+        const { member, courses } = file;
+        const isAdult = calculateAge(member.birthdate) >= 18;
+
+        let mailTo: string | null = null;
+        if (isAdult && member.mail) {
+          mailTo = member.mail;
+        } else if (!isAdult) {
+          const lg = member.legalGuardians.find((val) => val.mail !== null);
+          mailTo = lg?.mail ?? member.mail;
+        }
+
+        return {
+          id: member.id,
+          name: `${member.firstname} ${member.lastname}`,
+          mail: mailTo,
+          courses: courses.map(({ name }) => name),
+        };
+      });
     }),
 });

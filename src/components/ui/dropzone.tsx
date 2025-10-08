@@ -271,8 +271,8 @@ export const FileUploader = forwardRef<
           tabIndex={0}
           onKeyDownCapture={handleKeyDown}
           className={cn(
-            "grid w-full overflow-hidden focus:outline-none ",
-            disabled && "opacity-50 cursor-not-allowed",
+            "max-full grid w-full overflow-hidden focus:outline-none grid-cols-1",
+            disabled && "cursor-not-allowed opacity-50",
             className,
             {
               "gap-2": value && value.length > 0,
@@ -338,7 +338,7 @@ export const FileUploaderItem = forwardRef<
       )}
       {...props}
     >
-      <div className="flex h-full w-full items-center gap-1.5 font-medium leading-none tracking-tight">
+      <div className="flex h-full w-5/6 max-w-5/6 items-center gap-1.5 font-medium leading-none tracking-tight">
         {children}
       </div>
       <button type="button" onClick={() => !disabled && removeFileFromSet(index)} disabled={disabled} className={disabled ? "cursor-not-allowed opacity-50" : ""} >

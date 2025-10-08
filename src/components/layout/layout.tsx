@@ -4,7 +4,6 @@ import { References } from "../references/References";
 import { Typography } from "../ui/typography";
 import { ContactBar } from "./Contact";
 
-
 export const Layout = ({
   children,
   noContact,
@@ -30,7 +29,7 @@ export const LayoutHeader = (props: ComponentPropsWithoutRef<"header">) => {
     <header
       {...props}
       className={cn(
-        "flex w-full flex-col items-center gap-10 border-b border-border px-1050 pb-16 md:flex-1",
+        "flex w-full max-w-full flex-col items-center gap-6 border-b border-border px-4 pb-12 md:gap-10 md:pb-16 lg:px-1050",
         props.className,
       )}
     />
@@ -42,7 +41,7 @@ export const LayoutTitle = (props: ComponentPropsWithoutRef<"h1">) => {
     <Typography
       {...props}
       variant="title"
-      className={cn(props.className, "")}
+      className={cn("text-center", props.className)}
     />
   );
 };
@@ -52,7 +51,7 @@ export const LayoutDescription = (props: ComponentPropsWithoutRef<"h2">) => {
     <Typography
       {...props}
       variant="description"
-      className={cn(props.className, "w-3/4")}
+      className={cn("w-full text-center md:w-3/4", props.className)}
     />
   );
 };
@@ -62,7 +61,7 @@ export const LayoutSection = (props: ComponentPropsWithoutRef<"section">) => {
     <section
       {...props}
       className={cn(
-        "relative flex h-fit flex-col items-center px-5 py-6 lg:px-1050",
+        "relative flex h-fit w-full max-w-full flex-col items-center overflow-hidden px-4 py-6 md:px-6 lg:px-1050",
         props.className,
       )}
     />

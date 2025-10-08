@@ -1,8 +1,12 @@
-import { createTRPCRouter, publicProcedure, protectedProcedure } from "@/server/api/trpc";
-import z from "zod";
-import { TRPCError } from "@trpc/server";
-import logger from "@/server/logger";
 import { calculateAge } from "@/lib/utils";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
+import logger from "@/server/logger";
+import { TRPCError } from "@trpc/server";
+import z from "zod";
 
 export const MemberRouter = createTRPCRouter({
   isMemberExist: publicProcedure
@@ -13,11 +17,11 @@ export const MemberRouter = createTRPCRouter({
         return await ctx.prisma.$transaction(async (tx) => {
           const member = await tx.member.findUnique({
             where: {
-                id: memberId,
-            }
+              id: memberId,
+            },
           });
 
-          return !!member;
+          return member !== null;
         });
       } catch (err) {
         logger.error({
@@ -35,7 +39,7 @@ export const MemberRouter = createTRPCRouter({
         });
       }
     }),
-    getContactMail: protectedProcedure
+  getContactMail: protectedProcedure
     .input(z.object({ memberId: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       try {
@@ -50,7 +54,7 @@ export const MemberRouter = createTRPCRouter({
                 },
               },
               mail: true,
-              birthdate: true
+              birthdate: true,
             },
           });
 
@@ -60,7 +64,7 @@ export const MemberRouter = createTRPCRouter({
               message: "Aucun adhérent n'a été trouvé.",
             });
 
-            const isAdult = calculateAge(member.birthdate);
+          const isAdult = calculateAge(member.birthdate) >= 18;
 
           let mailTo: string | null = null;
           if (isAdult && member.mail) {

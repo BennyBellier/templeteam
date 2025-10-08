@@ -1,16 +1,22 @@
 import {
   Layout,
+  LayoutDescription,
   LayoutHeader,
   LayoutSection,
   LayoutTitle,
-  LayoutDescription,
 } from "@/components/layout/layout";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
-import { Content } from "./content";
 
-import type { Metadata } from "next";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { prisma } from "@/trpc/server";
+import type { Metadata } from "next";
+import { MedicForm } from "./form";
 
 export const metadata: Metadata = {
   title: "Inscription | Temple Team",
@@ -31,24 +37,36 @@ export default async function Documents({
   const isMemberExist = await prisma.association.member.isMemberExist({
     memberId: uuid,
   });
-  const isMemberHaveMedicFile = await prisma.association.registration.isMemberHaveMedicalFileForSeason({
-    memberId: uuid,
-  });
+
+  const isMemberHaveMedicFile =
+    await prisma.association.registration.isMemberHaveMedicalFileForSeason({
+      memberId: uuid,
+    });
 
   return (
     <Layout noReferences>
       <LayoutHeader>
         <LayoutTitle>Certificat médical</LayoutTitle>
         <LayoutDescription>
-          Compléter votre dossier pour valider votre inscription.
+          Merci d&apos;envoyer votre certificat médical pour compléter votre
+          inscription.
         </LayoutDescription>
       </LayoutHeader>
-      <LayoutSection className="gap-6 md:flex-row">
+      <LayoutSection>
         {isMemberExist ? (
-          <Content />
+          <Card className="w-full max-w-full md:max-w-2xl">
+            <CardHeader>
+              <CardTitle>Envoyer votre certificat médical</CardTitle>
+              <CardDescription>
+                Glissez-déposez ou cliquez pour sélectionner un fichier PDF, JPG
+                ou PNG
+              </CardDescription>
+            </CardHeader>
+            <MedicForm memberId={uuid} medicExist={isMemberHaveMedicFile} />
+          </Card>
         ) : (
-          <Alert variant="destructive" className="mx-auto max-w-lg">
-            <AlertTriangle className="h-6 w-6" />
+          <Alert variant="destructive" className="w-full max-w-lg">
+            <AlertTriangle className="h-7 w-7" />
             <AlertTitle>L&apos;adhérent n&apos;existe pas !</AlertTitle>
             <AlertDescription>
               Veuillez réessayer ou contactez un administrateur.

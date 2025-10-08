@@ -3,7 +3,7 @@ import { prisma } from "@/trpc/server";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { AdminPageTitle } from "../components/page-title";
+import { AdminPageTitle } from "../../components/page-title";
 import LogsTable from "./log-table";
 
 export const metadata: Metadata = {

@@ -33,9 +33,7 @@ export default function EndOfTrialTemplate({
     });
   };
 
-  const coursesName = courses.map(
-    (course) => course.name,
-  );
+  const coursesName = courses.map((course) => course.name);
 
   const hasTempleRun = coursesName.includes("Temple Run");
   const hasTempleGym = coursesName.includes("Temple Gym");
@@ -76,9 +74,9 @@ export default function EndOfTrialTemplate({
             <Text>Bonjour, </Text>
             <Text>
               Nous vous rappelons que les séances d&apos;essai se terminent
-              après ce samedi 11 octobre. Pour
-              participer aux prochaines séances, il est désormais nécessaire que
-              votre cotisation d&apos;un montant de{" "}
+              après ce samedi 11 octobre. Pour participer aux prochaines
+              séances, il est désormais nécessaire que votre cotisation
+              d&apos;un montant de{" "}
               <span className="font-semibold underline">{price} euros</span>{" "}
               soit réglée.
             </Text>
@@ -87,7 +85,10 @@ export default function EndOfTrialTemplate({
             <Section className="my-6">
               <Text className="mb-3 text-lg font-semibold">📋 Vos cours</Text>
               {courses.map((course, index) => (
-                <Section key={index} className="mb-4 rounded bg-gray-50 p-3 border border-solid border-gray-100">
+                <Section
+                  key={index}
+                  className="mb-4 rounded border border-solid border-gray-100 bg-gray-50 p-3"
+                >
                   <Text className="mb-3 border-b border-gray-200 pb-1 text-base font-semibold text-gray-800">
                     {course.name}
                   </Text>
@@ -167,14 +168,34 @@ export default function EndOfTrialTemplate({
             <Hr />
 
             {/* Section Certificat médical */}
+            {/* Section Certificat médical */}
             <Section className="my-6">
               <Text className="mb-3 text-lg font-semibold">
                 🏥 Certificat médical
               </Text>
-              <Text>
-                Vous recevrez prochainement un autre email avec un lien pour
-                fournir votre certificat médical en ligne.
+              <Text className="mb-4">
+                Merci de fournir votre certificat médical en cliquant sur le
+                bouton ci-dessous :
               </Text>
+              <Row>
+                <Column align="center">
+                  <Link
+                    href={`${baseUrl}/association/inscription/${memberId}`}
+                    className="inline-block rounded bg-blue-600 px-6 py-3 text-sm font-medium text-white"
+                    style={{
+                      backgroundColor: "#2563eb",
+                      color: "#ffffff",
+                      textDecoration: "none",
+                      borderRadius: "6px",
+                      padding: "12px 24px",
+                      display: "inline-block",
+                      fontSize: "14px",
+                    }}
+                  >
+                    📋 Soumettre mon certificat médical
+                  </Link>
+                </Column>
+              </Row>
             </Section>
 
             <Hr />
@@ -278,7 +299,7 @@ export default function EndOfTrialTemplate({
             </Section>
 
             <Text className="mt-6">Sportivement,</Text>
-            <Text className="font-semibold">L'équipe Temple Team</Text>
+            <Text className="font-semibold">L&apos;équipe Temple Team</Text>
 
             {/* Pied de page */}
             <Section className="rounded border border-solid border-gray-300 bg-neutral-100 px-6 py-4">
@@ -340,7 +361,7 @@ export default function EndOfTrialTemplate({
                     href="mailto:support@templeteam.fr"
                     className="underline"
                   >
-                    exercer vos droits d'accès, de suppression et de
+                    exercer vos droits d&apos;accès, de suppression et de
                     rectification
                   </Link>{" "}
                   aux informations qui vous concernent.

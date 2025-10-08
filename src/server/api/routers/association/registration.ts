@@ -1,9 +1,9 @@
 import { env } from "@/env.mjs";
 import { calculateAge, calculateMembershipPrice } from "@/lib/utils";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import logger from "@/server/logger";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import {
   checkCoursesExist,
   createFile,
@@ -127,7 +127,7 @@ export const RegistrationRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       try {
         return await ctx.prisma.$transaction(async (tx) => {
-          const medicalFile = await tx.file.findUnique({
+          const fetch = await tx.file.findUnique({
             where: {
               season_memberId: {
                 season: input.season,
@@ -136,10 +136,12 @@ export const RegistrationRouter = createTRPCRouter({
             },
             select: {
               medicalCertificate: true,
-            }
+            },
           });
 
-          return medicalFile !== null;
+          if (!fetch) return false;
+
+          return fetch.medicalCertificate !== null;
         });
       } catch (err) {
         logger.error({
@@ -158,40 +160,50 @@ export const RegistrationRouter = createTRPCRouter({
         });
       }
     }),
-  addFileMedic: publicProcedure
+  addMemberMedicalFileForSeason: publicProcedure
     .input(
       z.object({
-        fileId: z.string().uuid(),
-        medicFilename: z.string(),
+        memberId: z.string().uuid(),
+        season: seasonSchema,
+        medic_filename: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        logger.info({
-          message: `Add medic to file ${input.fileId}.`,
-          context: "tRPC",
-          requestPath: "association.addMemberMedic",
-          data: input,
+        const result = await ctx.prisma.$transaction(async (tx) => {
+          const updated = await tx.file.update({
+            where: {
+              season_memberId: {
+                season: input.season,
+                memberId: input.memberId,
+              },
+            },
+            data: {
+              medicalCertificate: input.medic_filename,
+            },
+          });
+
+          if (!updated) {
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: `Aucun dossier trouvé pour cette saison ${input.season}.`,
+            });
+          }
+        });
+      } catch (err) {
+        logger.error({
+          router: "Association",
+          procedure: "addMemberMedicalFileForSeason",
+          input,
+          message: "addMemberMedicalFileForSeason failed",
+          error: err,
         });
 
-        return await ctx.prisma.file.update({
-          where: {
-            id: input.fileId,
-          },
-          data: {
-            medicalCertificate: input.medicFilename,
-          },
+        if (err instanceof TRPCError) throw err;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erreur lors de la création du dossier.",
         });
-      } catch (e) {
-        logger.error({
-          context: "tRPC",
-          requestPath: "association.addMemberMedic",
-          message: `Failed when trying to add medic to file ${input.fileId}.`,
-          data: { e },
-        });
-        throw new Error(
-          "Impossible d'ajouter le certificat médical, veuillez réessayer.",
-        );
       }
     }),
   addFileFilename: publicProcedure
@@ -532,7 +544,7 @@ export const RegistrationRouter = createTRPCRouter({
         })),
       };
     }),
-  addMemberPictureAndCertificate: publicProcedure
+/*   addMemberPictureAndCertificate: publicProcedure
     .input(
       z.object({
         memberId: z.string().uuid(),
@@ -561,7 +573,7 @@ export const RegistrationRouter = createTRPCRouter({
           medicalCertificate: input.certificateFilename,
         },
       });
-    }),
+    }), */
   getMembersList: publicProcedure.query(async ({ ctx }) => {
     const members = await ctx.prisma.member.findMany({
       include: {

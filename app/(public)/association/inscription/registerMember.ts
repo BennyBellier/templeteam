@@ -7,6 +7,7 @@ import {
 } from "@/server/fs/files-manipulation";
 import logger from "@/server/logger";
 import { sendConfirmationMail } from "@/services/mails";
+import { sendEndOfTrialsMail } from "@/services/mails/endOfTrials";
 import { prisma } from "@/trpc/server";
 import {
   RegisterMemberForSeasonSchema,
@@ -76,6 +77,8 @@ export const registerMemberForYear = async (
       if (photo) await moveFromTmpToMemberPhotoFolder(memberId, photo);
     } catch (moveErr) {
       logger.error({
+        context: "AssociationRegistration",
+        step: "Move photo file",
         message: `Failed to move photo from tmp/ for member ${memberId}`,
         error: moveErr,
       });
@@ -95,7 +98,25 @@ export const registerMemberForYear = async (
       return {
         ok: false,
         error:
-          "L'inscription a été enregistrée, mais l'envoi du mail a échoué. Contactez le support.",
+          "L'inscription a été enregistrée, mais l'envoi du mail a échoué. Veuillez contactez le support.",
+      };
+    }
+
+    // Send confirmation mail
+    try {
+      await sendEndOfTrialsMail(memberId);
+    } catch (mailErr) {
+      logger.error({
+        context: "AssociationRegistration",
+        step: "sendMail",
+        message: `Failed to send end of trials mail`,
+        memberId,
+        error: mailErr,
+      });
+      return {
+        ok: false,
+        error:
+          "L'inscription a été enregistrée, mais l'envoi du mail a échoué. Veuillez contactez le support.",
       };
     }
   } catch (e) {
