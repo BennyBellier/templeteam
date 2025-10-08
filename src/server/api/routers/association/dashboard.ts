@@ -4,7 +4,6 @@ import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { PaymentStatus, Prisma } from "@prisma/client";
 import z from "zod";
 import { seasonSchema } from "./types";
-import path from "path";
 import { paths } from "@/server/fs/paths";
 
 export const DashboardRouter = createTRPCRouter({

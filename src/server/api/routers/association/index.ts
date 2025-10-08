@@ -8,12 +8,14 @@ import { CoursesRouter } from "./courses";
 import { DashboardRouter } from "./dashboard";
 import { RegistrationRouter } from "./registration";
 import { TreasurerRouter } from "./treasurer";
+import { MailRouter } from "./mail";
 
 export const AssociationRouter = createTRPCRouter({
   courses: CoursesRouter,
   registration: RegistrationRouter,
   dashboard: DashboardRouter,
   treasurer: TreasurerRouter,
+  mail: MailRouter,
 
   getCurrentSeason: publicProcedure.query(() => {
     return env.FILE_SEASON;

@@ -200,3 +200,29 @@ export async function hasPreviousSeasonFile(
 
   return file !== null;
 };
+
+export async function isNewMember(
+  tx: Prisma.TransactionClient,
+  memberId: string,
+) {
+  const fileCounter = await tx.file.count({
+    where: {
+        memberId,
+    },
+  });
+
+  return fileCounter === 1;
+};
+
+export function contributionCalculation(prices: number[], insurancePrice: number) {
+  // Calculate total with insurancePrice
+  const total = prices.reduce((acc, price) => acc + price, 0) + insurancePrice;
+
+  // If there are at least 2 prices, apply a 40% discount
+  if (prices.length < 2) {
+    return total;
+  }
+  // Find the minimum price and apply a 40% discount
+  const minPrice = Math.min(...prices);
+  return total - minPrice * 0.4;
+}

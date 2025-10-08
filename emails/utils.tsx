@@ -1,3 +1,5 @@
+import { DayOfWeek } from "@prisma/client";
+
 export interface ContactProps {
   name: string;
   mail: string;
@@ -17,24 +19,37 @@ export type cours = {
 };
 
 export interface EndOfTrialsProps {
-  cours: cours;
+  courses: {
+    name: string;
+    sessions: {
+      dayOfWeek: DayOfWeek;
+      startHour: Date;
+      endHour: Date;
+      place: string;
+      city: string;
+      postalCode: string;
+      query: string;
+    }[];
+  }[];
+  price: number;
   memberId: string;
 }
 
-export const calculCotisation = (cours: cours) => {
-  let cotisation = 20;
-
-  if (cours.templeRun && !cours.templeGym && !cours.templeGymJunior) {
-    cotisation += 200;
-  } else if (cours.templeRun && cours.templeGym && !cours.templeGymJunior) {
-    cotisation += 200 + 200 * 0.6;
-  } else if (cours.templeRun && !cours.templeGym && cours.templeGymJunior) {
-    cotisation += 200 + 180 * 0.6;
-  } else if (!cours.templeRun && cours.templeGym && !cours.templeGymJunior) {
-    cotisation += 200;
-  } else if (!cours.templeRun && !cours.templeGym && cours.templeGymJunior) {
-    cotisation += 180;
+export function translateDayOfWeek(day: DayOfWeek) {
+  switch (day) {
+    case "Monday":
+      return "Lundi";
+    case "Tuesday":
+      return "Mardi";
+    case "Wednesday":
+      return "Mercredi";
+    case "Thursday":
+      return "Jeudi";
+    case "Friday":
+      return "Vendredi";
+    case "Saturday":
+      return "Samedi";
+    case "Sunday":
+      return "Dimanche";
   }
-
-  return cotisation;
-};
+}
