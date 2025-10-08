@@ -10,7 +10,7 @@ import { env } from "@/env.mjs";
 
 export async function sendEndOfTrailsMail(memberId: string) {
   // Retrieve contact mail 
-  const mailTo = await prisma.association.mail.getMemberContactMail({ memberId });
+  const mailTo = await prisma.association.member.getContactMail({ memberId });
 
   // Retrieve mail data and generate HtmlContent
   const data = await prisma.association.mail.getEndOfTrialsForMember({

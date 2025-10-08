@@ -122,6 +122,42 @@ export const RegistrationRouter = createTRPCRouter({
         });
       }
     }),
+  isMemberHaveMedicalFileForSeason: publicProcedure
+    .input(z.object({ memberId: z.string().uuid(), season: seasonSchema }))
+    .query(async ({ ctx, input }) => {
+      try {
+        return await ctx.prisma.$transaction(async (tx) => {
+          const medicalFile = await tx.file.findUnique({
+            where: {
+              season_memberId: {
+                season: input.season,
+                memberId: input.memberId,
+              },
+            },
+            select: {
+              medicalCertificate: true,
+            }
+          });
+
+          return medicalFile !== null;
+        });
+      } catch (err) {
+        logger.error({
+          router: "Association",
+          procedure: "isMemberHaveMedicalFileForSeason",
+          input,
+          message: "isMemberHaveMedicalFileForSeason failed",
+          error: err,
+        });
+
+        if (err instanceof TRPCError) throw err;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message:
+            "Erreur lors de la vérification d'éligibilité à l'inscription.",
+        });
+      }
+    }),
   addFileMedic: publicProcedure
     .input(
       z.object({

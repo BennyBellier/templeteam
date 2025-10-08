@@ -40,28 +40,13 @@ import {
 import toast from "react-hot-toast";
 import { z } from "zod";
 
-const MAX_UPLOAD_SIZE = 1024 * 1024 * 5; // 5MB
-
-const PHOTO_ACCEPTED_FILE_TYPES = [
-  "image/jpeg", // JPEG
-  "image/png", // PNG
-  "image/tiff", // TIFF
-];
+const MAX_UPLOAD_SIZE = 1024 * 1024 * 10; // 10MB
 
 const MEDIC_ACCEPTED_FILE_TYPES = [
   "image/jpeg", // JPEG
   "image/png", // PNG
   "application/pdf", // PDF
 ];
-
-const photoDropZoneConfig = {
-  accept: {
-    "image/*": [".jpg", ".jpeg", ".png", ".tiff"],
-  },
-  maxFiles: 1,
-  maxSize: MAX_UPLOAD_SIZE,
-  multiple: false,
-} satisfies DropzoneOptions;
 
 const medicDropZoneConfig = {
   accept: {
@@ -74,16 +59,6 @@ const medicDropZoneConfig = {
 
 const formSchema = z
   .object({
-    photo: z
-      .array(z.instanceof(File))
-      .refine((files) => {
-        return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
-      }, `La taille du fichier doit faire moins de ${MAX_UPLOAD_SIZE}MB.`)
-      .refine((files) => {
-        return files?.every((file) =>
-          PHOTO_ACCEPTED_FILE_TYPES.includes(file.type),
-        );
-      }, "Le fichier doit être de type PNG, JPEG ou TIFF."),
     medicalCertificate: z
       .array(z.instanceof(File))
       .refine((files) => {
@@ -93,24 +68,10 @@ const formSchema = z
         return files?.every((file) =>
           MEDIC_ACCEPTED_FILE_TYPES.includes(file.type),
         );
-      }, "Le fichier doit être de type PNG, JPEG ou PDF."),
-  })
-  .superRefine((data, ctx) => {
-    if (
-      (data.photo?.length ?? 0) === 0 &&
-      (data.medicalCertificate?.length ?? 0) === 0
-    ) {
-      ctx.addIssue({
-        path: ["photo"],
-        code: z.ZodIssueCode.custom,
-        message: `Veuillez ajouter au moins un fichier.`,
-      });
-      ctx.addIssue({
-        path: ["medicalCertificate"],
-        code: z.ZodIssueCode.custom,
-        message: `Veuillez ajouter au moins un fichier.`,
-      });
-    }
+      }, "Le fichier doit être de type PNG, JPEG ou PDF.")
+      .refine((files) => {
+        return files.length === 0; "Veuillez ajouter au moins un fichier"
+      }),
   });
 
   type InputType = z.infer<typeof formSchema>;
