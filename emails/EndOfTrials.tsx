@@ -22,7 +22,7 @@ export default function EndOfTrialTemplate({
   price,
   memberId,
 }: EndOfTrialsProps) {
-  const previewText = `Fin de la période d'essaie, cotisation, règlement !`;
+  const previewText = `Fin des cours d'essaie, cotisation, règlement !`;
 
   const baseUrl = "https://templeteam.fr";
 
@@ -34,9 +34,8 @@ export default function EndOfTrialTemplate({
   };
 
   const coursesName = courses.map(
-    (course) => Object.keys(course)[0] ?? "Cours inconnue",
+    (course) => course.name,
   );
-  console.log(courses, coursesName);
 
   const hasTempleRun = coursesName.includes("Temple Run");
   const hasTempleGym = coursesName.includes("Temple Gym");
@@ -77,7 +76,7 @@ export default function EndOfTrialTemplate({
             <Text>Bonjour, </Text>
             <Text>
               Nous vous rappelons que les séances d&apos;essai se terminent
-              après ce samedi 11 octobre, et nous vous informons que pour
+              après ce samedi 11 octobre. Pour
               participer aux prochaines séances, il est désormais nécessaire que
               votre cotisation d&apos;un montant de{" "}
               <span className="font-semibold underline">{price} euros</span>{" "}
