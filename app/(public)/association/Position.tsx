@@ -1,6 +1,7 @@
 import { Typography } from "@/components/ui/typography";
 import { associationPositionToText, cn } from "@/lib/utils";
 import { ImageWithLoader } from "@/components/features/withLoader/ImageWithLoader";
+import { OptimizedImage } from "@/components/ui/image";
 
 type PositionProps = {
   index: number;
@@ -22,12 +23,12 @@ export default function Position(props: PositionProps) {
         props.index % 2 !== 0 ? "" : "flex-row-reverse",
       )}
     >
-      <div className="relative h-fit w-full rounded-lg shadow-2xl">
-        <ImageWithLoader
+      <div className="relative h-fit w-full rounded-lg shadow-2xl max-w-[320px] max-h-[320px]">
+        <OptimizedImage
           src={"/img/team/" + props.position.picture}
           alt={`Picture of ${props.position.firstName} ${props.position.lastName}`}
-          width={320}
-          height={320}
+          fill
+          className=""
         />
       </div>
       <div className="flex w-full flex-col items-center justify-center gap-6">
