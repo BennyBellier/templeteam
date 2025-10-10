@@ -28,9 +28,11 @@ import { ShowHide } from "./ShowHide";
 // Schema definition for form validation using Zod
 const formSchema = z.object({
   identifier: z.string({
-    required_error: "Veuillez saisir une adresse mail ou un nom d'utilisateur.",
-  }),
-  password: z.string({ required_error: "Veuillez saisir le mot de passe." }),
+      error: (issue) => issue.input === undefined ? "Veuillez saisir une adresse mail ou un nom d'utilisateur." : undefined
+}),
+  password: z.string({
+      error: (issue) => issue.input === undefined ? "Veuillez saisir le mot de passe." : undefined
+}),
 });
 
 // Type inference for form inputs based on the Zod schema

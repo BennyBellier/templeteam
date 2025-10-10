@@ -7,7 +7,7 @@ import { prisma } from "@/trpc/server";
 import z from "zod";
 
 const uploadMedicalCertificateForMemberSchema = z.object({
-  memberId: z.string().uuid(),
+  memberId: z.uuidv4(),
   medic_filename: z.string(),
 });
 

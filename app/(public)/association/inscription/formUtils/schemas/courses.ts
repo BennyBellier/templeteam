@@ -5,6 +5,6 @@ export const CoursesSchema = z.object({
     .boolean()
     .array()
     .refine((courses) => courses.some((checked) => checked), {
-      message: "Veuillez sélectionner au moins un cours.",
+        error: "Veuillez sélectionner au moins un cours."
     }),
 });

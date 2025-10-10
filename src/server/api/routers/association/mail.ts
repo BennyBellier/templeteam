@@ -1,5 +1,5 @@
 import { calculateAge } from "@/lib/utils";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import logger from "@/server/logger";
 import { TRPCError } from "@trpc/server";
 import z from "zod";
@@ -7,10 +7,10 @@ import { contributionCalculation, isNewMember } from "./helpers";
 import { seasonSchema } from "./types";
 
 export const MailRouter = createTRPCRouter({
-  getEndOfTrialsForMember: protectedProcedure
+  getEndOfTrialsForMember: publicProcedure
     .input(
       z.object({
-        memberId: z.string().uuid(),
+        memberId: z.uuidv4(),
         season: seasonSchema,
       }),
     )
@@ -18,7 +18,7 @@ export const MailRouter = createTRPCRouter({
       try {
         const { memberId, season } = input;
         return await ctx.prisma.$transaction(async (tx) => {
-          const data = await ctx.prisma.file.findUnique({
+          const data = await tx.file.findUnique({
             select: {
               courses: {
                 select: {
@@ -99,7 +99,7 @@ export const MailRouter = createTRPCRouter({
         });
       }
     }),
-  getMembersMailContact: protectedProcedure
+  getMembersMailContact: publicProcedure
     .input(z.object({ season: seasonSchema }))
     .query(async ({ ctx, input }) => {
       const files = await ctx.prisma.file.findMany({

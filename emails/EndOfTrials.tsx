@@ -59,7 +59,7 @@ export default function EndOfTrialTemplate({
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mx-auto flex justify-center">
               <Img
-                src={`${baseUrl}/public/img/logo-light.svg`}
+                src={`https://templeteam.fr/public/img/logo-light.png`}
                 alt="Temple Team"
                 width={100}
                 className="mx-0 my-0 inline-block"
@@ -180,7 +180,7 @@ export default function EndOfTrialTemplate({
               <Row>
                 <Column align="center">
                   <Link
-                    href={`${baseUrl}/association/inscription/${memberId}`}
+                    href={`https://templeteam.fr/association/inscription/${memberId}`}
                     className="inline-block rounded bg-blue-600 px-6 py-3 text-sm font-medium text-white"
                     style={{
                       backgroundColor: "#2563eb",
@@ -307,7 +307,7 @@ export default function EndOfTrialTemplate({
                 <Column>
                   <Link href="https://templeteam.fr" className="">
                     <Img
-                      src={`${baseUrl}/public/img/logo-light.svg`}
+                      src={`https://templeteam.fr/public/img/logo-light.png`}
                       width={50}
                       className="mr-0 inline-block"
                     />

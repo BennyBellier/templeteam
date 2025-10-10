@@ -123,7 +123,7 @@ export const RegistrationRouter = createTRPCRouter({
       }
     }),
   isMemberHaveMedicalFileForSeason: publicProcedure
-    .input(z.object({ memberId: z.string().uuid(), season: seasonSchema }))
+    .input(z.object({ memberId: z.uuidv4(), season: seasonSchema }))
     .query(async ({ ctx, input }) => {
       try {
         return await ctx.prisma.$transaction(async (tx) => {
@@ -163,7 +163,7 @@ export const RegistrationRouter = createTRPCRouter({
   addMemberMedicalFileForSeason: publicProcedure
     .input(
       z.object({
-        memberId: z.string().uuid(),
+        memberId: z.uuidv4(),
         season: seasonSchema,
         medic_filename: z.string(),
       }),
@@ -209,7 +209,7 @@ export const RegistrationRouter = createTRPCRouter({
   addFileFilename: publicProcedure
     .input(
       z.object({
-        fileId: z.string().uuid(),
+        fileId: z.uuidv4(),
         filename: z.string(),
       }),
     )
@@ -243,7 +243,7 @@ export const RegistrationRouter = createTRPCRouter({
       }
     }),
   getConfirmationMailInformationsForSeason: publicProcedure
-    .input(z.object({ memberId: z.string().uuid(), season: seasonSchema }))
+    .input(z.object({ memberId: z.uuidv4(), season: seasonSchema }))
     .query(async ({ ctx, input }) => {
       const member = await ctx.prisma.member.findUnique({
         select: {
@@ -366,10 +366,10 @@ export const RegistrationRouter = createTRPCRouter({
   /* deleteMember: publicProcedure
     .input(
       z.object({
-        member: z.object({ id: z.string().uuid(), new: z.boolean() }),
+        member: z.object({ id: z.uuidv4(), new: z.boolean() }),
         fileId: z.string().optional(),
         legalGuardians: z.array(
-          z.object({ id: z.string().uuid(), new: z.boolean() }),
+          z.object({ id: z.uuidv4(), new: z.boolean() }),
         ),
       }),
     )
@@ -404,7 +404,7 @@ export const RegistrationRouter = createTRPCRouter({
   getMemberResume: publicProcedure
     .input(
       z.object({
-        memberId: z.string().uuid(),
+        memberId: z.uuidv4(),
         year: z.string().trim().optional(),
       }),
     )
@@ -442,7 +442,7 @@ export const RegistrationRouter = createTRPCRouter({
   getMemberRegistrationFileInfo: publicProcedure
     .input(
       z.object({
-        memberId: z.string().uuid(),
+        memberId: z.uuidv4(),
         year: z.string().trim().optional(),
       }),
     )
@@ -479,7 +479,7 @@ export const RegistrationRouter = createTRPCRouter({
   getMemberAllinformations: publicProcedure
     .input(
       z.object({
-        memberId: z.string().uuid(),
+        memberId: z.uuidv4(),
         year: z.string().trim().optional(),
       }),
     )
@@ -544,10 +544,10 @@ export const RegistrationRouter = createTRPCRouter({
         })),
       };
     }),
-/*   addMemberPictureAndCertificate: publicProcedure
+  /*   addMemberPictureAndCertificate: publicProcedure
     .input(
       z.object({
-        memberId: z.string().uuid(),
+        memberId: z.uuidv4(),
         photoFilename: z.string(),
         certificateFilename: z.string(),
       }),
@@ -586,7 +586,7 @@ export const RegistrationRouter = createTRPCRouter({
   getFileList: publicProcedure
     .input(
       z.object({
-        page: z.number().min(0).default(0),
+        page: z.number().min(0).prefault(0),
         cursor: z.string().nullish(),
       }),
     )

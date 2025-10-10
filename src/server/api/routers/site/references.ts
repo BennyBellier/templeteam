@@ -7,7 +7,7 @@ export const referencesRouter = createTRPCRouter({
     .input(
       z.object({
         category: z.number().nullable(),
-        page: z.number().min(0).default(0),
+        page: z.number().min(0).prefault(0),
         cursor: z.string().nullish().optional(),
       }),
     )

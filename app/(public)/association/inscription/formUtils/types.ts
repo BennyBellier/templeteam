@@ -33,27 +33,25 @@ export type CoursesProps = Prisma.CourseGetPayload<typeof coursesProps>;
 const MemberRegistrationSchema = z
   .object({
     firstname: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
     lastname: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
-    birthdate: z
-      .string({
-        required_error: "Ce champs est obligatoire.",
-      })
-      .date()
+    birthdate: z.iso.date()
       .refine((data) => {
         return new Date(data).getTime() < Date.now();
       }, "La date de naissance ne peux pas être dans le futur."),
-    gender: z.nativeEnum(Gender, {
-      required_error: "Ce champs est obligatoire.",
+    gender: z.enum(Gender, {
+        error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
     }),
-    mail: z
-      .string()
-      .email("Adresse email invalide.")
+    mail: z.email("Adresse email invalide.")
       .optional()
       .or(z.literal(""))
       .transform((val) => (val === "" ? undefined : val)),
@@ -68,32 +66,40 @@ const MemberRegistrationSchema = z
           return true;
         },
         {
-          message: "Numéro de téléphone invalide.",
+            error: "Numéro de téléphone invalide."
         },
       )
       .optional()
       .or(z.literal(""))
       .transform((val) => (val === "" ? undefined : val)),
     address: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
     city: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
     postalCode: z
       .string({
-        required_error: "Ce champs est obligatoire.",
-      })
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .regex(/^\d{4,10}(-\d{4})?$/, {
-        message: "Le code postal est incorrecte.",
-      }),
-    country: z.string({ required_error: "Ce champs est obligatoire." }),
+          error: "Le code postal est incorrecte."
+    }),
+    country: z.string({
+        error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    }),
     medicalComment: z
       .string()
       .trim()
-      .max(200, { message: "Le texte est trop long." })
+      .max(200, {
+          error: "Le texte est trop long."
+    })
       .optional(),
   })
   .superRefine((data, ctx) => {
@@ -101,14 +107,14 @@ const MemberRegistrationSchema = z
 
     if (age >= 18 && !data.phone && !data.mail) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["phone"],
         message:
           "Le numéro de téléphone est obligatoire pour les personnes de 18 ans et plus.",
       });
 
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["mail"],
         message:
           "L'email est obligatoire pour les personnes de 18 ans et plus.",
@@ -121,7 +127,7 @@ export const RegisterMemberForSeasonSchema = z.object({
   photo: z.string().optional(),
   legalGuardians: LegalGuardianSchema.array().optional(),
   authorization: AuthorizationSchema.optional(),
-  courseRecords: z.record(z.boolean()).optional(),
+  courseRecords: z.record(z.string(), z.boolean()).optional(),
 });
 
 export type RegisterMemberForSeasonInput = z.infer<

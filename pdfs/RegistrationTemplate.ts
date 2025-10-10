@@ -1,9 +1,7 @@
 "use server";
 
 import { calculateMembershipPrice } from "@/lib/utils";
-import {
-  writeMemberFile,
-} from "@/server/fs/files-manipulation";
+import { writeMemberFile } from "@/server/fs/files-manipulation";
 import { paths, STATIC_FILES } from "@/server/fs/paths";
 import { prisma } from "@/trpc/server";
 import fontkit from "@pdf-lib/fontkit";
@@ -13,7 +11,7 @@ import path from "path";
 import { PDFDocument, type PDFImage, rgb } from "pdf-lib";
 import z from "zod";
 
-const RegistrationPDFProps = z.string().uuid();
+const RegistrationPDFProps = z.uuidv4();
 
 export async function generateRegistrationPDF(id: string): Promise<Buffer> {
   const { data: memberId, success } = RegistrationPDFProps.safeParse(id);
@@ -30,9 +28,7 @@ export async function generateRegistrationPDF(id: string): Promise<Buffer> {
     throw new Error(`Aucun fichiers existant pour le membre ${memberId}`);
   }
   try {
-    const uint8Array = fs.readFileSync(
-      STATIC_FILES.File.server,
-    );
+    const uint8Array = fs.readFileSync(STATIC_FILES.File.server);
     const pdfDoc = await PDFDocument.load(uint8Array);
 
     pdfDoc.registerFontkit(fontkit);
@@ -95,7 +91,7 @@ export async function generateRegistrationPDF(id: string): Promise<Buffer> {
 
     if (data.photo) {
       const photoBytes = fs.readFileSync(
-        paths.members.photos(memberId).server(data.photo)
+        paths.members.photos(memberId).server(data.photo),
       );
       let photoImage: PDFImage | null = null;
       if (data.photo.endsWith(".png")) {

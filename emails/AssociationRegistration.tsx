@@ -80,7 +80,7 @@ export default function RegistrationTemplate({
           <Container className="mx-auto my-[40px] max-w-[465px] rounded border border-solid border-[#eaeaea] p-[20px]">
             <Section className="mx-auto flex justify-center">
               <Img
-                src={`https://templeteam.fr/static/img/logo/templeteam/header70-light.png`}
+                src={`https://templeteam.fr/public/img/logo-light.png`}
                 alt="Temple Team"
                 width={70}
                 className="mx-0 my-0 inline-block"
@@ -126,6 +126,7 @@ export default function RegistrationTemplate({
                     height="70"
                     className="rounded-full bg-neutral-100 object-cover pr-2 text-center text-sm leading-[70px]"
                   />
+                  png
                 </Column>
                 <Column className="m-0 ml-1.5">
                   <Text className="m-0 mb-0.5 text-base font-semibold">
@@ -223,7 +224,7 @@ export default function RegistrationTemplate({
                 <Column>
                   <Link href="https://templeteam.fr" className="">
                     <Img
-                      src={`https://templeteam.fr/static/img/logo/templeteam/header70-light.png`}
+                      src={`https://templeteam.fr/public/img/logo-light.png`}
                       width={50}
                       className="mr-0 inline-block"
                     />

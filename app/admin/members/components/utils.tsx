@@ -3,15 +3,15 @@ import { Gender, PaymentStatus } from "@prisma/client";
 import { AlertTriangle, CheckCircle, Clock, XCircle } from "lucide-react";
 
 export function getGenderLabel(gender: Gender) {
-    switch (gender) {
-      case Gender.Male:
-        return "Homme";
-      case Gender.Female:
-        return "Femme";
-      case Gender.NotSpecified:
-        return "Autre";
-    }
-  };
+  switch (gender) {
+    case Gender.Male:
+      return "Homme";
+    case Gender.Female:
+      return "Femme";
+    case Gender.NotSpecified:
+      return "Autre";
+  }
+}
 
 export function getCertificatBadge(validity: boolean) {
   if (validity) {
@@ -21,20 +21,20 @@ export function getCertificatBadge(validity: boolean) {
         className="border-green-500/20 bg-green-500/10 text-green-500"
       >
         <CheckCircle className="mr-1 h-3 w-3" />
-        Certificat valide
+        Certificat médical
       </Badge>
     );
   } else {
     return (
       <Badge variant="destructive">
         <XCircle className="mr-1 h-3 w-3" />
-        Certificat manquant
+        Certificat médical
       </Badge>
     );
   }
 }
 
-export function getPaymentBadge(status: PaymentStatus) {
+export function getDetailedPaymentBadge(status: PaymentStatus) {
   switch (status) {
     case PaymentStatus.Paid:
       return (
@@ -95,6 +95,33 @@ export function getPaymentBadge(status: PaymentStatus) {
       );
     case PaymentStatus.ToBeCashed:
       return <Badge variant="secondary">A encaisser</Badge>;
+  }
+}
+
+export function getPaymentBadge(status: PaymentStatus) {
+  switch (status) {
+    case PaymentStatus.Overdue:
+      return (
+        <Badge variant="destructive">
+          <AlertTriangle className="mr-1 h-3 w-3" />
+          Impayé
+        </Badge>
+      );
+    case PaymentStatus.PendingCollection:
+    case PaymentStatus.InPart33:
+    case PaymentStatus.InPart50:
+    case PaymentStatus.InPart66:
+    case PaymentStatus.ToBeCashed:
+    case PaymentStatus.Paid:
+      return (
+        <Badge
+          variant="default"
+          className="border-green-500/20 bg-green-500/10 text-green-500"
+        >
+          <CheckCircle className="mr-1 h-3 w-3" />
+          Payé
+        </Badge>
+      );
   }
 }
 

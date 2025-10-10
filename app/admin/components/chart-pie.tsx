@@ -1,18 +1,18 @@
 "use client";
 
-import * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
-import { trpc } from "@/trpc/TrpcProvider";
 import { useSeasons } from "@/providers/SeasonProvider";
+import { trpc } from "@/trpc/TrpcProvider";
 
 export function MemberChartPie() {
   const { currentSeason } = useSeasons();
@@ -26,7 +26,10 @@ export function MemberChartPie() {
         <CardTitle>Adhérents</CardTitle>
       </CardHeader>
       <CardContent
-        className={cn("flex-1 pb-0 items-center", fetch.isLoading && "animate-pulse")}
+        className={cn(
+          "flex-1 items-center pb-0",
+          fetch.isLoading && "animate-pulse",
+        )}
       >
         {!fetch.isLoading && fetch.data && (
           <MemberChartPieContent data={fetch.data} />

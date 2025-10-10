@@ -1,7 +1,9 @@
 import z from "zod";
 
 export const AuthorizationSchema = z.object({
-  undersigner: z.string({ required_error: "Ce champs est obligatoire." }),
+  undersigner: z.string({
+      error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+}),
   emergencyAuthorization: z
     .boolean()
     .refine((value) => value, "Ce champs est obligatoire."),
@@ -18,5 +20,7 @@ export const AuthorizationSchema = z.object({
   internalRules: z
     .boolean()
     .refine((value) => value, "Ce champs est obligatoire."),
-  signature: z.string({ required_error: "La signature est obligatoire." }),
+  signature: z.string({
+      error: (issue) => issue.input === undefined ? "La signature est obligatoire." : undefined
+}),
 });

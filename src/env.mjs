@@ -7,17 +7,15 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    DATABASE_URL: z
-      .string()
-      .url()
+    DATABASE_URL: z.url()
       .refine(
         (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
         "You forgot to change the default URL",
       ),
-    DATABASE_SAVE_URL: z.string().url().optional(),
+    DATABASE_SAVE_URL: z.url().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
-      .default("development"),
+      .prefault("development"),
     BETTER_AUTH_SECRET:
       process.env.NODE_ENV === "production"
         ? z.string()
@@ -27,32 +25,32 @@ export const env = createEnv({
     SMTP_PORT: z.coerce.number(),
     SMTP_USER: z.string(),
     SMTP_PASSWORD: z.string(),
-    CONTACT_FROM_MAIL: z.string().email(),
-    REGISTER_MAIL: z.string().email(),
-    NOREPLY_MAIL: z.string().email(),
+    CONTACT_FROM_MAIL: z.email(),
+    REGISTER_MAIL: z.email(),
+    NOREPLY_MAIL: z.email(),
 
-    LOG_FOLDER: z.string().default("logs/"),
-    LOG_LEVEL: z.string().default("info"),
+    LOG_FOLDER: z.string().prefault("logs/"),
+    LOG_LEVEL: z.string().prefault("info"),
 
-    BLOG_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(10),
-    REFERENCE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
+    BLOG_PAGINATION_SIZE: z.coerce.number().min(0).max(100).prefault(10),
+    REFERENCE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).prefault(25),
 
-    MEMBER_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
-    FILE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).default(25),
+    MEMBER_PAGINATION_SIZE: z.coerce.number().min(0).max(100).prefault(25),
+    FILE_PAGINATION_SIZE: z.coerce.number().min(0).max(100).prefault(25),
 
     FILE_SEASON: z.string(),
-    TEMP_FOLDER: z.string().default("tmp"),
-    STATIC_FOLDER: z.string().default("static"),
-    ASSOCIATION_FOLDER: z.string().default("association"),
-    ASSOCIATION_MEMBERS_FOLDER: z.string().default("members"),
-    ASSOCIATION_MEMBERS_PHOTOS_FOLDER: z.string().default("photos"),
-    ASSOCIATION_MEMBERS_MEDICS_FOLDER: z.string().default("medical"),
-    ASSOCIATION_MEMBERS_FILES_FOLDER: z.string().default("files"),
+    TEMP_FOLDER: z.string().prefault("tmp"),
+    STATIC_FOLDER: z.string().prefault("static"),
+    ASSOCIATION_FOLDER: z.string().prefault("association"),
+    ASSOCIATION_MEMBERS_FOLDER: z.string().prefault("members"),
+    ASSOCIATION_MEMBERS_PHOTOS_FOLDER: z.string().prefault("photos"),
+    ASSOCIATION_MEMBERS_MEDICS_FOLDER: z.string().prefault("medical"),
+    ASSOCIATION_MEMBERS_FILES_FOLDER: z.string().prefault("files"),
     ASSOCIATION_MEMBER_PHOTO_PLACEHOLDER_NAME: z
       .string()
-      .default("placeholder.jpg"),
-    INSURANCE_MEMBERSHIP_PRICE: z.coerce.number().default(20),
-    ADMIN_EMAIL: z.string().email(),
+      .prefault("placeholder.jpg"),
+    INSURANCE_MEMBERSHIP_PRICE: z.coerce.number().prefault(20),
+    ADMIN_EMAIL: z.email(),
     ADMIN_NAME: z.string(),
     ADMIN_PASSWORD: z.string(),
     ADMIN_SEED_KEY: z.string(),
@@ -63,8 +61,7 @@ export const env = createEnv({
    * isn't built with invalid env vars. To expose them to the client, prefix them with
    * `NEXT_PUBLIC_`.
    */
-  client: {
-  },
+  client: {},
 
   /**
    * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.

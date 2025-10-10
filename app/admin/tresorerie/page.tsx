@@ -1,13 +1,10 @@
-/* import { Card, CardContent } from "@/components/ui/card";
-import { prisma } from "@/trpc/server";
 import type { Metadata } from "next";
-import { getServerAuthSession } from "@/server/auth";
-import { Role } from "@prisma/client";
-import { Typography } from "@/components/ui/typography";
-import RestrictedAccess from "../components/restricted";
+import { AdminPageTitle } from "../components/page-title";
+import { Suspense } from "react";
+import { SubscriptionsList } from "./components/table";
 
 export const metadata: Metadata = {
-  title: "Trésorerie",
+  title: "Administration | Temple Team",
   description: "Gestion de l'association.",
   authors: {
     name: "BELLIER Benjamin",
@@ -16,20 +13,18 @@ export const metadata: Metadata = {
   category: "sports",
 };
 
-export default async function TreasurerDashboard() {
-  const session = await getServerAuthSession();
-
-  if (!(session?.user.role === Role.President || session?.user.role === Role.Treasurer)) {
-    return <RestrictedAccess />;
-  }
-
-  const fileWithNoPayment = await prisma.association.treasurer.getFilesWithNoPayment();
-
+export default async function AdminMembersList() {
   return (
-    <Card className="h-full">
-      <CardContent className="flex h-full flex-col justify-between px-0 pb-0 pt-6">
-      </CardContent>
-    </Card>
+    <>
+      <AdminPageTitle
+        title="Gestion des cotisation"
+        subtitle="Gérez les cotisations et suivez l'état des paiements"
+      />
+      <div className="container px-4 py-4 sm:px-6 sm:py-5 lg:py-6">
+          <Suspense>
+            <SubscriptionsList />
+          </Suspense>
+      </div>
+    </>
   );
 }
- */

@@ -8,8 +8,8 @@ export const MemberSchema = z
   .object({
     photo: z
       .array(z.instanceof(File), {
-        invalid_type_error: "La photo est obligatoire.",
-      })
+          error: (issue) => issue.input === undefined ? undefined : "La photo est obligatoire."
+    })
       .refine((files) => files.length > 0, "La photo est obligatoire.")
       .refine((files) => {
         return files?.every((file) => file.size <= MAX_UPLOAD_SIZE);
@@ -18,28 +18,28 @@ export const MemberSchema = z
         return files?.every((file) => ACCEPTED_FILE_TYPES.includes(file.type));
       }, "Le fichier doit être de type PNG, JPEG ou TIFF."),
     firstname: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
     lastname: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
-    birthdate: z
-      .string({
-        required_error: "Ce champs est obligatoire.",
-      })
-      .date()
+    birthdate: z.iso.date()
       .refine((data) => {
         return new Date(data).getTime() < Date.now();
       }, "La date de naissance ne peux pas être dans le futur."),
-    gender: z.nativeEnum(Gender, {
-      required_error: "Ce champs est obligatoire.",
+    gender: z.enum(Gender, {
+        error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
     }),
     mail: z.union([
       z.literal(""),
       z.string().optional(),
-      z.string().email("Adresse email invalide."),
+      z.email("Adresse email invalide."),
     ]),
     phone: z
       .string()
@@ -52,30 +52,38 @@ export const MemberSchema = z
           return true;
         },
         {
-          message: "Numéro de téléphone invalide.",
+            error: "Numéro de téléphone invalide."
         },
       )
       .optional(),
     address: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
     city: z
-      .string({ required_error: "Ce champs est obligatoire." })
+      .string({
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .trim()
       .min(1, "La saisie est incorrecte."),
     postalCode: z
       .string({
-        required_error: "Ce champs est obligatoire.",
-      })
+          error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    })
       .regex(/^\d{4,10}(-\d{4})?$/, {
-        message: "Le code postal est incorrecte.",
-      }),
-    country: z.string({ required_error: "Ce champs est obligatoire." }),
+          error: "Le code postal est incorrecte."
+    }),
+    country: z.string({
+        error: (issue) => issue.input === undefined ? "Ce champs est obligatoire." : undefined
+    }),
     medicalComment: z
       .string()
       .trim()
-      .max(200, { message: "Le texte est trop long." })
+      .max(200, {
+          error: "Le texte est trop long."
+    })
       .optional(),
   })
   .superRefine((data, ctx) => {
@@ -83,14 +91,14 @@ export const MemberSchema = z
 
     if (age >= 18 && !data.phone && !data.mail) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["phone"],
         message:
           "Le numéro de téléphone est obligatoire pour les personnes de 18 ans et plus.",
       });
 
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         path: ["mail"],
         message:
           "L'email est obligatoire pour les personnes de 18 ans et plus.",

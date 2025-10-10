@@ -15,15 +15,22 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuPortal,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getPhoneData } from "@/components/ui/phone-input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Typography } from "@/components/ui/typography";
+import { handleResult } from "@/lib/utils";
 import { type RouterOutputs } from "@/server/api/root";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Mail, MoreHorizontal, Phone } from "lucide-react";
+import toast from "react-hot-toast";
+import { sendEmail } from "./actions";
 import { MemberCard } from "./member-card";
 import { getCertificatBadge, getPaymentBadge } from "./utils";
 
@@ -123,25 +130,64 @@ export const columns: ColumnDef<
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
               <Dialog>
-                <DialogTrigger className="rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 w-full text-left">
+                <DialogTrigger className="w-full rounded-sm px-2 py-1.5 text-left text-sm outline-none transition-colors hover:bg-accent focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
                   Détails
                 </DialogTrigger>
                 <DialogContent className="max-h-[90vh] max-w-2xl overflow-hidden">
                   <ScrollArea className="max-h-[90vh] max-w-2xl pb-6">
-                  <DialogHeader className="sr-only">
-                    <DialogTitle>Détails de l&apos;adhérent</DialogTitle>
-                    <DialogDescription>
-                      Informations complètes du membre
-                    </DialogDescription>
-                  </DialogHeader>
+                    <DialogHeader className="sr-only">
+                      <DialogTitle>Détails de l&apos;adhérent</DialogTitle>
+                      <DialogDescription>
+                        Informations complètes du membre
+                      </DialogDescription>
+                    </DialogHeader>
                     <MemberCard member={row.original} />
                   </ScrollArea>
                 </DialogContent>
               </Dialog>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {/* <DropdownMenuItem>Cotisation reçu</DropdownMenuItem> */}
-            {/* <DropdownMenuItem>Changement de cours</DropdownMenuItem> */}
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger aria-label="Envoyer un e-mail à un membre">
+                <Mail className="mr-2 h-4 w-4" /> Envoyer un e-mail…
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem
+                    aria-label="Envoyer la confirmation d’inscription"
+                    onSelect={async () => {
+                      const toastId = toast.loading("Envoi en cours...");
+                      const res = await handleResult(
+                        sendEmail({
+                          type: "confirmationRegistration",
+                          memberId: row.original.id,
+                        }),
+                        toastId,
+                      );
+                      if (res) toast.success(res);
+                    }}
+                  >
+                    Envoyer la confirmation d&apos;inscription
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    aria-label="Envoyer l'email de fin de période d’essai"
+                    onSelect={async () => {
+                      const toastId = toast.loading("Envoi en cours...");
+                      const res = await handleResult(
+                        sendEmail({
+                          type: "EndOfTrials",
+                          memberId: row.original.id,
+                        }),
+                        toastId,
+                      );
+                      if (res) toast.success(res);
+                    }}
+                  >
+                    Envoyer la fin de période d&apos;essai
+                  </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
           </DropdownMenuContent>
         </DropdownMenu>
       );

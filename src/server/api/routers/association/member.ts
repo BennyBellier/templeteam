@@ -10,7 +10,7 @@ import z from "zod";
 
 export const MemberRouter = createTRPCRouter({
   isMemberExist: publicProcedure
-    .input(z.object({ memberId: z.string().uuid() }))
+    .input(z.object({ memberId: z.uuidv4() }))
     .query(async ({ ctx, input }) => {
       try {
         const { memberId } = input;
@@ -40,7 +40,7 @@ export const MemberRouter = createTRPCRouter({
       }
     }),
   getContactMail: protectedProcedure
-    .input(z.object({ memberId: z.string().uuid() }))
+    .input(z.object({ memberId: z.uuidv4() }))
     .query(async ({ ctx, input }) => {
       try {
         const { memberId } = input;

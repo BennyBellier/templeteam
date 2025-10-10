@@ -7,7 +7,7 @@ export const seasonSchema = z
   .string()
   .regex(/^\d{4}\/\d{4}$/)
   .optional()
-  .default(env.FILE_SEASON);
+  .prefault(env.FILE_SEASON);
 
 export const isMemberHaveFileSchema = z.object({
   lastname: z.string().trim().toUpperCase(),
@@ -19,7 +19,7 @@ export const isMemberHaveFileSchema = z.object({
     .date()
     .min(new Date(1970, 1, 1))
     .max(new Date()),
-  mail: z.string().trim().email().optional(),
+  mail: z.email().trim().optional(),
   phone: z.string().trim().regex(phoneRegex).optional(),
   season: seasonSchema,
 });
@@ -34,8 +34,8 @@ export const MemberSchema = z.object({
     .date()
     .min(new Date(1970, 1, 1))
     .max(new Date()),
-  gender: z.nativeEnum(Gender),
-  mail: z.string().trim().email().optional(),
+  gender: z.enum(Gender),
+  mail: z.email().trim().optional(),
   phone: z.string().trim().regex(phoneRegex).optional(),
   address: z.string().trim(),
   city: z.string().trim().toUpperCase(),
@@ -53,7 +53,7 @@ export const LegalGuardianSchema = z.object({
     .transform((value) => value[0]?.toUpperCase() + value.slice(1)),
   lastname: z.string().trim().toUpperCase(),
   phone: z.string().trim().regex(phoneRegex, "Numéro de téléphone invalide."),
-  mail: z.string().email("Adresse e-mail invalide.").optional(),
+  mail: z.email("Adresse e-mail invalide.").optional(),
 });
 
 export type LegalGuardianInput = z.infer<typeof LegalGuardianSchema>;

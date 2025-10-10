@@ -9,7 +9,7 @@
 
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
-import { ZodError } from "zod";
+import z, { ZodError } from "zod";
 
 import { getUser } from "@/server/auth-session";
 import { prisma } from "@/server/db";
@@ -52,7 +52,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
       data: {
         ...shape.data,
         zodError:
-          error.cause instanceof ZodError ? error.cause.flatten() : null,
+          error.cause instanceof ZodError ? z.treeifyError(error.cause) : null,
       },
     };
   },
@@ -108,20 +108,37 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
 /**
  * Protected (authenticated) procedure for user with Developer, President or Treasurer role
  */
-export const treasurerProcedure = t.procedure.use(async ({ ctx, next }) => {
-  const canManageTreasury = await auth.api.userHasPermission({
-    body: {
-      userId: ctx.user?.id,
-      permission: {
-        treasury: ["read"]
-      }
+/**
+ * Génère un middleware TRPC qui vérifie les permissions better-auth.
+ * @param domain - le domaine de permission (ex: "treasury", "member", "event"...)
+ * @param actions - les actions à vérifier (ex: ["read"], ["write"], ["manage"])
+ */
+const withPermission = (domain: string, actions: string[]) =>
+  t.procedure.use(async ({ ctx, next }) => {
+    if (!ctx.user?.id) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "User not logged in",
+      });
     }
-  })
-  if (!canManageTreasury) {
-    throw new TRPCError({ code: "UNAUTHORIZED" });
-  }
 
-  return next({
-    ctx,
+    const hasPermission = await auth.api.userHasPermission({
+      body: {
+        userId: ctx.user.id,
+        permission: {
+          [domain]: actions,
+        },
+      },
+    });
+
+    if (!hasPermission) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: `Missing ${domain}:${actions.join(", ")}`,
+      });
+    }
+
+    return next({ ctx });
   });
-});
+export const treasurerReadProcedure = withPermission("treasury", ["read"]);
+export const memberManageProcedure = withPermission("member", ["manage"]);

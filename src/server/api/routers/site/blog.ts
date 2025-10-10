@@ -3,7 +3,7 @@ import { BlogCategory } from "@prisma/client";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
-export const CategoryEnum = z.nativeEnum(BlogCategory);
+export const CategoryEnum = z.enum(BlogCategory);
 export type CategoryEnum = z.infer<typeof CategoryEnum>;
 
 export const blogPostsRouter = createTRPCRouter({
@@ -11,7 +11,7 @@ export const blogPostsRouter = createTRPCRouter({
     .input(
       z.object({
         category: CategoryEnum.optional(),
-        page: z.number().min(0).default(0),
+        page: z.number().min(0).prefault(0),
         cursor: z.string().nullish(),
       }),
     )
