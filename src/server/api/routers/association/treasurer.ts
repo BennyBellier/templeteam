@@ -1,5 +1,10 @@
-import { createTRPCRouter, treasurerReadProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  treasurerManageProcedure,
+  treasurerReadProcedure,
+} from "@/server/api/trpc";
 import logger from "@/server/logger";
+import { PaymentMethod, PaymentStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { contributionCalculation, isNewMember } from "./helpers";
@@ -50,8 +55,8 @@ export const TreasurerRouter = createTRPCRouter({
                 name: `${file.member.firstname} ${file.member.lastname}`,
                 courses: file.courses.map((c) => c.name),
                 paymentStatus: file.paymentStatus,
-                contributionPrice,
-                paymentAmout: file.paymentAmout,
+                subscriptionPrice: contributionPrice,
+                paymentAmount: file.paymentAmount,
                 paymentMethod: file.paymentMethod,
                 paymentDetails: file.paymentDetails,
               };
@@ -59,14 +64,27 @@ export const TreasurerRouter = createTRPCRouter({
           );
 
           const totalSubscription = result.reduce(
-            (sum, s) => sum + s.contributionPrice,
+            (sum, s) => sum + s.subscriptionPrice,
             0,
           );
 
-          return result;
+          const totalPaid = result.reduce((sum, s) => {
+            const val = s.paymentAmount ?? 0;
+            return sum + val;
+          }, 0);
+
+          const totalOverdue = totalSubscription - totalPaid;
+
+          return {
+            totalSubscription,
+            totalPaid,
+            totalOverdue,
+            files: result,
+          };
         });
       } catch (err) {
         logger.error({
+          context: "tRPC",
           router: "Treasurer",
           procedure: "getSubscriptionsForSeason",
           input,
@@ -81,42 +99,86 @@ export const TreasurerRouter = createTRPCRouter({
         });
       }
     }),
-  /* updatePaymentForMember: treasurerManageProcedure
+  updatePaymentForMember: treasurerManageProcedure
     .input(
       z.object({
         fileId: z.uuidv4(),
-        paymentMethod: z.enum(PaymentMethod),
-        paymentDetails: z.string().optional(),
-        payementAmout: z.number(),
+        changes: z.object({
+          paymentAmount: z.number().optional(),
+          paymentStatus: z.enum(PaymentStatus).optional(),
+          paymentMethod: z.enum(PaymentMethod).optional(),
+          paymentDetails: z.string().optional(),
+        }),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       try {
-        logger.info({
-          context: "tRPC",
-          requestPath: "treasurer.updatePaymentForMember",
-          message: `payment informations for file ${input.fileId}.`,
-          data: input,
-        });
+        const { fileId, changes } = input;
 
-        return await ctx.prisma.file.update({
-          where: {
-            id: input.fileId,
-          },
-          data: {
-            paymentMethod: input.paymentMethod,
-            paymentDetails: input.paymentDetails,
-            paymentAmout: input.payementAmout,
-          },
+        return await ctx.prisma.$transaction(async (tx) => {
+          const updatedFile = await tx.file.update({
+            where: {
+              id: fileId,
+            },
+            data: {
+              paymentAmount: changes.paymentAmount,
+              paymentStatus: changes.paymentStatus,
+              paymentMethod: changes.paymentMethod,
+              paymentDetails: changes.paymentDetails,
+            },
+            include: {
+              member: {
+                select: {
+                  firstname: true,
+                  lastname: true,
+                  id: true,
+                },
+              },
+              courses: {
+                select: {
+                  name: true,
+                  price: true,
+                },
+              },
+            },
+          });
+
+          const prices = updatedFile.courses.map((course) => course.price);
+
+          const contributionPrice = (await isNewMember(
+            tx,
+            updatedFile.member.id,
+          ))
+            ? contributionCalculation(prices, 20)
+            : contributionCalculation(prices, 0);
+
+          return {
+            id: updatedFile.id,
+            name: `${updatedFile.member.firstname} ${updatedFile.member.lastname}`,
+            courses: updatedFile.courses.map((c) => c.name),
+            paymentStatus: updatedFile.paymentStatus,
+            subscriptionPrice: contributionPrice,
+            paymentAmount: updatedFile.paymentAmount,
+            paymentMethod: updatedFile.paymentMethod,
+            paymentDetails: updatedFile.paymentDetails,
+          };
         });
-      } catch (e) {
+      } catch (err) {
         logger.error({
           context: "tRPC",
-          requestPath: "association.updatePaymentForMember",
-          message: `Failed when trying update payment informations of fileId: ${input.fileId}.`,
-          data: e,
+          router: "Treasurer",
+          procedure: "getSubscriptionsForSeason",
+          input,
+          message:
+            "Failed when trying update payment informations of fileId: ${input.fileId}.",
+          error: err,
         });
-        throw new Error("Impossible d'ajouter la photo, veuillez réessayer.");
+
+        if (err instanceof TRPCError) throw err;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Erreur lors de la mise à jour des données.",
+        });
       }
-    }), */
+    }),
 });

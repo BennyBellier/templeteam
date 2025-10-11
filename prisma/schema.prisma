@@ -228,7 +228,7 @@ model File {
   paymentMethod      PaymentMethod?
   paymentDetails     String?
   paymentStatus      PaymentStatus  @default(Overdue)
-  paymentAmout       Float?
+  paymentAmount      Float?
   undersigner        String
   signature          String
   medicalCertificate String?

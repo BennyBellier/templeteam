@@ -141,4 +141,6 @@ const withPermission = (domain: string, actions: string[]) =>
     return next({ ctx });
   });
 export const treasurerReadProcedure = withPermission("treasury", ["read"]);
+export const treasurerManageProcedure = withPermission("treasury", ["manage"]);
+
 export const memberManageProcedure = withPermission("member", ["manage"]);

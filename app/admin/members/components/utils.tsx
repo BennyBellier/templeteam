@@ -80,7 +80,7 @@ export function getDetailedPaymentBadge(status: PaymentStatus) {
           className="border-yellow-500/20 bg-yellow-500/10 text-yellow-500"
         >
           <Clock className="mr-1 h-3 w-3" />
-          1/3 encaissé
+          1/2 encaissé
         </Badge>
       );
     case PaymentStatus.InPart66:
@@ -90,7 +90,7 @@ export function getDetailedPaymentBadge(status: PaymentStatus) {
           className="border-lime-500/20 bg-lime-500/10 text-lime-500"
         >
           <Clock className="mr-1 h-3 w-3" />
-          1/3 encaissé
+          2/3 encaissé
         </Badge>
       );
     case PaymentStatus.ToBeCashed:
